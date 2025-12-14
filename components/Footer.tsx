@@ -79,22 +79,22 @@ const Footer: React.FC = () => {
             <ul className="space-y-4">
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-accent" />
-                <span className="dir-ltr">contact@moqabala.com</span>
+                <span className="dir-ltr">moqabala@gmail.com</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-accent" />
-                <span className="dir-ltr">+966 50 000 0000</span>
+                <span className="dir-ltr">0123456789</span>
               </li>
               <li className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-accent" />
-                <span>الرياض، المملكة العربية السعودية</span>
+                <span>الوطن العربي</span>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="text-center text-gray-500 text-sm">
-          &copy; {new Date().getFullYear()} منصة مقابلة. جميع الحقوق محفوظة.
+          &copy; {new Date().getFullYear()} منصة مقابلة. جميع الحقوق محفوظة. ( المنصة تحت التجهيز والإعداد )
         </div>
       </div>
     </footer>

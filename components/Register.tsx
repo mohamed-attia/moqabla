@@ -109,8 +109,7 @@ const Register: React.FC = () => {
       setError("يرجى التأكد من تعبئة جميع الحقول والموافقة على الشروط.");
       return;
     }
-       // Log the form data before submission
-    console.log("Registration Form Data:", formData);
+    
     setLoading(true);
     setError(null);
 
@@ -132,7 +131,7 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 pt-32 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
       <div className="max-w-3xl w-full space-y-8">
         
         {/* Header */}
@@ -229,7 +228,7 @@ const Register: React.FC = () => {
                         className={`block w-full pr-10 py-3 border rounded-lg focus:ring-accent focus:border-accent dir-ltr text-right placeholder:text-right ${
                           formData.whatsapp.length > 0 && !isWhatsappValid(formData.whatsapp) ? 'border-red-300' : 'border-gray-300'
                         }`}
-                        placeholder="+9665XXXXXXXX"
+                        placeholder="+1234567890"
                       />
                     </div>
                     <p className="mt-1 text-xs text-gray-500">سيتم التواصل معك عبر واتساب لتنسيق الموعد</p>
@@ -248,7 +247,7 @@ const Register: React.FC = () => {
                         value={formData.country}
                         onChange={(e) => updateField('country', e.target.value)}
                         className="focus:ring-accent focus:border-accent block w-full pr-10 py-3 border-gray-300 rounded-lg"
-                        placeholder="الرياض، السعودية"
+                        placeholder="اسم الدولة"
                       />
                     </div>
                   </div>

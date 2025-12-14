@@ -31,7 +31,7 @@ const Hero: React.FC = () => {
           </h1>
           
           <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl leading-relaxed">
-            لا تترك وظيفة أحلامك للصدفة. احصل على تجربة محاكاة واقعية مع خبراء التوظيف، واكتشف نقاط قوتك ومجالات التحسين قبل المقابلة الحقيقية.
+            لا تترك وظيفة أحلامك للصدفة. احصل على تجربة محاكاة واقعية مع خبراء تقنيين، واكتشف نقاط قوتك ومجالات التحسين قبل المقابلة الحقيقية.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mb-16">

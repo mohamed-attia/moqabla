@@ -19,7 +19,7 @@ const steps: FeatureItem[] = [
     Icon: CreditCard,
   },
   {
-    title: 'ابدأ التدريب',
+    title: 'ابدأ المقابلة',
     description: 'بعد سداد الرسوم، نجدول مقابلتك فوراً في الوقت الذي يناسب جدولك لتبدأ رحلة التطوير.',
     Icon: CalendarCheck,
   },
