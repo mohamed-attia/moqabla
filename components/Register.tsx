@@ -102,14 +102,15 @@ const Register: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    // Prevent double submission
+    if (loading) return;
+
     if (!isStep3Valid()) {
       setError("يرجى التأكد من تعبئة جميع الحقول والموافقة على الشروط.");
       return;
     }
-    
-    // Log the form data before submission
+       // Log the form data before submission
     console.log("Registration Form Data:", formData);
-
     setLoading(true);
     setError(null);
 
@@ -119,14 +120,12 @@ const Register: React.FC = () => {
         submittedAt: serverTimestamp(),
         status: 'pending'
       });
-      // Show success and redirect (mocked for now)
+      
       alert("تم استلام طلبك بنجاح! سنتواصل معك قريباً.");
       navigate('/');
     } catch (err) {
       console.error("Error submitting form: ", err);
-      // Fallback for demo without real Firebase config
-      alert("تم تسجيل البيانات (وضع المحاكاة). تأكد من إعداد Firebase config.");
-      navigate('/');
+      setError("حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى أو التحقق من الاتصال.");
     } finally {
       setLoading(false);
     }
@@ -284,7 +283,7 @@ const Register: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">المجال التقني <span className="text-red-500">*</span></label>
                 <div className="grid grid-cols-2 gap-3">
-                  {['Frontend', 'Backend', 'Full Stack', 'Mobile App'].map((field) => (
+                  {['Frontend', 'Backend', 'Full Stack', 'Mobile App', 'DevOps', 'Data Science'].map((field) => (
                     <div 
                       key={field}
                       onClick={() => updateField('field', field)}
@@ -473,9 +472,8 @@ const Register: React.FC = () => {
               <Button 
                 variant="primary" 
                 onClick={handleSubmit}
-                className={`flex items-center gap-2 min-w-[140px] justify-center ${
-                   !isStep3Valid() || loading ? 'opacity-70 cursor-not-allowed' : ''
-                }`}
+                disabled={!isStep3Valid() || loading}
+                className={`flex items-center gap-2 min-w-[140px] justify-center`}
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'تأكيد التسجيل'}
               </Button>
