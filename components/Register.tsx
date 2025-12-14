@@ -284,7 +284,7 @@ const Register: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">المجال التقني <span className="text-red-500">*</span></label>
                 <div className="grid grid-cols-2 gap-3">
-                  {['Frontend', 'Backend', 'Full Stack', 'Mobile App', 'DevOps', 'Data Science'].map((field) => (
+                  {['Frontend', 'Backend', 'Full Stack', 'Mobile App'].map((field) => (
                     <div 
                       key={field}
                       onClick={() => updateField('field', field)}
