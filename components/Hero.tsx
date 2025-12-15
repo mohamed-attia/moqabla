@@ -7,7 +7,7 @@ const Hero: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center pt-28 pb-20 md:pt-20 md:pb-32 overflow-hidden bg-gradient-to-br from-secondary via-primary to-slate-800">
+    <section id="home" className="relative min-h-screen flex items-center pt-28 pb-20 md:pt-20 md:pb-32 lg:pt-40 overflow-hidden bg-gradient-to-br from-secondary via-primary to-slate-800">
       {/* Background with overlay */}
       <div className="absolute inset-0 bg-transparent z-0">
          {/* Abstract shapes for visual interest */}
@@ -29,14 +29,14 @@ const Hero: React.FC = () => {
               <span className="text-sm font-semibold text-white">ابدأ مسارك المهني الآن</span>
             </div>
             
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6 animate-in fade-in slide-in-from-bottom-5 delay-100 duration-700">
+            <h1 className="text-4xl md:text-5xl lg:text-5xl xl:text-7xl font-bold text-white leading-tight mb-6 animate-in fade-in slide-in-from-bottom-5 delay-100 duration-700">
               <span className="block mb-2">أتقن مهارات</span>
               <span className="text-transparent bg-clip-text bg-gradient-to-l from-teal-400 to-emerald-400">
                 المقابلة الوظيفية
               </span>
             </h1>
             
-            <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed animate-in fade-in slide-in-from-bottom-6 delay-200 duration-700">
+            <p className="text-lg md:text-xl lg:text-lg xl:text-xl text-gray-300 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed animate-in fade-in slide-in-from-bottom-6 delay-200 duration-700">
               لا تترك وظيفة أحلامك للصدفة. احصل على تجربة محاكاة واقعية مع خبراء تقنيين، واكتشف نقاط قوتك ومجالات التحسين قبل المقابلة الحقيقية.
             </p>
             
@@ -57,8 +57,8 @@ const Hero: React.FC = () => {
 
           {/* Image & Visual Content */}
           <div className="w-full lg:w-1/2 relative mt-8 lg:mt-0">
-            {/* Responsive Container Size - Reduced */}
-            <div className="relative mx-auto max-w-xs lg:max-w-sm">
+            {/* Responsive Container Size - Significantly reduced for laptop (lg) to prevent header overlap */}
+            <div className="relative mx-auto max-w-xs lg:max-w-[18rem] xl:max-w-sm">
               
               {/* Main Image Frame - Interview Success */}
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5 animate-in fade-in zoom-in-95 duration-700 bg-slate-800">
@@ -71,7 +71,7 @@ const Hero: React.FC = () => {
               </div>
 
               {/* Floating Element 1: Feedback Card */}
-              <div className="absolute -bottom-8 -left-8 bg-white rounded-xl shadow-xl p-4 w-64 border border-gray-100 z-20 animate-in slide-in-from-bottom-8 delay-500 duration-700 hidden sm:block">
+              <div className="absolute -bottom-8 -left-8 bg-white rounded-xl shadow-xl p-4 w-56 lg:w-64 border border-gray-100 z-20 animate-in slide-in-from-bottom-8 delay-500 duration-700 hidden sm:block scale-90 lg:scale-[0.85] xl:scale-100 origin-bottom-left">
                 <div className="flex items-center gap-3 border-b border-gray-100 pb-2 mb-2">
                   <div className="bg-accent/10 p-1.5 rounded-lg">
                     <MessageSquare className="w-4 h-4 text-accent" />
@@ -102,7 +102,7 @@ const Hero: React.FC = () => {
               </div>
 
               {/* Floating Element 2: Hired Badge */}
-              <div className="absolute -top-6 -right-6 bg-slate-800/90 backdrop-blur-md rounded-xl shadow-lg p-3 border border-slate-700 z-20 animate-in slide-in-from-top-8 delay-700 duration-700 flex items-center gap-3 transform hover:scale-105 transition-transform">
+              <div className="absolute -top-6 -right-6 bg-slate-800/90 backdrop-blur-md rounded-xl shadow-lg p-3 border border-slate-700 z-20 animate-in slide-in-from-top-8 delay-700 duration-700 flex items-center gap-3 transform hover:scale-105 transition-transform scale-90 lg:scale-[0.85] xl:scale-100 origin-top-right">
                  <div className="bg-green-500 p-2 rounded-lg shadow-lg shadow-green-500/20">
                     <Briefcase className="w-6 h-6 text-white" />
                  </div>
