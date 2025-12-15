@@ -130,6 +130,8 @@ const Register: React.FC = () => {
     }
   };
 
+  const inputClasses = "block w-full border rounded-lg focus:ring-accent focus:border-accent border-gray-300";
+
   return (
     <div className="min-h-screen bg-gray-50 pt-32 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
       <div className="max-w-3xl w-full space-y-8">
@@ -187,7 +189,7 @@ const Register: React.FC = () => {
                       type="text"
                       value={formData.fullName}
                       onChange={(e) => updateField('fullName', e.target.value)}
-                      className="focus:ring-accent focus:border-accent block w-full pr-10 py-3 border-gray-300 rounded-lg"
+                      className={`${inputClasses} pr-10 py-3`}
                       placeholder="مثال: أحمد محمد"
                     />
                   </div>
@@ -204,7 +206,7 @@ const Register: React.FC = () => {
                         type="email"
                         value={formData.email}
                         onChange={(e) => updateField('email', e.target.value)}
-                        className={`block w-full pr-10 py-3 border rounded-lg focus:ring-accent focus:border-accent ${
+                        className={`${inputClasses} pr-10 py-3 ${
                           formData.email.length > 0 && !isEmailValid(formData.email) ? 'border-red-300' : 'border-gray-300'
                         }`}
                         placeholder="email@example.com"
@@ -225,7 +227,7 @@ const Register: React.FC = () => {
                         type="tel"
                         value={formData.whatsapp}
                         onChange={(e) => updateField('whatsapp', e.target.value)}
-                        className={`block w-full pr-10 py-3 border rounded-lg focus:ring-accent focus:border-accent dir-ltr text-right placeholder:text-right ${
+                        className={`${inputClasses} pr-10 py-3 dir-ltr text-right placeholder:text-right ${
                           formData.whatsapp.length > 0 && !isWhatsappValid(formData.whatsapp) ? 'border-red-300' : 'border-gray-300'
                         }`}
                         placeholder="+1234567890"
@@ -246,7 +248,7 @@ const Register: React.FC = () => {
                         type="text"
                         value={formData.country}
                         onChange={(e) => updateField('country', e.target.value)}
-                        className="focus:ring-accent focus:border-accent block w-full pr-10 py-3 border-gray-300 rounded-lg"
+                        className={`${inputClasses} pr-10 py-3`}
                         placeholder="اسم الدولة"
                       />
                     </div>
@@ -261,8 +263,8 @@ const Register: React.FC = () => {
                         type="text"
                         value={formData.linkedin}
                         onChange={(e) => updateField('linkedin', e.target.value)}
-                        className="focus:ring-accent focus:border-accent block w-full pr-10 py-3 border-gray-300 rounded-lg dir-ltr text-left"
-                        placeholder="https://www.linkedin.com/in/..."
+                        className={`${inputClasses} pr-10 py-3 dir-ltr text-left`}
+                        placeholder="https://www.linkedin.com/in/"
                       />
                     </div>
                   </div>
@@ -282,7 +284,7 @@ const Register: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">المجال التقني <span className="text-red-500">*</span></label>
                 <div className="grid grid-cols-2 gap-3">
-                  {['Frontend', 'Backend', 'Full Stack', 'Mobile App', 'DevOps', 'Data Science'].map((field) => (
+                  {['Frontend', 'Backend', 'Full Stack', 'Mobile App', 'UX Design'].map((field) => (
                     <div 
                       key={field}
                       onClick={() => updateField('field', field)}
@@ -309,7 +311,7 @@ const Register: React.FC = () => {
                     value={currentTech}
                     onChange={(e) => setCurrentTech(e.target.value)}
                     onKeyDown={handleTechAdd}
-                    className="focus:ring-accent focus:border-accent block w-full pr-10 py-3 border-gray-300 rounded-lg"
+                    className={`${inputClasses} pr-10 py-3`}
                     placeholder="اكتب واضغط Enter (مثال: React, Node.js)"
                   />
                 </div>
@@ -331,7 +333,7 @@ const Register: React.FC = () => {
                       min="0"
                       value={formData.experience}
                       onChange={(e) => updateField('experience', parseInt(e.target.value))}
-                      className="focus:ring-accent focus:border-accent block w-full py-3 px-4 border-gray-300 rounded-lg text-center"
+                      className={`${inputClasses} py-3 px-4 text-center`}
                     />
                 </div>
                 <div>
@@ -339,7 +341,7 @@ const Register: React.FC = () => {
                    <select
                       value={formData.level}
                       onChange={(e) => updateField('level', e.target.value)}
-                      className="focus:ring-accent focus:border-accent block w-full py-3 px-4 border-gray-300 rounded-lg"
+                      className={`${inputClasses} py-3 px-4`}
                     >
                       <option value="junior">مبتدئ (Junior)</option>
                       <option value="mid">متوسط (Mid-Level)</option>
@@ -384,7 +386,7 @@ const Register: React.FC = () => {
                       <select
                         value={formData.preferredTime}
                         onChange={(e) => updateField('preferredTime', e.target.value)}
-                        className="focus:ring-accent focus:border-accent block w-full py-3 pr-10 border-gray-300 rounded-lg"
+                        className={`${inputClasses} py-3 pr-10`}
                       >
                         <option value="">اختر الوقت...</option>
                         <option value="morning">صباحاً (9ص - 12م)</option>
@@ -398,7 +400,7 @@ const Register: React.FC = () => {
                     <select
                         value={formData.upcomingInterview}
                         onChange={(e) => updateField('upcomingInterview', e.target.value)}
-                        className="focus:ring-accent focus:border-accent block w-full py-3 px-4 border-gray-300 rounded-lg"
+                        className={`${inputClasses} py-3 px-4`}
                       >
                         <option value="no">لا يوجد حالياً</option>
                         <option value="yes">نعم، لدي مقابلة</option>
@@ -408,12 +410,15 @@ const Register: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">توقعاتك من الجلسة <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  توقعاتك من الجلسة <span className="text-red-500">*</span>
+                  <span className="text-xs font-normal text-gray-500 mr-2">(10 أحرف على الأقل)</span>
+                </label>
                 <textarea
                   rows={3}
                   value={formData.expectations}
                   onChange={(e) => updateField('expectations', e.target.value)}
-                  className="focus:ring-accent focus:border-accent block w-full py-3 px-4 border-gray-300 rounded-lg"
+                  className={`${inputClasses} py-3 px-4`}
                   placeholder="أريد التركيز على أسئلة الـ System Design..."
                 />
               </div>

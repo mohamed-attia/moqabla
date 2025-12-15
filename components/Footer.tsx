@@ -25,7 +25,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer id="contact" className="bg-secondary text-gray-300">
+    <footer id="contact" className="bg-secondary text-gray-300 mt-28">
       {/* CTA Section */}
       <div className="container mx-auto px-4 md:px-6 relative">
         <div className="bg-accent rounded-2xl p-8 md:p-12 absolute -top-16 left-4 right-4 md:left-6 md:right-6 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 transform hover:scale-[1.01] transition-transform duration-300">

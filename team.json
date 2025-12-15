@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "name": "سارة أحمد",
+    "role": "Senior Frontend Engineer",
+    "photoUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+    "rating": 5.0,
+    "linkedinUrl": "https://linkedin.com"
+  },
+  {
+    "id": 2,
+    "name": "محمد علي",
+    "role": "Backend Team Lead",
+    "photoUrl": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+    "rating": 4.9,
+    "linkedinUrl": "https://linkedin.com"
+  },
+  {
+    "id": 3,
+    "name": "خالد عمر",
+    "role": "Product Manager",
+    "photoUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+    "rating": 4.8,
+    "linkedinUrl": "https://linkedin.com"
+  },
+  {
+    "id": 4,
+    "name": "لينا خالد",
+    "role": "UX Designer",
+    "photoUrl": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+    "rating": 4.7,
+    "linkedinUrl": "https://linkedin.com"
+  },
+  {
+    "id": 5,
+    "name": "أحمد حسن",
+    "role": "DevOps Engineer",
+    "photoUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+    "rating": 4.9,
+    "linkedinUrl": "https://linkedin.com"
+  },
+  {
+    "id": 6,
+    "name": "نورة فهد",
+    "role": "Mobile Developer",
+    "photoUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+    "rating": 4.8,
+    "linkedinUrl": "https://linkedin.com"
+  },
+  {
+    "id": 7,
+    "name": "عمر يوسف",
+    "role": "Data Scientist",
+    "photoUrl": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+    "rating": 5.0,
+    "linkedinUrl": "https://linkedin.com"
+  },
+  {
+    "id": 8,
+    "name": "ريما عبدالله",
+    "role": "QA Engineer",
+    "photoUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+    "rating": 4.6,
+    "linkedinUrl": "https://linkedin.com"
+  }
+]

@@ -3,6 +3,7 @@ import { LucideIcon } from 'lucide-react';
 export interface NavItem {
   id: string;
   label: string;
+  isPage?: boolean; // New property to distinguish internal links from pages
 }
 
 export interface FeatureItem {
@@ -15,6 +16,15 @@ export interface VisionItem {
   title: string;
   description: string;
   Icon: LucideIcon;
+}
+
+export interface TeamMember {
+  id: number;
+  name: string;
+  role: string;
+  photoUrl: string;
+  rating: number;
+  linkedinUrl?: string;
 }
 
 export interface RegistrationFormData {
