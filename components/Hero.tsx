@@ -64,7 +64,7 @@ const Hero: React.FC = () => {
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5 animate-in fade-in zoom-in-95 duration-700 bg-slate-800">
                 <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent z-10 pointer-events-none"></div>
                 <img 
-                  src="./assets/istockphoto-1358724438-612x612.jpg" 
+                  src="/moqabala/istockphoto-1358724438-612x612.jpg" 
                   alt="Professional Interview Success" 
                   className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
                 />
