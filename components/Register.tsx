@@ -263,7 +263,7 @@ const Register: React.FC = () => {
                         type="text"
                         value={formData.linkedin}
                         onChange={(e) => updateField('linkedin', e.target.value)}
-                        className={`${inputClasses} pr-10 py-3 dir-ltr text-left`}
+                        className={`${inputClasses} pr-10 py-3`}
                         placeholder="https://www.linkedin.com/in/"
                       />
                     </div>

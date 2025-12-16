@@ -62,6 +62,7 @@ const Footer: React.FC = () => {
               <li><button onClick={() => handleNavigation('about')} className="hover:text-accent transition-colors text-right">عن الخدمة</button></li>
               <li><button onClick={() => handleNavigation('how-it-works')} className="hover:text-accent transition-colors text-right">خطوات التسجيل</button></li>
               <li><button onClick={() => handleNavigation('vision')} className="hover:text-accent transition-colors text-right">رؤيتنا</button></li>
+              {/* <li><Link to="/registrations" className="hover:text-accent transition-colors">لوحة التحكم</Link></li> */}
             </ul>
           </div>
 

@@ -25,6 +25,7 @@ export interface TeamMember {
   photoUrl: string;
   rating: number;
   linkedinUrl?: string;
+  category: 'FE' | 'BE' | 'UX' | 'MOBILE' | 'PM' | 'QA' | 'DATA' | 'DEVOPS';
 }
 
 export interface RegistrationFormData {
