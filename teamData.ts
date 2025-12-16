@@ -10,6 +10,15 @@ export const teamMembers: TeamMember[] = [
     "linkedinUrl": "https://www.linkedin.com/in/amr-a-rashed/",
     "category": "BE"
   },
+  //   {
+  //   "id": 1,
+  //   "name": "Hasan Gad",
+  //   "role": "Founder @ Figmawya",
+  //   "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQFNmi-sU1_Xuw/profile-displayphoto-scale_200_200/B4DZjAmNHDH4Ak-/0/1755577897959?e=1767225600&v=beta&t=75HFZv53xFhzuuK-Dn6rFU7gAPifkbOhpbqz7mphJzQ",
+  //   "rating": 5.0,
+  //   "linkedinUrl": "https://www.linkedin.com/in/hasangadux/",
+  //   "category": "UX"
+  // },
   {
     "id": 2,
     "name": "Sanaa Afifi",
@@ -63,5 +72,32 @@ export const teamMembers: TeamMember[] = [
     "rating": 5.0,
     "linkedinUrl": "https://www.linkedin.com/in/ihendi/",
     "category": "MOBILE"
+  },
+    {
+    "id": 9,
+    "name": "Mahmoud Reda",
+    "role": "Product Designer | Designing the Future with User-Centric Creativity",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQFgwgPAzZa2lA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1673957302151?e=1767225600&v=beta&t=XhtI5hfLw68uPjUZgVeZLBbrHff1HN7t1Mg_0FGclXQ",
+    "rating": 5.0,
+    "linkedinUrl": "https://www.linkedin.com/in/mahmoudreda90/",
+    "category": "UX"
+  },
+    {
+    "id": 10,
+    "name": "Aly Hamalawey",
+    "role": "Senior Android Engineer at D360 || EX-STC Bank, EX-Yassir, EX-SWVL",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQHWRqMWb9U2sg/profile-displayphoto-scale_200_200/B4DZlOXG40H0AY-/0/1757956307313?e=1767225600&v=beta&t=W6aq4qsAMN1JBzB-vreuIuh7oi3LFrXqnbO7pdueXyQ",
+    "rating": 5.0,
+    "linkedinUrl": "https://www.linkedin.com/in/aly-hamalawey/",
+    "category": "MOBILE"
+  },
+  {
+    "id": 11,
+    "name": "Abdelrahman Haridy",
+    "role": "Software Developer, Angular, ReactJs, Wordpress, Instructor",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/D4D35AQHUJET2VdlU3g/profile-framedphoto-shrink_400_400/B4DZiP.3f_GQAg-/0/1754762279219?e=1766502000&v=beta&t=8Rmt7B0wSMNJ2NkuaPcsx8SceTndKNksNu6rKud4Gog",
+    "rating": 5.0,
+    "linkedinUrl": "https://www.linkedin.com/in/aly-hamalawey/",
+    "category": "FE"
   }
 ];
