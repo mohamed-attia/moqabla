@@ -14,6 +14,7 @@ const Register: React.FC = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   
   // Form State
   const [formData, setFormData] = useState<RegistrationFormData>({
@@ -120,8 +121,8 @@ const Register: React.FC = () => {
         status: 'pending'
       });
       
-      alert("تم استلام طلبك بنجاح! سنتواصل معك قريباً.");
-      navigate('/');
+      // Show success modal instead of alert
+      setShowSuccessModal(true);
     } catch (err) {
       console.error("Error submitting form: ", err);
       setError("حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى أو التحقق من الاتصال.");
@@ -466,8 +467,6 @@ const Register: React.FC = () => {
                   ? 'opacity-50 cursor-not-allowed' 
                   : ''
                 }`}
-                // Using onClick in wrapper but logic inside disabled would be cleaner if button supported it directly
-                // Here we prevent action via handleNextStep logic too
               >
                 التالي
                 <ChevronLeft className="w-4 h-4" />
@@ -496,8 +495,34 @@ const Register: React.FC = () => {
         <p className="text-center text-sm text-gray-400 mt-4">
           بياناتك محفوظة بشكل آمن ولن يتم مشاركتها مع أي طرف ثالث.
         </p>
-
       </div>
+
+      {/* Success Modal Overlay */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+           <div className="bg-white rounded-3xl p-8 md:p-10 max-w-md w-full text-center shadow-2xl transform scale-100 animate-in zoom-in-95 duration-300 relative overflow-hidden">
+              {/* Decorative background element */}
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-accent to-emerald-400"></div>
+              
+              <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <CheckCircle className="w-12 h-12 text-green-500" />
+              </div>
+              
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">مرحباً بك في منصة مقابلة</h3>
+              
+              <p className="text-gray-600 text-lg mb-8 leading-relaxed">
+                تم استلام طلبك بنجاح! <br/> سنتواصل معك قريباً.
+              </p>
+              
+              <Button 
+                onClick={() => navigate('/')} 
+                className="w-full py-4 text-lg shadow-xl shadow-accent/20"
+              >
+                العودة للرئيسية
+              </Button>
+           </div>
+        </div>
+      )}
     </div>
   );
 };

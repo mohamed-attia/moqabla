@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, query } from 'firebase/firestore';
+import { collection, getDocs, query, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { RegistrationFormData } from '../types';
-import { Loader2, AlertCircle, FileText, Calendar, User, Code, Briefcase, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, AlertCircle, FileText, Calendar, User, Code, Briefcase, Search, ChevronLeft, ChevronRight, Edit2, X, Check, MoreHorizontal } from 'lucide-react';
+import Button from './Button';
 
 interface RegistrationWithId extends RegistrationFormData {
   id: string;
@@ -17,6 +18,11 @@ const RegistrationsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Edit/Update State
+  const [editingRegistration, setEditingRegistration] = useState<RegistrationWithId | null>(null);
+  const [statusToUpdate, setStatusToUpdate] = useState<string>('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,6 +62,44 @@ const RegistrationsList: React.FC = () => {
     fetchData();
   }, []);
 
+  const handleEditClick = (reg: RegistrationWithId) => {
+    setEditingRegistration(reg);
+    setStatusToUpdate(reg.status || 'pending');
+  };
+
+  const handleCloseModal = () => {
+    setEditingRegistration(null);
+    setIsUpdating(false);
+  };
+
+  const handleSaveStatus = async () => {
+    if (!editingRegistration) return;
+
+    setIsUpdating(true);
+    try {
+      const regRef = doc(db, "registrations", editingRegistration.id);
+      
+      // Update Firestore
+      await updateDoc(regRef, {
+        status: statusToUpdate
+      });
+
+      // Optimistic Update Local State
+      setAllRegistrations(prev => prev.map(item => 
+        item.id === editingRegistration.id 
+          ? { ...item, status: statusToUpdate as any } 
+          : item
+      ));
+
+      handleCloseModal();
+    } catch (err) {
+      console.error("Error updating status:", err);
+      alert("حدث خطأ أثناء تحديث الحالة. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const formatDate = (timestamp: any) => {
     if (!timestamp) return '-';
     if (timestamp.seconds) {
@@ -65,6 +109,22 @@ const RegistrationsList: React.FC = () => {
       return timestamp.toDate().toLocaleDateString('ar-EG');
     }
     return new Date(timestamp).toLocaleDateString('ar-EG');
+  };
+
+  // Status Badge Helper
+  const getStatusBadge = (status?: string) => {
+    switch (status) {
+      case 'completed': // Done
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">مكتمل</span>;
+      case 'approved': 
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">مقبول</span>;
+      case 'canceled': 
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">ملغي</span>;
+      case 'reviewing': // Under Review
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">قيد المراجعة</span>;
+      default: // Pending
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">قيد الانتظار</span>;
+    }
   };
 
   // Filter Logic
@@ -92,7 +152,7 @@ const RegistrationsList: React.FC = () => {
   };
 
   return (
-    <div className="pt-24 pb-16 min-h-screen bg-gray-50">
+    <div className="pt-24 pb-16 min-h-screen bg-gray-50 relative">
       <div className="container mx-auto px-4 md:px-6">
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -136,7 +196,7 @@ const RegistrationsList: React.FC = () => {
           </div>
         ) : (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto min-h-[400px]">
               <table className="w-full whitespace-nowrap text-right">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
@@ -146,6 +206,7 @@ const RegistrationsList: React.FC = () => {
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">الخبرة</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">تاريخ الطلب</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">الحالة</th>
+                    <th className="px-6 py-4 text-sm font-bold text-gray-700 text-center">إجراءات</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -197,20 +258,22 @@ const RegistrationsList: React.FC = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            reg.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            reg.status === 'approved' ? 'bg-blue-100 text-blue-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {reg.status === 'completed' ? 'مكتمل' :
-                             reg.status === 'approved' ? 'مقبول' : 'قيد الانتظار'}
-                          </span>
+                          {getStatusBadge(reg.status)}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <button 
+                            onClick={() => handleEditClick(reg)}
+                            className="p-2 text-gray-400 hover:text-accent hover:bg-accent/10 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent"
+                            title="تعديل الحالة"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                      <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
                         {searchTerm ? 'لا توجد نتائج تطابق بحثك.' : 'لا توجد طلبات تسجيل حتى الآن.'}
                       </td>
                     </tr>
@@ -221,7 +284,7 @@ const RegistrationsList: React.FC = () => {
 
             {/* Pagination Controls */}
             {filteredRegistrations.length > 0 && (
-              <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50 gap-4">
+              <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50 gap-4 mt-auto">
                 <div className="text-sm text-gray-600">
                   عرض <span className="font-medium text-gray-900">{Math.min(filteredRegistrations.length, startIndex + 1)}</span> إلى <span className="font-medium text-gray-900">{Math.min(startIndex + itemsPerPage, filteredRegistrations.length)}</span> من أصل <span className="font-medium text-gray-900">{filteredRegistrations.length}</span> نتيجة
                 </div>
@@ -254,6 +317,88 @@ const RegistrationsList: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Edit Status Modal */}
+      {editingRegistration && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-800">تحديث حالة الطلب</h3>
+              <button onClick={handleCloseModal} className="text-gray-400 hover:text-red-500 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Body */}
+            <div className="p-6">
+              <div className="mb-4">
+                <p className="text-sm text-gray-500 mb-1">صاحب الطلب</p>
+                <p className="font-bold text-gray-900 text-lg">{editingRegistration.fullName}</p>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">اختر الحالة الجديدة</label>
+                <div className="space-y-2">
+                  {[
+                    { val: 'pending', label: 'قيد الانتظار', color: 'bg-yellow-50 text-yellow-800 border-yellow-200 hover:bg-yellow-100' },
+                    { val: 'reviewing', label: 'قيد المراجعة (Under Review)', color: 'bg-purple-50 text-purple-800 border-purple-200 hover:bg-purple-100' },
+                    { val: 'approved', label: 'مقبول (Approved)', color: 'bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100' },
+                    { val: 'completed', label: 'مكتمل (Done)', color: 'bg-green-50 text-green-800 border-green-200 hover:bg-green-100' },
+                    { val: 'canceled', label: 'ملغي (Canceled)', color: 'bg-red-50 text-red-800 border-red-200 hover:bg-red-100' },
+                  ].map((option) => (
+                    <label 
+                      key={option.val}
+                      className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
+                        statusToUpdate === option.val 
+                          ? `${option.color} ring-1 ring-current` 
+                          : 'border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <input 
+                          type="radio" 
+                          name="status" 
+                          value={option.val}
+                          checked={statusToUpdate === option.val}
+                          onChange={(e) => setStatusToUpdate(e.target.value)}
+                          className="text-accent focus:ring-accent"
+                        />
+                        <span className="font-medium">{option.label}</span>
+                      </div>
+                      {statusToUpdate === option.val && <Check className="w-4 h-4" />}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3">
+                <Button 
+                  onClick={handleSaveStatus} 
+                  disabled={isUpdating}
+                  className="flex-1 justify-center"
+                >
+                  {isUpdating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                      جاري الحفظ...
+                    </>
+                  ) : 'حفظ التغييرات'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={handleCloseModal}
+                  disabled={isUpdating}
+                  className="flex-none"
+                >
+                  إلغاء
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

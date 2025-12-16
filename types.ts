@@ -51,5 +51,5 @@ export interface RegistrationFormData {
   termsAccepted: boolean;
   
   submittedAt?: any; // Timestamp
-  status?: 'pending' | 'approved' | 'completed';
+  status?: 'pending' | 'approved' | 'completed' | 'canceled' | 'reviewing';
 }

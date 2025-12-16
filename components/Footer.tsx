@@ -62,7 +62,7 @@ const Footer: React.FC = () => {
               <li><button onClick={() => handleNavigation('about')} className="hover:text-accent transition-colors text-right">عن الخدمة</button></li>
               <li><button onClick={() => handleNavigation('how-it-works')} className="hover:text-accent transition-colors text-right">خطوات التسجيل</button></li>
               <li><button onClick={() => handleNavigation('vision')} className="hover:text-accent transition-colors text-right">رؤيتنا</button></li>
-              {/* <li><Link to="/registrations" className="hover:text-accent transition-colors">لوحة التحكم</Link></li> */}
+              <li><Link to="/registrations" className="hover:text-accent transition-colors">لوحة التحكم</Link></li>
             </ul>
           </div>
 
@@ -80,7 +80,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-4">
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-accent" />
-                <span className="dir-ltr">moqabala@gmail.com</span>
+                <span className="dir-ltr">contact@moqabala.info</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-accent" />
