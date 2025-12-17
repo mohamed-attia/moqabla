@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import * as firebaseAuth from 'firebase/auth';
 import { Users, FileText, LayoutDashboard, LogOut } from 'lucide-react';
 import UsersTab from './UsersTab';
 import MeetingRequests from '../MeetingRequests';
@@ -13,7 +13,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = firebaseAuth.onAuthStateChanged(auth, (user) => {
       if (user && user.email === 'dev.mohattia@gmail.com') {
         setIsAdmin(true);
       } else {

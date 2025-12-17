@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth, googleProvider, db } from '../lib/firebase';
-import { createUserWithEmailAndPassword, signInWithPopup, updateProfile } from 'firebase/auth';
+import * as firebaseAuth from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Mail, Lock, User, AlertCircle, Loader2 } from 'lucide-react';
 import Button from './Button';
@@ -29,10 +29,10 @@ const Signup: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await firebaseAuth.createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       
-      await updateProfile(user, { displayName: name });
+      await firebaseAuth.updateProfile(user, { displayName: name });
       await saveUserToFirestore(user, name);
       
       navigate('/');
@@ -52,7 +52,7 @@ const Signup: React.FC = () => {
 
   const handleGoogleSignup = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      const result = await firebaseAuth.signInWithPopup(auth, googleProvider);
       const user = result.user;
       // Google user already has a display name usually
       await saveUserToFirestore(user, user.displayName || 'Unknown');

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Check, ShieldCheck, Zap, Gift, Sparkles, Users } from 'lucide-react';
 import Button from './Button';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { auth, db } from '../lib/firebase';
+import * as firebaseAuth from 'firebase/auth';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 const pricingPlans = [
   {
@@ -79,16 +80,37 @@ const pricingPlans = [
 const Pricing: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [hasActiveRequest, setHasActiveRequest] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = firebaseAuth.onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        try {
+          const q = query(
+            collection(db, "registrations"), 
+            where("userId", "==", currentUser.uid)
+          );
+          const snapshot = await getDocs(q);
+          const hasActive = snapshot.docs.some(doc => {
+            const data = doc.data();
+            const status = data.status || 'pending';
+            return ['pending', 'reviewing'].includes(status);
+          });
+          setHasActiveRequest(hasActive);
+        } catch (error) {
+          console.error("Error checking active requests", error);
+        }
+      } else {
+        setHasActiveRequest(false);
+      }
     });
     return () => unsubscribe();
   }, []);
 
   const handleBookingAction = () => {
     if (user) {
+      if (hasActiveRequest) return;
       navigate('/request-meeting');
     } else {
       navigate('/login');
@@ -191,16 +213,18 @@ const Pricing: React.FC = () => {
               </ul>
 
               {/* CTA Button */}
-              <Button 
-                onClick={handleBookingAction}
-                className={`w-full justify-center ${
-                  plan.id === 'referral' 
-                    ? 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-500' 
-                    : plan.popular ? 'bg-accent hover:bg-accentHover' : 'bg-gray-900 hover:bg-gray-800'
-                }`}
-              >
-                {plan.id === 'referral' ? 'ابدأ التحدي' : 'احجز موعدك'}
-              </Button>
+              {!hasActiveRequest && (
+                <Button 
+                  onClick={handleBookingAction}
+                  className={`w-full justify-center ${
+                    plan.id === 'referral' 
+                      ? 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-500' 
+                      : plan.popular ? 'bg-accent hover:bg-accentHover' : 'bg-gray-900 hover:bg-gray-800'
+                  }`}
+                >
+                  {plan.id === 'referral' ? 'ابدأ التحدي' : 'احجز موعدك'}
+                </Button>
+              )}
             </div>
           ))}
         </div>

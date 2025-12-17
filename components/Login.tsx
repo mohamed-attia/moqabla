@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth, googleProvider } from '../lib/firebase';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import * as firebaseAuth from 'firebase/auth';
 import { Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 import Button from './Button';
 
@@ -17,7 +17,7 @@ const Login: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await firebaseAuth.signInWithEmailAndPassword(auth, email, password);
       navigate('/');
     } catch (err: any) {
       console.error(err);
@@ -29,7 +29,7 @@ const Login: React.FC = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
+      await firebaseAuth.signInWithPopup(auth, googleProvider);
       navigate('/');
     } catch (err: any) {
       console.error(err);
@@ -120,7 +120,7 @@ const Login: React.FC = () => {
 
         <p className="mt-8 text-center text-sm text-gray-600">
           ليس لديك حساب؟{' '}
-          <Link to="/signup" className="font-medium text-accent hover:text-accentHover">
+          <Link to="/login" className="font-medium text-accent hover:text-accentHover">
             سجل الآن
           </Link>
         </p>

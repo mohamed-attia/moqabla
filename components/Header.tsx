@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Briefcase, LogIn, User as UserIcon, ChevronDown, LogOut, FileText, LayoutDashboard, CheckCircle } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
-import { onAuthStateChanged, signOut, User } from 'firebase/auth';
+import * as firebaseAuth from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import Button from './Button';
 import { NavItem } from '../types';
@@ -20,7 +20,7 @@ const navItems: NavItem[] = [
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<firebaseAuth.User | null>(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
@@ -39,7 +39,7 @@ const Header: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     
     // Auth Listener
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = firebaseAuth.onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         // Check Admin
@@ -49,11 +49,15 @@ const Header: React.FC = () => {
         try {
           const q = query(
             collection(db, "registrations"), 
-            where("userId", "==", currentUser.uid),
-            where("status", "in", ["pending", "reviewing"])
+            where("userId", "==", currentUser.uid)
           );
           const snapshot = await getDocs(q);
-          setHasActiveRequest(!snapshot.empty);
+          const hasActive = snapshot.docs.some(doc => {
+            const data = doc.data();
+            const status = data.status || 'pending';
+            return ['pending', 'reviewing'].includes(status);
+          });
+          setHasActiveRequest(hasActive);
         } catch (error) {
           console.error("Error checking active requests", error);
         }
@@ -121,8 +125,7 @@ const Header: React.FC = () => {
     if (!user) {
       navigate('/login');
     } else if (hasActiveRequest) {
-      // Do nothing or optionally show a message (button should be hidden/disabled though)
-      // navigate('/my-requests'); 
+      // Do nothing
     } else {
       navigate('/request-meeting');
     }
@@ -135,7 +138,7 @@ const Header: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await firebaseAuth.signOut(auth);
       setProfileMenuOpen(false);
       setShowLogoutToast(true);
       navigate('/');

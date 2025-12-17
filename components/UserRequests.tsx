@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import * as firebaseAuth from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Calendar, FileText, Code, Clock, Briefcase } from 'lucide-react';
 import Button from './Button';
@@ -23,7 +23,7 @@ const UserRequests: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = firebaseAuth.onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
           const q = query(collection(db, "registrations"), where("userId", "==", user.uid));
@@ -89,6 +89,13 @@ const UserRequests: React.FC = () => {
     );
   };
 
+  // Determine if there is an active request (Pending or Reviewing)
+  // Also handle undefined status as pending
+  const hasActiveRequest = requests.some(req => {
+     const status = req.status || 'pending';
+     return ['pending', 'reviewing'].includes(status);
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen pt-32 pb-12 flex flex-col items-center justify-center bg-gray-50">
@@ -106,9 +113,11 @@ const UserRequests: React.FC = () => {
             <h1 className="text-3xl font-bold text-primary mb-2">طلباتي</h1>
             <p className="text-gray-500">تتبع حالة طلبات المقابلة الخاصة بك</p>
           </div>
-          <Button onClick={() => navigate('/request-meeting')}>
-            طلب جديد +
-          </Button>
+          {!hasActiveRequest && (
+            <Button onClick={() => navigate('/request-meeting')}>
+              طلب جديد +
+            </Button>
+          )}
         </div>
 
         {requests.length === 0 ? (

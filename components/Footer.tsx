@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Phone, MapPin, Linkedin, Twitter, Instagram } from 'lucide-react';
 import Button from './Button';
 import { auth, db } from '../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import * as firebaseAuth from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
 const Footer: React.FC = () => {
@@ -14,17 +14,21 @@ const Footer: React.FC = () => {
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = firebaseAuth.onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         try {
           const q = query(
             collection(db, "registrations"), 
-            where("userId", "==", currentUser.uid),
-            where("status", "in", ["pending", "reviewing"])
+            where("userId", "==", currentUser.uid)
           );
           const snapshot = await getDocs(q);
-          setHasActiveRequest(!snapshot.empty);
+          const hasActive = snapshot.docs.some(doc => {
+            const data = doc.data();
+            const status = data.status || 'pending';
+            return ['pending', 'reviewing'].includes(status);
+          });
+          setHasActiveRequest(hasActive);
         } catch (error) {
           console.error("Error checking active requests", error);
         }

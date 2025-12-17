@@ -8,7 +8,7 @@ import Button from './Button';
 import { RegistrationFormData } from '../types';
 import { db, auth } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
+import * as firebaseAuth from 'firebase/auth';
 
 const CreateMeetingRequest: React.FC = () => {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ const CreateMeetingRequest: React.FC = () => {
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = firebaseAuth.onAuthStateChanged(auth, (user) => {
       if (user) {
         setCurrentUser(user);
         // Pre-fill email if available
@@ -528,7 +528,7 @@ const CreateMeetingRequest: React.FC = () => {
       {/* Success Modal Overlay */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-           <div className="bg-white rounded-3xl p-8 md:p-10 max-w-md w-full text-center shadow-2xl transform scale-100 animate-in zoom-in-95 duration-300 relative overflow-hidden">
+           <div className="bg-white rounded-3xl p-8 md:p-10 max-w-md w-full text-center shadow-2xl transform scale-105 animate-in zoom-in-95 duration-300 relative overflow-hidden">
               {/* Decorative background element */}
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-accent to-emerald-400"></div>
               

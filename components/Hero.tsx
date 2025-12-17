@@ -2,22 +2,46 @@ import React, { useState, useEffect } from 'react';
 import Button from './Button';
 import { ArrowLeft, MessageSquare, Briefcase } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { auth, db } from '../lib/firebase';
+import * as firebaseAuth from 'firebase/auth';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 const Hero: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [hasActiveRequest, setHasActiveRequest] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = firebaseAuth.onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        try {
+          // Fetch all requests for user and filter client-side to handle missing 'status' field and avoid composite index requirement
+          const q = query(
+            collection(db, "registrations"), 
+            where("userId", "==", currentUser.uid)
+          );
+          const snapshot = await getDocs(q);
+          // Check if any request is pending or reviewing (or undefined status which implies pending)
+          const hasActive = snapshot.docs.some(doc => {
+            const data = doc.data();
+            const status = data.status || 'pending';
+            return ['pending', 'reviewing'].includes(status);
+          });
+          setHasActiveRequest(hasActive);
+        } catch (error) {
+          console.error("Error checking active requests", error);
+        }
+      } else {
+        setHasActiveRequest(false);
+      }
     });
     return () => unsubscribe();
   }, []);
 
   const handleBookingAction = () => {
     if (user) {
+      if (hasActiveRequest) return;
       navigate('/request-meeting');
     } else {
       navigate('/login');
@@ -59,9 +83,11 @@ const Hero: React.FC = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-7 delay-300 duration-700">
-              <Button variant="primary" onClick={handleBookingAction}>
-                احجز موعد الآن
-              </Button>
+              {!hasActiveRequest && (
+                <Button variant="primary" onClick={handleBookingAction}>
+                  احجز موعد الآن
+                </Button>
+              )}
               <Button 
                 variant="outline" 
                 className="text-white border-white hover:bg-white hover:!text-slate-900" 
