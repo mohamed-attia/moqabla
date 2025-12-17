@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { RegistrationFormData } from '../types';
-import { Loader2, AlertCircle, FileText, Calendar, User, Code, Briefcase, Search, ChevronLeft, ChevronRight, Edit2, X, Check } from 'lucide-react';
+import { Loader2, AlertCircle, FileText, Calendar, User, Code, Briefcase, Search, ChevronLeft, ChevronRight, Edit2, X, Check, Filter } from 'lucide-react';
 import Button from './Button';
 
 interface RegistrationWithId extends RegistrationFormData {
@@ -16,6 +16,7 @@ const MeetingRequests: React.FC = () => {
 
   // Filter & Pagination State
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -130,7 +131,9 @@ const MeetingRequests: React.FC = () => {
   // Filter Logic
   const filteredRegistrations = allRegistrations.filter(reg => {
     const term = searchTerm.toLowerCase().trim();
-    if (!term) return true;
+    const statusMatch = statusFilter === 'ALL' || reg.status === statusFilter || (!reg.status && statusFilter === 'pending');
+    
+    if (!term && statusMatch) return true;
     
     // Check email and whatsapp
     const emailMatch = reg.email?.toLowerCase().includes(term) || false;
@@ -138,7 +141,7 @@ const MeetingRequests: React.FC = () => {
     // Also include name for better UX
     const nameMatch = reg.fullName?.toLowerCase().includes(term) || false;
 
-    return emailMatch || phoneMatch || nameMatch;
+    return (emailMatch || phoneMatch || nameMatch) && statusMatch;
   });
 
   // Pagination Logic
@@ -149,6 +152,11 @@ const MeetingRequests: React.FC = () => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1); // Reset to first page
+  };
+
+  const handleStatusFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setStatusFilter(e.target.value);
+    setCurrentPage(1);
   };
 
   return (
@@ -165,18 +173,43 @@ const MeetingRequests: React.FC = () => {
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative max-w-md">
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+          {/* Filters Bar */}
+          <div className="flex flex-col md:flex-row gap-4">
+            {/* Search Bar */}
+            <div className="relative flex-grow max-w-md">
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent bg-white shadow-sm"
+                placeholder="بحث برقم الهاتف أو البريد..."
+              />
             </div>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent bg-white shadow-sm"
-              placeholder="بحث برقم الهاتف أو البريد الإلكتروني..."
-            />
+
+            {/* Status Filter */}
+            <div className="relative w-full md:w-56">
+               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <Filter className="h-5 w-5 text-gray-400" />
+              </div>
+              <select
+                value={statusFilter}
+                onChange={handleStatusFilterChange}
+                className="block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent bg-white shadow-sm appearance-none"
+              >
+                <option value="ALL">كل الحالات</option>
+                <option value="pending">قيد الانتظار</option>
+                <option value="reviewing">قيد المراجعة</option>
+                <option value="approved">مقبول</option>
+                <option value="completed">مكتمل</option>
+                <option value="canceled">ملغي</option>
+              </select>
+               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <ChevronLeft className="h-4 w-4 text-gray-400 rotate-[-90deg]" />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -274,7 +307,7 @@ const MeetingRequests: React.FC = () => {
                   ) : (
                     <tr>
                       <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                        {searchTerm ? 'لا توجد نتائج تطابق بحثك.' : 'لا توجد طلبات تسجيل حتى الآن.'}
+                        {searchTerm || statusFilter !== 'ALL' ? 'لا توجد نتائج تطابق بحثك.' : 'لا توجد طلبات تسجيل حتى الآن.'}
                       </td>
                     </tr>
                   )}
