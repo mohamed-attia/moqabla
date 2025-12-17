@@ -1,10 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from './Button';
-import { ArrowLeft, CheckCircle, Star, TrendingUp, MessageSquare, Briefcase } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Briefcase } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const Hero: React.FC = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleBookingAction = () => {
+    if (user) {
+      navigate('/request-meeting');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
     <section id="home" className="relative min-h-screen flex items-center pt-28 pb-20 md:pt-20 md:pb-32 lg:pt-40 overflow-hidden bg-gradient-to-br from-secondary via-primary to-slate-800">
@@ -41,7 +59,7 @@ const Hero: React.FC = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-7 delay-300 duration-700">
-              <Button variant="primary" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}>
+              <Button variant="primary" onClick={handleBookingAction}>
                 احجز موعد الآن
               </Button>
               <Button 
@@ -64,7 +82,7 @@ const Hero: React.FC = () => {
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5 animate-in fade-in zoom-in-95 duration-700 bg-slate-800">
                 <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent z-10 pointer-events-none"></div>
                 <img 
-                  src="./istockphoto-1358724438-612x612.jpg" 
+                  src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" 
                   alt="Professional Interview Success" 
                   className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
                 />
