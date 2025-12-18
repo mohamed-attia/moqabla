@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { RegistrationFormData } from '../types';
-import { Loader2, AlertCircle, FileText, Calendar, User, Code, Briefcase, Search, ChevronLeft, ChevronRight, Edit2, X, Check, Filter } from 'lucide-react';
+import { Loader2, AlertCircle, FileText, Calendar, User, Code, Briefcase, Search, ChevronLeft, ChevronRight, Edit2, X, Check, Filter, ExternalLink } from 'lucide-react';
 import Button from './Button';
 
 interface RegistrationWithId extends RegistrationFormData {
@@ -28,7 +28,6 @@ const MeetingRequests: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch all documents without server-side ordering to avoid index requirements
         const q = query(collection(db, "registrations"));
         const querySnapshot = await getDocs(q);
         
@@ -41,7 +40,6 @@ const MeetingRequests: React.FC = () => {
           } as RegistrationWithId);
         });
         
-        // Sort client-side (Newest first)
         results.sort((a, b) => {
           const timeA = a.submittedAt?.seconds || 0;
           const timeB = b.submittedAt?.seconds || 0;
@@ -51,10 +49,7 @@ const MeetingRequests: React.FC = () => {
         setAllRegistrations(results);
       } catch (err: any) {
         console.error("Error fetching registrations:", err);
-        const errorMessage = err.message && err.message.includes("permission") 
-          ? "غير مصرح لك بالوصول للبيانات (تأكد من إعدادات قواعد البيانات)." 
-          : "فشل في استرجاع البيانات. يرجى التأكد من الاتصال بالإنترنت.";
-        setError(errorMessage);
+        setError("فشل في استرجاع البيانات. يرجى التأكد من الاتصال بالإنترنت.");
       } finally {
         setLoading(false);
       }
@@ -79,13 +74,10 @@ const MeetingRequests: React.FC = () => {
     setIsUpdating(true);
     try {
       const regRef = doc(db, "registrations", editingRegistration.id);
-      
-      // Update Firestore
       await updateDoc(regRef, {
         status: statusToUpdate
       });
 
-      // Optimistic Update Local State
       setAllRegistrations(prev => prev.map(item => 
         item.id === editingRegistration.id 
           ? { ...item, status: statusToUpdate as any } 
@@ -95,7 +87,7 @@ const MeetingRequests: React.FC = () => {
       handleCloseModal();
     } catch (err) {
       console.error("Error updating status:", err);
-      alert("حدث خطأ أثناء تحديث الحالة. يرجى المحاولة مرة أخرى.");
+      alert("حدث خطأ أثناء تحديث الحالة.");
     } finally {
       setIsUpdating(false);
     }
@@ -106,58 +98,40 @@ const MeetingRequests: React.FC = () => {
     if (timestamp.seconds) {
       return new Date(timestamp.seconds * 1000).toLocaleDateString('ar-EG');
     }
-    if (timestamp.toDate) {
-      return timestamp.toDate().toLocaleDateString('ar-EG');
-    }
     return new Date(timestamp).toLocaleDateString('ar-EG');
   };
 
-  // Status Badge Helper
   const getStatusBadge = (status?: string) => {
     switch (status) {
-      case 'completed': // Done
+      case 'completed':
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">مكتمل</span>;
       case 'approved': 
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">مقبول</span>;
       case 'canceled': 
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">ملغي</span>;
-      case 'reviewing': // Under Review
+      case 'reviewing':
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">قيد المراجعة</span>;
-      default: // Pending
+      default:
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">قيد الانتظار</span>;
     }
   };
 
-  // Filter Logic
   const filteredRegistrations = allRegistrations.filter(reg => {
     const term = searchTerm.toLowerCase().trim();
     const statusMatch = statusFilter === 'ALL' || reg.status === statusFilter || (!reg.status && statusFilter === 'pending');
     
     if (!term && statusMatch) return true;
     
-    // Check email and whatsapp
     const emailMatch = reg.email?.toLowerCase().includes(term) || false;
     const phoneMatch = reg.whatsapp?.includes(term) || false;
-    // Also include name for better UX
     const nameMatch = reg.fullName?.toLowerCase().includes(term) || false;
 
     return (emailMatch || phoneMatch || nameMatch) && statusMatch;
   });
 
-  // Pagination Logic
   const totalPages = Math.ceil(filteredRegistrations.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = filteredRegistrations.slice(startIndex, startIndex + itemsPerPage);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset to first page
-  };
-
-  const handleStatusFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setStatusFilter(e.target.value);
-    setCurrentPage(1);
-  };
 
   return (
     <div className="pt-24 pb-16 min-h-screen bg-gray-50 relative">
@@ -173,9 +147,7 @@ const MeetingRequests: React.FC = () => {
             </div>
           </div>
 
-          {/* Filters Bar */}
           <div className="flex flex-col md:flex-row gap-4">
-            {/* Search Bar */}
             <div className="relative flex-grow max-w-md">
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400" />
@@ -183,20 +155,19 @@ const MeetingRequests: React.FC = () => {
               <input
                 type="text"
                 value={searchTerm}
-                onChange={handleSearchChange}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent bg-white shadow-sm"
-                placeholder="بحث برقم الهاتف أو البريد..."
+                placeholder="بحث بالاسم أو الهاتف أو البريد..."
               />
             </div>
 
-            {/* Status Filter */}
             <div className="relative w-full md:w-56">
                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                 <Filter className="h-5 w-5 text-gray-400" />
               </div>
               <select
                 value={statusFilter}
-                onChange={handleStatusFilterChange}
+                onChange={(e) => setStatusFilter(e.target.value)}
                 className="block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent bg-white shadow-sm appearance-none"
               >
                 <option value="ALL">كل الحالات</option>
@@ -206,38 +177,24 @@ const MeetingRequests: React.FC = () => {
                 <option value="completed">مكتمل</option>
                 <option value="canceled">ملغي</option>
               </select>
-               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <ChevronLeft className="h-4 w-4 text-gray-400 rotate-[-90deg]" />
-              </div>
             </div>
           </div>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center gap-2">
-            <AlertCircle className="w-5 h-5" />
-            {error}
-          </div>
-        )}
-
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 text-accent animate-spin" />
-              <p className="text-gray-500">جاري تحميل البيانات...</p>
-            </div>
+            <Loader2 className="w-8 h-8 text-accent animate-spin" />
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
-            <div className="overflow-x-auto min-h-[400px]">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
               <table className="w-full whitespace-nowrap text-right">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">الاسم</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">التواصل</th>
-                    <th className="px-6 py-4 text-sm font-bold text-gray-700">المجال التقني</th>
-                    <th className="px-6 py-4 text-sm font-bold text-gray-700">الخبرة</th>
-                    <th className="px-6 py-4 text-sm font-bold text-gray-700">تاريخ الطلب</th>
+                    <th className="px-6 py-4 text-sm font-bold text-gray-700">المجال</th>
+                    <th className="px-6 py-4 text-sm font-bold text-gray-700">السيرة الذاتية</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">الحالة</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700 text-center">إجراءات</th>
                   </tr>
@@ -246,58 +203,36 @@ const MeetingRequests: React.FC = () => {
                   {currentItems.length > 0 ? (
                     currentItems.map((reg) => (
                       <tr key={reg.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 font-bold text-gray-900">{reg.fullName}</td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent">
-                              <User className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <div className="font-bold text-gray-900">{reg.fullName}</div>
-                              <div className="text-xs text-gray-500">{reg.country}</div>
-                            </div>
+                          <div className="flex flex-col text-xs text-gray-600">
+                             <span className="dir-ltr text-right">{reg.email}</span>
+                             <span className="dir-ltr text-right">{reg.whatsapp}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex flex-col gap-1">
-                            <span className="text-sm text-gray-700 dir-ltr text-right">{reg.email}</span>
-                            <span className="text-xs text-gray-500 dir-ltr text-right">{reg.whatsapp}</span>
-                          </div>
+                          <div className="text-sm font-medium text-gray-700">{reg.field}</div>
+                          <div className="text-xs text-gray-400">{reg.experience} سنوات خبرة</div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <Code className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm font-medium text-gray-700">{reg.field}</span>
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1 max-w-[150px] truncate">
-                            {reg.techStack?.join(', ')}
-                          </div>
+                          {reg.resumeUrl ? (
+                            <a 
+                              href={reg.resumeUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-accent hover:text-accentHover font-bold text-xs bg-accent/5 px-2 py-1 rounded border border-accent/10"
+                            >
+                              عرض الملف <ExternalLink className="w-3 h-3" />
+                            </a>
+                          ) : (
+                            <span className="text-gray-300 text-xs italic">غير متوفر</span>
+                          )}
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <Briefcase className="w-4 h-4 text-gray-400" />
-                            <span className="text-sm text-gray-700">
-                              {reg.level === 'junior' && 'مبتدئ'}
-                              {reg.level === 'mid' && 'متوسط'}
-                              {reg.level === 'senior' && 'خبير'}
-                              {reg.level === 'lead' && 'قيادي'}
-                            </span>
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">{reg.experience} سنوات</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Calendar className="w-4 h-4 text-gray-400" />
-                            {formatDate(reg.submittedAt)}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          {getStatusBadge(reg.status)}
-                        </td>
+                        <td className="px-6 py-4">{getStatusBadge(reg.status)}</td>
                         <td className="px-6 py-4 text-center">
                           <button 
                             onClick={() => handleEditClick(reg)}
-                            className="p-2 text-gray-400 hover:text-accent hover:bg-accent/10 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent"
-                            title="تعديل الحالة"
+                            className="p-2 text-gray-400 hover:text-accent hover:bg-accent/10 rounded-full transition-colors"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
@@ -306,43 +241,30 @@ const MeetingRequests: React.FC = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                        {searchTerm || statusFilter !== 'ALL' ? 'لا توجد نتائج تطابق بحثك.' : 'لا توجد طلبات تسجيل حتى الآن.'}
-                      </td>
+                      <td colSpan={6} className="px-6 py-12 text-center text-gray-500">لا توجد بيانات.</td>
                     </tr>
                   )}
                 </tbody>
               </table>
             </div>
 
-            {/* Pagination Controls */}
-            {filteredRegistrations.length > 0 && (
-              <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50 gap-4 mt-auto">
-                <div className="text-sm text-gray-600">
-                  عرض <span className="font-medium text-gray-900">{Math.min(filteredRegistrations.length, startIndex + 1)}</span> إلى <span className="font-medium text-gray-900">{Math.min(startIndex + itemsPerPage, filteredRegistrations.length)}</span> من أصل <span className="font-medium text-gray-900">{filteredRegistrations.length}</span> نتيجة
-                </div>
-                
+            {filteredRegistrations.length > itemsPerPage && (
+              <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50">
+                <div className="text-sm text-gray-600">صفحة {currentPage} من {totalPages}</div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
-                    className="p-2 border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    aria-label="Previous page"
+                    className="p-2 border rounded hover:bg-white disabled:opacity-50"
                   >
-                    <ChevronRight className="w-5 h-5 text-gray-600" />
+                    <ChevronRight className="w-5 h-5" />
                   </button>
-                  
-                  <span className="text-sm font-medium text-gray-700 min-w-[3rem] text-center">
-                    {currentPage} / {totalPages || 1}
-                  </span>
-                  
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages || totalPages === 0}
-                    className="p-2 border border-gray-300 rounded-md hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    aria-label="Next page"
+                    disabled={currentPage === totalPages}
+                    className="p-2 border rounded hover:bg-white disabled:opacity-50"
                   >
-                    <ChevronLeft className="w-5 h-5 text-gray-600" />
+                    <ChevronLeft className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -351,82 +273,40 @@ const MeetingRequests: React.FC = () => {
         )}
       </div>
 
-      {/* Edit Status Modal */}
       {editingRegistration && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            {/* Header */}
-            <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-800">تحديث حالة الطلب</h3>
-              <button onClick={handleCloseModal} className="text-gray-400 hover:text-red-500 transition-colors">
-                <X className="w-5 h-5" />
-              </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="bg-gray-50 px-6 py-4 border-b flex items-center justify-between">
+              <h3 className="font-bold text-gray-800">تحديث الحالة</h3>
+              <button onClick={handleCloseModal} className="text-gray-400 hover:text-red-500"><X className="w-5 h-5" /></button>
             </div>
-            
-            {/* Body */}
             <div className="p-6">
-              <div className="mb-4">
-                <p className="text-sm text-gray-500 mb-1">صاحب الطلب</p>
-                <p className="font-bold text-gray-900 text-lg">{editingRegistration.fullName}</p>
+              <div className="space-y-2 mb-6">
+                {['pending', 'reviewing', 'approved', 'completed', 'canceled'].map((val) => (
+                  <label key={val} className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${statusToUpdate === val ? 'border-accent bg-accent/5 ring-1 ring-accent' : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input 
+                      type="radio" 
+                      name="status" 
+                      value={val} 
+                      checked={statusToUpdate === val} 
+                      onChange={(e) => setStatusToUpdate(e.target.value)} 
+                      className="text-accent focus:ring-accent"
+                    />
+                    <span className="font-bold text-sm text-gray-700">
+                      {val === 'pending' && 'قيد الانتظار'}
+                      {val === 'reviewing' && 'قيد المراجعة'}
+                      {val === 'approved' && 'مقبول'}
+                      {val === 'completed' && 'مكتمل'}
+                      {val === 'canceled' && 'ملغي'}
+                    </span>
+                  </label>
+                ))}
               </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">اختر الحالة الجديدة</label>
-                <div className="space-y-2">
-                  {[
-                    { val: 'pending', label: 'قيد الانتظار', color: 'bg-yellow-50 text-yellow-800 border-yellow-200 hover:bg-yellow-100' },
-                    { val: 'reviewing', label: 'قيد المراجعة (Under Review)', color: 'bg-purple-50 text-purple-800 border-purple-200 hover:bg-purple-100' },
-                    { val: 'approved', label: 'مقبول (Approved)', color: 'bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100' },
-                    { val: 'completed', label: 'مكتمل (Done)', color: 'bg-green-50 text-green-800 border-green-200 hover:bg-green-100' },
-                    { val: 'canceled', label: 'ملغي (Canceled)', color: 'bg-red-50 text-red-800 border-red-200 hover:bg-red-100' },
-                  ].map((option) => (
-                    <label 
-                      key={option.val}
-                      className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
-                        statusToUpdate === option.val 
-                          ? `${option.color} ring-1 ring-current` 
-                          : 'border-gray-200 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <input 
-                          type="radio" 
-                          name="status" 
-                          value={option.val}
-                          checked={statusToUpdate === option.val}
-                          onChange={(e) => setStatusToUpdate(e.target.value)}
-                          className="text-accent focus:ring-accent"
-                        />
-                        <span className="font-medium">{option.label}</span>
-                      </div>
-                      {statusToUpdate === option.val && <Check className="w-4 h-4" />}
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Actions */}
               <div className="flex gap-3">
-                <Button 
-                  onClick={handleSaveStatus} 
-                  disabled={isUpdating}
-                  className="flex-1 justify-center"
-                >
-                  {isUpdating ? (
-                    <>
-                      <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                      جاري الحفظ...
-                    </>
-                  ) : 'حفظ التغييرات'}
+                <Button onClick={handleSaveStatus} disabled={isUpdating} className="flex-1 justify-center">
+                  {isUpdating ? 'جاري الحفظ...' : 'حفظ'}
                 </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={handleCloseModal}
-                  disabled={isUpdating}
-                  className="flex-none"
-                >
-                  إلغاء
-                </Button>
+                <Button variant="outline" onClick={handleCloseModal} className="flex-none">إلغاء</Button>
               </div>
             </div>
           </div>

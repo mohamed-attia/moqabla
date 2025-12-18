@@ -44,6 +44,7 @@ export interface RegistrationFormData {
   preferredTime: string;
   expectations: string;
   termsAccepted: boolean;
+  resumeUrl?: string; // رابط السيرة الذاتية
   userId?: string;
   submittedAt?: any;
   status?: 'pending' | 'approved' | 'completed' | 'canceled' | 'reviewing';
@@ -61,4 +62,16 @@ export interface ReviewData {
   interviewerFeedback: string;
   improvementIdeas: string;
   submittedAt: any;
+}
+
+export interface UserProfile {
+  uid: string;
+  name: string;
+  email: string;
+  phone?: string;
+  jobTitle?: string;
+  country?: string;
+  role: 'user' | 'admin';
+  createdAt: any;
+  updatedAt?: any;
 }

@@ -1,7 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Briefcase, LogIn, User as UserIcon, ChevronDown, LogOut, FileText, LayoutDashboard, CheckCircle } from 'lucide-react';
-// Use namespace import to bypass named export resolution issues in the current environment
+import { Menu, X, Briefcase, LogIn, User as UserIcon, ChevronDown, LogOut, FileText, LayoutDashboard, UserCircle } from 'lucide-react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
@@ -9,7 +7,6 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import Button from './Button';
 import { NavItem } from '../types';
 
-// Fix: Use type assertion to bypass broken react-router-dom type definitions in this environment
 const { useNavigate, useLocation, Link } = ReactRouterDOM as any;
 
 const navItems: NavItem[] = [
@@ -29,7 +26,6 @@ const Header: React.FC = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
-  const [showLogoutToast, setShowLogoutToast] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -88,13 +84,6 @@ const Header: React.FC = () => {
     setProfileMenuOpen(false);
   }, [location]);
 
-  useEffect(() => {
-    if (showLogoutToast) {
-      const timer = setTimeout(() => setShowLogoutToast(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showLogoutToast]);
-
   const handleNavigation = (item: NavItem) => {
     setIsOpen(false);
     
@@ -124,7 +113,7 @@ const Header: React.FC = () => {
     if (!user) {
       navigate('/login');
     } else if (hasActiveRequest) {
-      // Do nothing
+      navigate('/my-requests');
     } else {
       navigate('/request-meeting');
     }
@@ -139,7 +128,6 @@ const Header: React.FC = () => {
     try {
       await signOut(auth);
       setProfileMenuOpen(false);
-      setShowLogoutToast(true);
       navigate('/');
     } catch (error) {
       console.error("Logout Error", error);
@@ -156,7 +144,7 @@ const Header: React.FC = () => {
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between">
             
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleNavigation(navItems[0])}>
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
               <div className="bg-accent p-2 rounded-lg">
                 <Briefcase className="w-6 h-6 text-white" />
               </div>
@@ -184,17 +172,6 @@ const Header: React.FC = () => {
                   </button>
                 );
               })}
-              {isAdmin && (
-                <Link
-                  to="/dashboard"
-                  className={`text-base lg:text-lg font-medium transition-colors flex items-center gap-1 ${
-                    scrolled || !isHome ? 'text-accent hover:text-accentHover' : 'text-white hover:text-gray-200'
-                  }`}
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  لوحة التحكم
-                </Link>
-              )}
             </nav>
 
             <div className="hidden md:flex items-center gap-4">
@@ -221,17 +198,17 @@ const Header: React.FC = () => {
                       <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
                         <UserIcon className={`w-5 h-5 ${scrolled || !isHome ? 'text-accent' : 'text-white'}`} />
                       </div>
-                      <span>{user.displayName?.split(' ')[0] || 'زائر'}</span>
+                      <span className="max-w-[100px] truncate">{user.displayName?.split(' ')[0] || 'زائر'}</span>
                       <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${profileMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   {profileMenuOpen && (
                     <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-left">
-                      <div className="p-4 border-b border-gray-50 bg-gray-50/50">
-                        <p className="text-sm text-gray-500">مرحباً</p>
+                      <div className="p-4 border-b border-gray-50 bg-gray-50/50 text-right">
+                        <p className="text-xs text-gray-500">مرحباً بك</p>
                         <p className="font-bold text-gray-900 truncate">{user.displayName || user.email}</p>
                       </div>
-                      <div className="p-2">
+                      <div className="p-2 text-right">
                         {isAdmin && (
                           <Link 
                             to="/dashboard"
@@ -242,6 +219,14 @@ const Header: React.FC = () => {
                             لوحة التحكم
                           </Link>
                         )}
+                        <Link 
+                          to="/profile"
+                          className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-accent/5 hover:text-accent rounded-lg transition-colors"
+                          onClick={() => setProfileMenuOpen(false)}
+                        >
+                          <UserCircle className="w-4 h-4" />
+                          بياناتي
+                        </Link>
                         <Link 
                           to="/my-requests"
                           className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-accent/5 hover:text-accent rounded-lg transition-colors"
@@ -288,84 +273,69 @@ const Header: React.FC = () => {
             isOpen ? 'opacity-100 scale-y-100 visible' : 'opacity-0 scale-y-0 invisible'
           }`}
         >
-          <div className="flex flex-col p-4 space-y-4">
-            {navItems.map((item) => {
-              const isActive = item.id === 'team' && isTeam;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleNavigation(item)}
-                  className={`text-right font-medium text-lg py-2 border-b border-gray-50 px-2 rounded transition-colors ${
-                    isActive ? 'text-accent bg-gray-50' : 'text-gray-700 hover:text-accent hover:bg-gray-50'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-            {isAdmin && (
-               <Link
-                  to="/dashboard"
+          <div className="flex flex-col p-4 space-y-2">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleNavigation(item)}
+                className="text-right font-medium text-lg py-3 border-b border-gray-50 px-2 rounded hover:bg-gray-50 text-gray-700"
+              >
+                {item.label}
+              </button>
+            ))}
+            
+            {user && (
+              <>
+                <Link 
+                  to="/profile" 
                   onClick={() => setIsOpen(false)}
-                  className="text-right font-medium text-lg py-2 border-b border-gray-50 px-2 rounded transition-colors text-gray-700 hover:text-accent hover:bg-gray-50"
+                  className="flex items-center gap-2 p-3 text-gray-700 hover:bg-gray-50 rounded-lg text-lg font-medium border-b border-gray-50"
                 >
-                  لوحة التحكم
+                  <UserCircle className="w-5 h-5 text-accent" />
+                  بياناتي
                 </Link>
-            )}
-            <div className="pt-2 flex flex-col gap-3">
-              {!user ? (
-                <button 
-                  onClick={goToLogin}
-                  className="text-center font-medium text-gray-700 hover:text-accent py-2"
+                <Link 
+                  to="/my-requests" 
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 p-3 text-gray-700 hover:bg-gray-50 rounded-lg text-lg font-medium border-b border-gray-50"
                 >
-                  تسجيل دخول
-                </button>
-              ) : (
-                <div className="border border-gray-100 rounded-lg p-3 bg-gray-50">
-                  <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-200">
-                      <UserIcon className="w-5 h-5 text-accent" />
-                      <span className="font-bold text-gray-800">{user.displayName || 'المستخدم'}</span>
-                  </div>
+                  <FileText className="w-5 h-5 text-accent" />
+                  طلباتي
+                </Link>
+                {isAdmin && (
                   <Link 
-                    to="/my-requests" 
+                    to="/dashboard" 
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-2 p-2 text-gray-700 hover:text-accent"
+                    className="flex items-center gap-2 p-3 text-gray-700 hover:bg-gray-50 rounded-lg text-lg font-medium border-b border-gray-50"
                   >
-                      <FileText className="w-4 h-4" />
-                      طلباتي
+                    <LayoutDashboard className="w-5 h-5 text-accent" />
+                    لوحة التحكم
                   </Link>
+                )}
+              </>
+            )}
+
+            <div className="pt-4 flex flex-col gap-3">
+              {!user ? (
+                <Button onClick={goToLogin} className="w-full justify-center">تسجيل دخول</Button>
+              ) : (
+                <>
+                  {!hasActiveRequest && (
+                    <Button onClick={handleBookingAction} className="w-full justify-center">احجز مقابلة</Button>
+                  )}
                   <button 
-                    onClick={() => {
-                      handleLogout();
-                      setIsOpen(false);
-                    }}
-                    className="flex items-center gap-2 p-2 text-red-600 hover:text-red-700 w-full text-right"
+                    onClick={handleLogout}
+                    className="flex items-center justify-center gap-2 p-3 text-red-600 font-bold border border-red-100 rounded-lg bg-red-50"
                   >
-                      <LogOut className="w-4 h-4" />
-                      تسجيل الخروج
+                    <LogOut className="w-5 h-5" />
+                    تسجيل الخروج
                   </button>
-                </div>
-              )}
-              {!hasActiveRequest && (
-                <Button className="w-full justify-center" onClick={handleBookingAction}>
-                  احجز مقابلة
-                </Button>
+                </>
               )}
             </div>
           </div>
         </div>
       </header>
-
-      <div 
-        className={`fixed bottom-6 right-6 z-[60] bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-500 transform ${
-          showLogoutToast ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0'
-        }`}
-      >
-        <div className="bg-green-500 rounded-full p-1">
-          <CheckCircle className="w-4 h-4 text-white" />
-        </div>
-        <p className="font-medium">تم تسجيل الخروج بنجاح</p>
-      </div>
     </>
   );
 };

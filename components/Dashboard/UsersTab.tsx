@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
-import { Search, User, Mail, Calendar, Loader2, Shield } from 'lucide-react';
-
-interface UserData {
-  uid: string;
-  name: string;
-  email: string;
-  role: string;
-  createdAt: any;
-}
+import { UserProfile } from '../../types';
+import { Search, User, Mail, Calendar, Loader2, Shield, Phone, Briefcase, Globe } from 'lucide-react';
 
 const UsersTab: React.FC = () => {
-  const [users, setUsers] = useState<UserData[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -21,9 +14,9 @@ const UsersTab: React.FC = () => {
       try {
         const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
-        const results: UserData[] = [];
+        const results: UserProfile[] = [];
         querySnapshot.forEach((doc) => {
-          results.push(doc.data() as UserData);
+          results.push(doc.data() as UserProfile);
         });
         setUsers(results);
       } catch (error) {
@@ -37,8 +30,9 @@ const UsersTab: React.FC = () => {
   }, []);
 
   const filteredUsers = users.filter(user => 
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.phone?.includes(searchTerm)
   );
 
   const formatDate = (timestamp: any) => {
@@ -79,11 +73,12 @@ const UsersTab: React.FC = () => {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-right">
+          <table className="w-full text-right whitespace-nowrap">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">المستخدم</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">البريد الإلكتروني</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-600">التواصل</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-600">الوظيفة والدولة</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">الصلاحية</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">تاريخ التسجيل</th>
               </tr>
@@ -95,15 +90,40 @@ const UsersTab: React.FC = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">
-                          {user.name.charAt(0).toUpperCase()}
+                          {(user.name || 'U').charAt(0).toUpperCase()}
                         </div>
                         <span className="font-medium text-gray-900">{user.name}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-gray-600 text-sm">
-                        <Mail className="w-4 h-4 text-gray-400" />
-                        <span className="dir-ltr">{user.email}</span>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2 text-gray-600 text-xs">
+                          <Mail className="w-3 h-3 text-gray-400" />
+                          <span className="dir-ltr">{user.email}</span>
+                        </div>
+                        {user.phone && (
+                          <div className="flex items-center gap-2 text-gray-600 text-xs">
+                            <Phone className="w-3 h-3 text-gray-400" />
+                            <span className="dir-ltr">{user.phone}</span>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col gap-1">
+                        {user.jobTitle && (
+                          <div className="flex items-center gap-2 text-gray-600 text-xs">
+                            <Briefcase className="w-3 h-3 text-gray-400" />
+                            <span>{user.jobTitle}</span>
+                          </div>
+                        )}
+                        {user.country && (
+                          <div className="flex items-center gap-2 text-gray-500 text-xs">
+                            <Globe className="w-3 h-3 text-gray-400" />
+                            <span>{user.country}</span>
+                          </div>
+                        )}
+                        {!user.jobTitle && !user.country && <span className="text-gray-300 text-xs">غير مكتمل</span>}
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -128,7 +148,7 @@ const UsersTab: React.FC = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
                     لا توجد نتائج تطابق بحثك.
                   </td>
                 </tr>

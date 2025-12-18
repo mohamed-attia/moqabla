@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { FileText, Shield, Clock, CreditCard, AlertTriangle } from 'lucide-react';
+import { FileText, Shield, Clock, CreditCard, AlertTriangle, Briefcase } from 'lucide-react';
 
 const Terms: React.FC = () => {
   useEffect(() => {
@@ -67,6 +67,16 @@ const Terms: React.FC = () => {
             </h2>
             <p className="mr-10 text-gray-600">
               نحن نحترم خصوصيتك. جميع البيانات التي تشاركها معنا (السيرة الذاتية، التسجيلات، الملاحظات) يتم التعامل معها بسرية تامة وتستخدم فقط لغرض تقديم الخدمة وتحسين الجودة. لن نقوم بمشاركة بياناتك مع أي طرف ثالث لأغراض تسويقية دون موافقتك الصريحة.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-sm">6</span>
+              الموافقة على مشاركة البيانات والتوظيف
+            </h2>
+            <p className="mr-10 text-gray-600 font-bold">
+              باستخدامك للمنصة، فإنك توافق على مشاركة سيرتك الذاتية وبياناتك المهنية مع شركات القطاع التقني والشركاء بهدف توفير فرص عمل ومقابلات حقيقية لك. نحن نعمل كحلقة وصل لتعزيز فرصك في الحصول على الوظيفة المناسبة لمستواك التقني.
             </p>
           </section>
 

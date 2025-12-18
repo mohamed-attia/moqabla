@@ -15,6 +15,7 @@ import Privacy from './components/Privacy';
 import FAQ from './components/FAQ';
 import Team from './components/Team';
 import Dashboard from './components/Dashboard/Dashboard';
+import Profile from './components/Profile';
 
 // Fix: Use type assertion to bypass broken react-router-dom type definitions
 const { HashRouter, Routes, Route, useLocation } = ReactRouterDOM as any;
@@ -32,6 +33,7 @@ const Layout = () => {
           <Route path="/request-meeting" element={<CreateMeetingRequest />} />
           <Route path="/meeting-requests" element={<MeetingRequests />} />
           <Route path="/my-requests" element={<UserRequests />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/team" element={<Team />} />

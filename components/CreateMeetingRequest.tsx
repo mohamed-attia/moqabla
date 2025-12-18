@@ -1,27 +1,31 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 // Use namespace import to bypass named export resolution issues in the current environment
 import * as ReactRouterDOM from 'react-router-dom';
 import { 
   User, Mail, Globe, Linkedin, Code, 
-  Clock, CheckCircle, ChevronLeft, ChevronRight, AlertCircle, Loader2, Phone
+  Clock, CheckCircle, ChevronLeft, ChevronRight, AlertCircle, Loader2, Phone, FileUp, FileText, Trash2
 } from 'lucide-react';
 import Button from './Button';
 import { RegistrationFormData } from '../types';
-import { db, auth } from '../lib/firebase';
+import { db, auth, storage } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { onAuthStateChanged } from 'firebase/auth';
 
 // Fix: Use type assertion to bypass broken react-router-dom type definitions
-const { Link, useNavigate } = ReactRouterDOM as any;
+// Added Link to extracted components to fix line 517 error
+const { useNavigate, Link } = ReactRouterDOM as any;
 
 const CreateMeetingRequest: React.FC = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
   
   const [formData, setFormData] = useState<RegistrationFormData>({
     fullName: '',
@@ -65,6 +69,22 @@ const CreateMeetingRequest: React.FC = () => {
     setError(null);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.type !== 'application/pdf') {
+        setError("يرجى اختيار ملف بصيغة PDF فقط.");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setError("حجم الملف يجب ألا يتجاوز 5 ميجابايت.");
+        return;
+      }
+      setResumeFile(file);
+      setError(null);
+    }
+  };
+
   const handleTechAdd = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && currentTech.trim()) {
       e.preventDefault();
@@ -104,14 +124,13 @@ const CreateMeetingRequest: React.FC = () => {
     return formData.field !== '' && 
            formData.techStack.length > 0 && 
            !isNaN(formData.experience) && formData.experience >= 0 &&
-           formData.level !== undefined;
+           resumeFile !== null;
   };
 
   const isStep3Valid = () => {
     return formData.goals.length > 0 && 
            formData.preferredTime !== '' &&
            formData.expectations.trim().length > 10 &&
-           formData.upcomingInterview !== '' &&
            formData.termsAccepted === true;
   };
 
@@ -120,6 +139,8 @@ const CreateMeetingRequest: React.FC = () => {
       setStep(2);
     } else if (step === 2 && isStep2Valid()) {
       setStep(3);
+    } else {
+        setError("يرجى استكمال البيانات المطلوبة (لا تنسَ رفع السيرة الذاتية).");
     }
   };
 
@@ -139,21 +160,39 @@ const CreateMeetingRequest: React.FC = () => {
     setLoading(true);
     setError(null);
 
-    try {
-      await addDoc(collection(db, "registrations"), {
-        ...formData,
-        userId: currentUser.uid, 
-        submittedAt: serverTimestamp(),
-        status: 'pending'
-      });
-      
-      setShowSuccessModal(true);
-    } catch (err) {
-      console.error("Error submitting form: ", err);
-      setError("حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى أو التحقق من الاتصال.");
-    } finally {
-      setLoading(false);
-    }
+try {
+  let resumeUrl = "";
+  if (resumeFile) {
+    const sanitizedFileName = resumeFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const storageRef = ref(storage, `resumes/${currentUser.uid}/${Date.now()}_${sanitizedFileName}`);
+    
+    console.log('Starting upload...'); // Debug log
+    const uploadResult = await uploadBytes(storageRef, resumeFile);
+    console.log('Upload complete, getting URL...'); // Debug log
+    
+    resumeUrl = await getDownloadURL(uploadResult.ref);
+    console.log('Download URL:', resumeUrl); // Debug log
+  } else {
+    throw new Error("السيرة الذاتية مطلوبة.");
+  }
+
+  // Rest of your code...
+} catch (err: any) {
+  console.error("Detailed error:", err); // More detailed error log
+  
+  // Specific error messages
+  if (err.code === 'storage/unauthorized') {
+    setError("خطأ في الصلاحيات. تحقق من إعدادات Firebase Storage.");
+  } else if (err.code === 'storage/canceled') {
+    setError("تم إلغاء رفع الملف.");
+  } else if (err.code === 'storage/unknown') {
+    setError("خطأ غير معروف في رفع الملف. تحقق من اتصال الإنترنت.");
+  } else {
+    setError(err.message || "حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.");
+  }
+} finally {
+  setLoading(false);
+}
   };
 
   const inputClasses = "block w-full border rounded-lg focus:ring-accent focus:border-accent border-gray-300";
@@ -234,9 +273,6 @@ const CreateMeetingRequest: React.FC = () => {
                         placeholder="email@example.com"
                       />
                     </div>
-                    {!isEmailValid(formData.email) && formData.email.length > 0 && (
-                       <p className="mt-1 text-xs text-red-500 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> بريد إلكتروني غير صحيح</p>
-                    )}
                   </div>
 
                   <div>
@@ -255,7 +291,6 @@ const CreateMeetingRequest: React.FC = () => {
                         placeholder="+1234567890"
                       />
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">سيتم التواصل معك عبر واتساب لتنسيق الموعد</p>
                   </div>
                 </div>
 
@@ -304,15 +339,15 @@ const CreateMeetingRequest: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">المجال التقني <span className="text-red-500">*</span></label>
-                <div className="grid grid-cols-2 gap-3">
-                  {['Frontend', 'Backend', 'Full Stack', 'Mobile App', 'UX Design'].map((field) => (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {['Frontend', 'Backend', 'Full Stack', 'Mobile App', 'UX Design', 'QA Testing'].map((field) => (
                     <div 
                       key={field}
                       onClick={() => updateField('field', field)}
                       className={`cursor-pointer border rounded-lg p-3 text-center transition-all ${
                         formData.field === field 
                         ? 'border-accent bg-accent/5 text-accent font-bold ring-1 ring-accent' 
-                        : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                        : 'border-gray-200 hover:border-gray-300 text-gray-600 text-sm'
                       }`}
                     >
                       {field}
@@ -346,7 +381,7 @@ const CreateMeetingRequest: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                    <label className="block text-sm font-medium text-gray-700 mb-1">سنوات الخبرة <span className="text-red-500">*</span></label>
                    <input
@@ -354,21 +389,57 @@ const CreateMeetingRequest: React.FC = () => {
                       min="0"
                       value={formData.experience}
                       onChange={(e) => updateField('experience', parseInt(e.target.value))}
-                      className={`${inputClasses} py-3 px-4 text-center`}
+                      className={`${inputClasses} py-3 px-4`}
                     />
                 </div>
                 <div>
-                   <label className="block text-sm font-medium text-gray-700 mb-1">المستوى <span className="text-red-500">*</span></label>
-                   <select
+                   <label className="block text-sm font-medium text-gray-700 mb-1">المستوى الوظيفي <span className="text-red-500">*</span></label>
+                   <select 
                       value={formData.level}
                       onChange={(e) => updateField('level', e.target.value)}
                       className={`${inputClasses} py-3 px-4`}
-                    >
+                   >
                       <option value="junior">مبتدئ (Junior)</option>
-                      <option value="mid">متوسط (Mid-Level)</option>
+                      <option value="mid">متوسط (Mid-level)</option>
                       <option value="senior">خبير (Senior)</option>
-                      <option value="lead">قيادي (Tech Lead)</option>
+                      <option value="lead">قيادي (Lead)</option>
                    </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">السيرة الذاتية (CV) بصيغة PDF <span className="text-red-500">*</span></label>
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all ${
+                    resumeFile ? 'border-accent bg-accent/5' : 'border-gray-300 hover:border-accent/50'
+                  }`}
+                >
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={handleFileChange} 
+                    className="hidden" 
+                    accept=".pdf"
+                  />
+                  {resumeFile ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <FileText className="w-10 h-10 text-accent" />
+                      <p className="text-sm font-bold text-gray-800">{resumeFile.name}</p>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setResumeFile(null); }}
+                        className="text-red-500 hover:text-red-700 text-xs flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3 h-3" /> حذف الملف
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <FileUp className="w-10 h-10 text-gray-400 mb-2" />
+                      <p className="text-sm text-gray-600">اضغط لرفع ملف السيرة الذاتية</p>
+                      <p className="text-xs text-gray-400 mt-1">PDF فقط - بحد أقصى 5 ميجابايت</p>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -376,164 +447,148 @@ const CreateMeetingRequest: React.FC = () => {
 
           {step === 3 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-bold text-primary">ماذا تطمح؟ 🎯</h3>
-                <p className="text-sm text-gray-500">ساعدنا نفهم أهدافك لنحقق لك أقصى استفادة.</p>
+               <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-primary">ماذا تتوقع منا؟ 🎯</h3>
+                <p className="text-sm text-gray-500">هذه التفاصيل تساعد الخبير في التحضير الجيد لمقابلتك.</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">الهدف من المقابلة <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 mb-3">أهدافك من المقابلة <span className="text-red-500">*</span></label>
                 <div className="space-y-2">
-                  {['تقييم مستواي الحالي', 'التحضير لمقابلة وظيفة محددة', 'معرفة نقاط الضعف', 'التدرب على كسر الرهبة'].map((goal) => (
-                    <label key={goal} className="flex items-center p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50">
-                      <input 
-                        type="checkbox" 
+                  {[
+                    'تطوير المهارات التقنية',
+                    'تحسين مهارات التواصل وعرض النفس',
+                    'التعرف على نقاط الضعف والفجوات',
+                    'التدرب على مقابلة وظيفية قادمة',
+                    'الحصول على ترشيح (Referral)'
+                  ].map((goal) => (
+                    <label key={goal} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 cursor-pointer">
+                      <input
+                        type="checkbox"
                         checked={formData.goals.includes(goal)}
                         onChange={() => toggleGoal(goal)}
-                        className="h-4 w-4 text-accent border-gray-300 rounded focus:ring-accent" 
+                        className="w-5 h-5 text-accent rounded focus:ring-accent"
                       />
-                      <span className="mr-3 text-gray-700 select-none">{goal}</span>
+                      <span className="text-gray-700 text-sm">{goal}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">وقتك المفضل <span className="text-red-500">*</span></label>
-                    <div className="relative">
-                      <Clock className="absolute top-3 right-3 h-5 w-5 text-gray-400" />
-                      <select
-                        value={formData.preferredTime}
-                        onChange={(e) => updateField('preferredTime', e.target.value)}
-                        className={`${inputClasses} py-3 pr-10`}
-                      >
-                        <option value="">اختر الوقت...</option>
-                        <option value="morning">صباحاً (9ص - 12م)</option>
-                        <option value="evening">مساءً (4م - 9م)</option>
-                        <option value="flexible">مرن في أي وقت</option>
-                      </select>
-                    </div>
-                 </div>
-                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">مقابلة حقيقية قريبة؟</label>
-                    <select
-                        value={formData.upcomingInterview}
-                        onChange={(e) => updateField('upcomingInterview', e.target.value)}
-                        className={`${inputClasses} py-3 px-4`}
-                      >
-                        <option value="no">لا يوجد حالياً</option>
-                        <option value="yes">نعم، لدي مقابلة</option>
-                        <option value="soon">خلال شهر</option>
-                      </select>
-                 </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">الوقت المفضل للمقابلة <span className="text-red-500">*</span></label>
+                  <select
+                    value={formData.preferredTime}
+                    onChange={(e) => updateField('preferredTime', e.target.value)}
+                    className={`${inputClasses} py-3 px-4`}
+                  >
+                    <option value="">اختر الوقت...</option>
+                    <option value="morning">صباحاً (9ص - 12م)</option>
+                    <option value="evening">مساءً (4م - 9م)</option>
+                    <option value="flexible">مرن في أي وقت</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">هل لديك مقابلة قادمة؟ <span className="text-red-500">*</span></label>
+                  <select
+                    value={formData.upcomingInterview}
+                    onChange={(e) => updateField('upcomingInterview', e.target.value)}
+                    className={`${inputClasses} py-3 px-4`}
+                  >
+                    <option value="no">لا يوجد حالياً</option>
+                    <option value="yes_soon">نعم، خلال هذا الأسبوع</option>
+                    <option value="yes_later">نعم، في موعد لاحق</option>
+                  </select>
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  توقعاتك من الجلسة <span className="text-red-500">*</span>
-                  <span className="text-xs font-normal text-gray-500 mr-2">(10 أحرف على الأقل)</span>
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">توقعاتك من الجلسة <span className="text-red-500">*</span></label>
                 <textarea
-                  rows={3}
                   value={formData.expectations}
                   onChange={(e) => updateField('expectations', e.target.value)}
-                  className={`${inputClasses} py-3 px-4`}
-                  placeholder="أريد التركيز على أسئلة الـ System Design..."
+                  className={`${inputClasses} py-3 px-4 min-h-[100px]`}
+                  placeholder="ما الذي تود التركيز عليه خلال الجلسة؟"
                 />
               </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-100">
+              <div className="pt-4 border-t border-gray-100">
                 <label className="flex items-start gap-3 cursor-pointer group">
-                  <div className="flex items-center h-6">
-                    <input
-                      type="checkbox"
-                      checked={formData.termsAccepted}
-                      onChange={(e) => updateField('termsAccepted', e.target.checked)}
-                      className="h-5 w-5 text-accent border-gray-300 rounded focus:ring-accent"
-                    />
-                  </div>
-                  <div className="text-sm text-gray-600 leading-6">
-                    قرأت ووافقت على <Link to="/terms" target="_blank" className="text-accent hover:underline font-bold mx-1">الشروط والأحكام</Link> وسياسة الخصوصية.
-                  </div>
+                  <input
+                    type="checkbox"
+                    checked={formData.termsAccepted}
+                    onChange={(e) => updateField('termsAccepted', e.target.checked)}
+                    className="mt-1 w-5 h-5 text-accent rounded focus:ring-accent border-gray-300"
+                  />
+                  <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
+                    أوافق على <Link to="/terms" className="text-accent hover:underline font-bold">شروط الاستخدام</Link> و <Link to="/privacy" className="text-accent hover:underline font-bold">سياسة الخصوصية</Link> المتعلقة بالخدمة.
+                  </span>
                 </label>
-                {!formData.termsAccepted && step === 3 && (
-                   <p className="text-xs text-gray-400 mt-1 mr-8">يجب الموافقة للمتابعة</p>
-                )}
               </div>
-
             </div>
           )}
 
-          <div className="mt-8 flex justify-between items-center border-t pt-6">
-            {step > 1 ? (
-              <Button variant="outline" onClick={() => setStep(s => s - 1)} className="flex items-center gap-2">
-                <ChevronRight className="w-4 h-4" />
-                رجوع
-              </Button>
-            ) : (
-              // Fix: Added missing quote and correctly closed the div tag
-              <div className="w-2" /> 
-            )}
+          {error && (
+            <div className="mt-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 animate-in shake duration-500">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <p className="text-sm font-medium">{error}</p>
+            </div>
+          )}
 
+          <div className="mt-8 flex gap-4">
+            {step > 1 && (
+              <Button 
+                variant="outline" 
+                onClick={() => { setStep(step - 1); setError(null); }}
+                className="flex-1 flex items-center justify-center gap-2"
+                disabled={loading}
+              >
+                <ChevronRight className="w-5 h-5" /> السابق
+              </Button>
+            )}
+            
             {step < 3 ? (
               <Button 
-                variant="primary" 
-                onClick={handleNextStep} 
-                className={`flex items-center gap-2 ${
-                  (step === 1 && !isStep1Valid()) || (step === 2 && !isStep2Valid()) 
-                  ? 'opacity-50 cursor-not-allowed' 
-                  : ''
-                }`}
+                onClick={handleNextStep}
+                className="flex-1 flex items-center justify-center gap-2"
               >
-                التالي
-                <ChevronLeft className="w-4 h-4" />
+                التالي <ChevronLeft className="w-5 h-5" />
               </Button>
             ) : (
               <Button 
-                variant="primary" 
                 onClick={handleSubmit}
-                disabled={!isStep3Valid() || loading}
-                className={`flex items-center gap-2 min-w-[140px] justify-center`}
+                className="flex-1 flex items-center justify-center gap-2 py-4"
+                disabled={loading}
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'تأكيد التسجيل'}
+                {loading ? (
+                  <>
+                    <Loader2 className="w-6 h-6 animate-spin" /> جاري إرسال الطلب...
+                  </>
+                ) : (
+                  <>تأكيد وإرسال الطلب <CheckCircle className="w-5 h-5" /></>
+                )}
               </Button>
             )}
           </div>
-          
-          {error && (
-            <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm flex items-center gap-2 animate-in fade-in">
-              <AlertCircle className="w-4 h-4" />
-              {error}
-            </div>
-          )}
         </div>
-        
-        <p className="text-center text-sm text-gray-400 mt-4">
-          بياناتك محفوظة بشكل آمن ولن يتم مشاركتها مع أي طرف ثالث.
-        </p>
       </div>
 
+      {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-           <div className="bg-white rounded-3xl p-8 md:p-10 max-w-md w-full text-center shadow-2xl transform scale-105 animate-in zoom-in-95 duration-300 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-accent to-emerald-400"></div>
-              
-              <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                <CheckCircle className="w-12 h-12 text-green-500" />
-              </div>
-              
-              <p className="text-gray-600 text-lg mb-8 leading-relaxed font-bold">
-                تم استلام طلبك بنجاح! <br/> سنتواصل معك قريباً.
-              </p>
-              
-              <Button 
-                onClick={() => navigate('/my-requests')} 
-                className="w-full py-4 text-lg shadow-xl shadow-accent/20"
-              >
-                عرض حالة الطلب
-              </Button>
-           </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl animate-in zoom-in-95">
+            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-12 h-12" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">تم استلام طلبك!</h3>
+            <p className="text-gray-600 mb-8 leading-relaxed">
+              شكراً لثقتك بنا. سنقوم بمراجعة بياناتك والتواصل معك عبر الواتساب والبريد الإلكتروني خلال 24 ساعة كحد أقصى.
+            </p>
+            <Button className="w-full" onClick={() => navigate('/my-requests')}>
+              متابعة حالة الطلب
+            </Button>
+          </div>
         </div>
       )}
     </div>

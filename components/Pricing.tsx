@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Check, ShieldCheck, Zap, Gift, Sparkles, Users } from 'lucide-react';
 import Button from './Button';
@@ -51,7 +50,7 @@ const pricingPlans = [
     id: 'senior',
     title: 'الاحتراف والتميز',
     level: 'Mid-Senior / Senior',
-    price: '$19.99',
+    price: '$34.9',
     description: 'تحدى قدراتك مع خبراء متمرسين وارفع سقف طموحاتك.',
     features: [
       'مقابلة مع خبير (40-45 دقيقة)',
@@ -68,7 +67,7 @@ const pricingPlans = [
     id: 'staff',
     title: 'القيادة التقنية',
     level: 'Staff / Tech Lead',
-    price: '$29.99',
+    price: '$24.9',
     description: 'نقاشات عالية المستوى في التصميم المعماري والقيادة.',
     features: [
       'مقابلة مع خبير (40-45 دقيقة)',
