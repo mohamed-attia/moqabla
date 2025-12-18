@@ -5,7 +5,7 @@ import Button from './Button';
 import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 
 // Fix: Use type assertion to bypass broken react-router-dom type definitions
 const { useNavigate } = ReactRouterDOM as any;
@@ -85,15 +85,18 @@ const Pricing: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
+        setIsAdmin(currentUser.email === 'dev.mohattia@gmail.com');
         try {
           const q = query(
             collection(db, "registrations"), 
-            where("userId", "==", currentUser.uid)
+            where("userId", "==", currentUser.uid),
+            limit(10)
           );
           const snapshot = await getDocs(q);
           const hasActive = snapshot.docs.some(doc => {
@@ -107,6 +110,7 @@ const Pricing: React.FC = () => {
         }
       } else {
         setHasActiveRequest(false);
+        setIsAdmin(false);
       }
     });
     return () => unsubscribe();
@@ -114,7 +118,7 @@ const Pricing: React.FC = () => {
 
   const handleBookingAction = () => {
     if (user) {
-      if (hasActiveRequest) return;
+      if (hasActiveRequest && !isAdmin) return;
       navigate('/request-meeting');
     } else {
       navigate('/login');
@@ -208,7 +212,7 @@ const Pricing: React.FC = () => {
                 )}
               </ul>
 
-              {!hasActiveRequest && (
+              {(!user || (!hasActiveRequest && !isAdmin)) && (
                 <Button 
                   onClick={handleBookingAction}
                   className={`w-full justify-center ${

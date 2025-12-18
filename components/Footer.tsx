@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 // Use namespace import to bypass named export resolution issues in the current environment
 import * as ReactRouterDOM from 'react-router-dom';
@@ -6,7 +5,7 @@ import { Mail, Phone, MapPin, Linkedin, Twitter, Instagram } from 'lucide-react'
 import Button from './Button';
 import { auth, db } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 
 // Fix: Use type assertion to bypass broken react-router-dom type definitions
 const { Link, useNavigate, useLocation } = ReactRouterDOM as any;
@@ -17,15 +16,18 @@ const Footer: React.FC = () => {
   const isHome = location.pathname === '/';
   const [user, setUser] = useState<any>(null);
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
+        setIsAdmin(currentUser.email === 'dev.mohattia@gmail.com');
         try {
           const q = query(
             collection(db, "registrations"), 
-            where("userId", "==", currentUser.uid)
+            where("userId", "==", currentUser.uid),
+            limit(10)
           );
           const snapshot = await getDocs(q);
           const hasActive = snapshot.docs.some(doc => {
@@ -39,6 +41,7 @@ const Footer: React.FC = () => {
         }
       } else {
         setHasActiveRequest(false);
+        setIsAdmin(false);
       }
     });
     return () => unsubscribe();
@@ -63,15 +66,18 @@ const Footer: React.FC = () => {
     if (!user) {
       navigate('/login');
     } else if (hasActiveRequest) {
-      // Do nothing
+      navigate('/my-requests');
     } else {
       navigate('/request-meeting');
     }
   };
 
+  // إخفاء الزر إذا كان المستخدم العادي لديه طلب نشط
+  const shouldShowBookingCTA = !user || (!hasActiveRequest && !isAdmin);
+
   return (
     <footer id="contact" className="bg-secondary text-gray-300 mt-28">
-      {!hasActiveRequest && (
+      {shouldShowBookingCTA && (
         <div className="container mx-auto px-4 md:px-6 relative">
           <div className="bg-accent rounded-2xl p-8 md:p-12 absolute -top-16 left-4 right-4 md:left-6 md:right-6 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 transform hover:scale-[1.01] transition-transform duration-300">
             <div>
@@ -85,7 +91,7 @@ const Footer: React.FC = () => {
         </div>
       )}
 
-      <div className={`pt-40 pb-12 container mx-auto px-4 md:px-6 ${hasActiveRequest ? 'pt-20' : ''}`}>
+      <div className={`pt-40 pb-12 container mx-auto px-4 md:px-6 ${!shouldShowBookingCTA ? 'pt-20' : ''}`}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 border-b border-gray-800 pb-12 mb-8">
           
           <div className="md:col-span-1">

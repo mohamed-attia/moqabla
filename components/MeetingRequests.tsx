@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { RegistrationFormData } from '../types';
-import { Loader2, AlertCircle, FileText, Calendar, User, Code, Briefcase, Search, ChevronLeft, ChevronRight, Edit2, X, Check, Filter, ExternalLink } from 'lucide-react';
+import { Loader2, FileText, Search, ChevronLeft, ChevronRight, Edit2, X, Filter } from 'lucide-react';
 import Button from './Button';
 
 interface RegistrationWithId extends RegistrationFormData {
@@ -91,14 +91,6 @@ const MeetingRequests: React.FC = () => {
     } finally {
       setIsUpdating(false);
     }
-  };
-
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return '-';
-    if (timestamp.seconds) {
-      return new Date(timestamp.seconds * 1000).toLocaleDateString('ar-EG');
-    }
-    return new Date(timestamp).toLocaleDateString('ar-EG');
   };
 
   const getStatusBadge = (status?: string) => {
@@ -194,7 +186,6 @@ const MeetingRequests: React.FC = () => {
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">الاسم</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">التواصل</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">المجال</th>
-                    <th className="px-6 py-4 text-sm font-bold text-gray-700">السيرة الذاتية</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">الحالة</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700 text-center">إجراءات</th>
                   </tr>
@@ -214,20 +205,6 @@ const MeetingRequests: React.FC = () => {
                           <div className="text-sm font-medium text-gray-700">{reg.field}</div>
                           <div className="text-xs text-gray-400">{reg.experience} سنوات خبرة</div>
                         </td>
-                        <td className="px-6 py-4">
-                          {reg.resumeUrl ? (
-                            <a 
-                              href={reg.resumeUrl} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-accent hover:text-accentHover font-bold text-xs bg-accent/5 px-2 py-1 rounded border border-accent/10"
-                            >
-                              عرض الملف <ExternalLink className="w-3 h-3" />
-                            </a>
-                          ) : (
-                            <span className="text-gray-300 text-xs italic">غير متوفر</span>
-                          )}
-                        </td>
                         <td className="px-6 py-4">{getStatusBadge(reg.status)}</td>
                         <td className="px-6 py-4 text-center">
                           <button 
@@ -241,7 +218,7 @@ const MeetingRequests: React.FC = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-gray-500">لا توجد بيانات.</td>
+                      <td colSpan={5} className="px-6 py-12 text-center text-gray-500">لا توجد بيانات.</td>
                     </tr>
                   )}
                 </tbody>
