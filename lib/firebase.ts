@@ -1,13 +1,11 @@
-import { initializeApp } from "firebase/app";
+// Modular Firebase (v11.1.0) initialization
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import * as firebaseAuth from "firebase/auth";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
-// Access environment variables safely handling TypeScript type definition limitations
-// Cast import.meta to any because TypeScript might not have the Vite types loaded in this context
+// Access environment variables safely
 const env = (import.meta as any).env || {};
 
-// Configuration uses environment variables for security, 
-// but falls back to provided keys for immediate functionality.
 const firebaseConfig = {
   apiKey: env.VITE_FIREBASE_API_KEY || "AIzaSyCaQr0skV-QlYaIIxOx-FIpG6JeBzDTXOc",
   authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || "moqabala-9257a.firebaseapp.com",
@@ -18,7 +16,10 @@ const firebaseConfig = {
   measurementId: "G-W48GY1FMT4"
 };
 
-const app = initializeApp(firebaseConfig);
+// Singleton pattern to ensure only one Firebase app is initialized
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
+// Initialize and export services
 export const db = getFirestore(app);
-export const auth = firebaseAuth.getAuth(app);
-export const googleProvider = new firebaseAuth.GoogleAuthProvider();
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();

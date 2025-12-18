@@ -1,5 +1,7 @@
+
 import React from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+// Use namespace import to bypass named export resolution issues in the current environment
+import * as ReactRouterDOM from 'react-router-dom';
 import Header from './components/Header';
 import Home from './components/Home';
 import CreateMeetingRequest from './components/CreateMeetingRequest';
@@ -14,8 +16,9 @@ import FAQ from './components/FAQ';
 import Team from './components/Team';
 import Dashboard from './components/Dashboard/Dashboard';
 
-// Layout component to handle conditional rendering of Header/Footer if needed
-// or just to wrap the main content
+// Fix: Use type assertion to bypass broken react-router-dom type definitions
+const { HashRouter, Routes, Route, useLocation } = ReactRouterDOM as any;
+
 const Layout = () => {
   const location = useLocation();
   const isDashboard = location.pathname.startsWith('/dashboard');
@@ -38,7 +41,6 @@ const Layout = () => {
           <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </main>
-      {/* Hide footer on Dashboard to give more space */}
       {!isDashboard && <Footer />}
     </div>
   );

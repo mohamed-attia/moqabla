@@ -3,7 +3,7 @@ import { LucideIcon } from 'lucide-react';
 export interface NavItem {
   id: string;
   label: string;
-  isPage?: boolean; // New property to distinguish internal links from pages
+  isPage?: boolean;
 }
 
 export interface FeatureItem {
@@ -29,27 +29,36 @@ export interface TeamMember {
 }
 
 export interface RegistrationFormData {
-  // Step 1: Basic Info
   fullName: string;
   email: string;
   country: string;
   whatsapp: string;
   linkedin: string;
-  
-  // Step 2: Tech Background
   field: string;
   techStack: string[];
   experience: number;
   level: 'junior' | 'mid' | 'senior' | 'lead';
-  
-  // Step 3: Goals
   goals: string[];
-  hasInterviewExperience: string; // 'yes' | 'no'
-  upcomingInterview: string; // 'yes' | 'no' | 'soon'
+  hasInterviewExperience: string;
+  upcomingInterview: string;
   preferredTime: string;
   expectations: string;
   termsAccepted: boolean;
-  
-  submittedAt?: any; // Timestamp
+  userId?: string;
+  submittedAt?: any;
   status?: 'pending' | 'approved' | 'completed' | 'canceled' | 'reviewing';
+}
+
+export interface ReviewData {
+  id?: string;
+  requestId: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userPhone: string;
+  interviewFeedback: string;
+  platformFeedback: string;
+  interviewerFeedback: string;
+  improvementIdeas: string;
+  submittedAt: any;
 }

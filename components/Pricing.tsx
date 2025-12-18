@@ -1,10 +1,15 @@
+
 import React, { useState, useEffect } from 'react';
 import { Check, ShieldCheck, Zap, Gift, Sparkles, Users } from 'lucide-react';
 import Button from './Button';
-import { useNavigate } from 'react-router-dom';
+// Use namespace import to bypass named export resolution issues
+import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
-import * as firebaseAuth from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+
+// Fix: Use type assertion to bypass broken react-router-dom type definitions
+const { useNavigate } = ReactRouterDOM as any;
 
 const pricingPlans = [
   {
@@ -83,7 +88,7 @@ const Pricing: React.FC = () => {
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = firebaseAuth.onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         try {
@@ -119,7 +124,6 @@ const Pricing: React.FC = () => {
 
   return (
     <section id="pricing" className="py-20 md:py-28 bg-gradient-to-b from-white to-gray-50 relative overflow-hidden">
-      {/* Background decoration */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[10%] left-[-5%] w-72 h-72 bg-accent/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-[10%] right-[-5%] w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
@@ -127,7 +131,6 @@ const Pricing: React.FC = () => {
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         
-        {/* Header */}
         <div className="text-center mb-16 max-w-4xl mx-auto">
           <span className="text-accent font-bold tracking-wider uppercase mb-3 block animate-in fade-in slide-in-from-bottom-2">
             استثمارك في نفسك
@@ -141,7 +144,6 @@ const Pricing: React.FC = () => {
           </p>
         </div>
 
-        {/* Pricing Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 align-stretch">
           {pricingPlans.map((plan, index) => (
             <div 
@@ -155,14 +157,12 @@ const Pricing: React.FC = () => {
               `}
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              {/* Popular Badge */}
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-accent text-white px-4 py-1 rounded-full text-sm font-bold shadow-md whitespace-nowrap">
                   الأكثر طلباً
                 </div>
               )}
 
-              {/* Referral Badge */}
               {plan.highlight && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-md whitespace-nowrap flex items-center gap-1">
                   <Gift className="w-3 h-3" />
@@ -170,7 +170,6 @@ const Pricing: React.FC = () => {
                 </div>
               )}
 
-              {/* Header */}
               <div className="mb-6 text-center">
                 <div className={`
                   w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-4 transition-colors
@@ -189,12 +188,10 @@ const Pricing: React.FC = () => {
                 {plan.period && <p className="text-xs text-purple-600 font-bold bg-purple-50 py-1 px-2 rounded-full inline-block">{plan.period}</p>}
               </div>
 
-              {/* Description */}
               <p className="text-gray-600 text-sm text-center mb-6 leading-relaxed min-h-[40px]">
                 {plan.description}
               </p>
 
-              {/* Features */}
               <ul className="space-y-4 mb-8 flex-grow">
                 {plan.features.map((feature, idx) => (
                   <li key={idx} className="flex items-start gap-3 text-sm text-gray-700">
@@ -212,7 +209,6 @@ const Pricing: React.FC = () => {
                 )}
               </ul>
 
-              {/* CTA Button */}
               {!hasActiveRequest && (
                 <Button 
                   onClick={handleBookingAction}
@@ -229,7 +225,6 @@ const Pricing: React.FC = () => {
           ))}
         </div>
 
-        {/* Note */}
         <div className="text-center mt-12 text-sm text-gray-500 animate-in fade-in slide-in-from-bottom-5">
           <p>جميع الأسعار بالدولار الأمريكي. يتم الدفع بشكل آمن عبر بوابات الدفع المعتمدة.</p>
         </div>

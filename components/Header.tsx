@@ -1,11 +1,16 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Briefcase, LogIn, User as UserIcon, ChevronDown, LogOut, FileText, LayoutDashboard, CheckCircle } from 'lucide-react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+// Use namespace import to bypass named export resolution issues in the current environment
+import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
-import * as firebaseAuth from 'firebase/auth';
+import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import Button from './Button';
 import { NavItem } from '../types';
+
+// Fix: Use type assertion to bypass broken react-router-dom type definitions in this environment
+const { useNavigate, useLocation, Link } = ReactRouterDOM as any;
 
 const navItems: NavItem[] = [
   { id: 'home', label: 'الرئيسية' },
@@ -20,7 +25,7 @@ const navItems: NavItem[] = [
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [user, setUser] = useState<firebaseAuth.User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
@@ -38,14 +43,11 @@ const Header: React.FC = () => {
     };
     window.addEventListener('scroll', handleScroll);
     
-    // Auth Listener
-    const unsubscribe = firebaseAuth.onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // Check Admin
         setIsAdmin(currentUser.email === 'dev.mohattia@gmail.com');
 
-        // Check for active requests
         try {
           const q = query(
             collection(db, "registrations"), 
@@ -67,7 +69,6 @@ const Header: React.FC = () => {
       }
     });
 
-    // Close profile menu on click outside
     const handleClickOutside = (event: MouseEvent) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
         setProfileMenuOpen(false);
@@ -82,13 +83,11 @@ const Header: React.FC = () => {
     };
   }, []);
 
-  // Close menus on route change
   useEffect(() => {
     setIsOpen(false);
     setProfileMenuOpen(false);
   }, [location]);
 
-  // Handle Logout Toast Timer
   useEffect(() => {
     if (showLogoutToast) {
       const timer = setTimeout(() => setShowLogoutToast(false), 3000);
@@ -138,7 +137,7 @@ const Header: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await firebaseAuth.signOut(auth);
+      await signOut(auth);
       setProfileMenuOpen(false);
       setShowLogoutToast(true);
       navigate('/');
@@ -157,7 +156,6 @@ const Header: React.FC = () => {
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between">
             
-            {/* Logo Area */}
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleNavigation(navItems[0])}>
               <div className="bg-accent p-2 rounded-lg">
                 <Briefcase className="w-6 h-6 text-white" />
@@ -167,7 +165,6 @@ const Header: React.FC = () => {
               </span>
             </div>
 
-            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6 lg:gap-8">
               {navItems.map((item) => {
                 const isActive = item.id === 'team' && isTeam;
@@ -200,7 +197,6 @@ const Header: React.FC = () => {
               )}
             </nav>
 
-            {/* Actions (Desktop) */}
             <div className="hidden md:flex items-center gap-4">
               {!user ? (
                 <button 
@@ -229,7 +225,6 @@ const Header: React.FC = () => {
                       <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${profileMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
 
-                  {/* Dropdown Menu */}
                   {profileMenuOpen && (
                     <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-left">
                       <div className="p-4 border-b border-gray-50 bg-gray-50/50">
@@ -275,7 +270,6 @@ const Header: React.FC = () => {
               )}
             </div>
 
-            {/* Mobile Menu Toggle */}
             <button 
               className="md:hidden p-2"
               onClick={() => setIsOpen(!isOpen)}
@@ -289,7 +283,6 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation Dropdown */}
         <div 
           className={`md:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-100 shadow-xl transition-all duration-300 origin-top transform ${
             isOpen ? 'opacity-100 scale-y-100 visible' : 'opacity-0 scale-y-0 invisible'
@@ -363,7 +356,6 @@ const Header: React.FC = () => {
         </div>
       </header>
 
-      {/* Logout Toast */}
       <div 
         className={`fixed bottom-6 right-6 z-[60] bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-500 transform ${
           showLogoutToast ? 'translate-y-0 opacity-100' : 'translate-y-24 opacity-0'

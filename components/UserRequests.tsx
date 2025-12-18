@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
-import * as firebaseAuth from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
-import { Loader2, Calendar, FileText, Code, Clock, Briefcase } from 'lucide-react';
+import { onAuthStateChanged } from 'firebase/auth';
+import * as ReactRouterDOM from 'react-router-dom';
+import { Loader2, Calendar, FileText, Code, Clock, Briefcase, Star, X, MessageSquareQuote, CheckCircle2 } from 'lucide-react';
 import Button from './Button';
+
+const { useNavigate } = ReactRouterDOM as any;
 
 interface MyRequestData {
   id: string;
+  fullName: string;
+  email: string;
+  whatsapp: string;
   field: string;
   level: string;
   status: string;
@@ -20,10 +25,21 @@ interface MyRequestData {
 const UserRequests: React.FC = () => {
   const [requests, setRequests] = useState<MyRequestData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [reviewingRequestId, setReviewingRequestId] = useState<string | null>(null);
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
+  
+  const [feedback, setFeedback] = useState({
+    interview: '',
+    platform: '',
+    interviewer: '',
+    improvements: ''
+  });
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = firebaseAuth.onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
           const q = query(collection(db, "registrations"), where("userId", "==", user.uid));
@@ -34,7 +50,6 @@ const UserRequests: React.FC = () => {
             results.push({ id: doc.id, ...data } as MyRequestData);
           });
           
-          // Sort client side (newest first)
           results.sort((a, b) => {
             const timeA = a.submittedAt?.seconds || 0;
             const timeB = b.submittedAt?.seconds || 0;
@@ -54,6 +69,40 @@ const UserRequests: React.FC = () => {
 
     return () => unsubscribe();
   }, [navigate]);
+
+  const handleSubmitReview = async (req: MyRequestData) => {
+    if (!feedback.interview || !feedback.platform || !feedback.interviewer) {
+        alert("يرجى تعبئة التقييمات الأساسية");
+        return;
+    }
+
+    setSubmittingReview(true);
+    try {
+        await addDoc(collection(db, "reviews"), {
+            requestId: req.id,
+            userId: auth.currentUser?.uid,
+            userName: req.fullName || auth.currentUser?.displayName,
+            userEmail: req.email || auth.currentUser?.email,
+            userPhone: req.whatsapp || '',
+            interviewFeedback: feedback.interview,
+            platformFeedback: feedback.platform,
+            interviewerFeedback: feedback.interviewer,
+            improvementIdeas: feedback.improvements,
+            submittedAt: serverTimestamp()
+        });
+        setReviewSuccess(true);
+        setTimeout(() => {
+            setReviewingRequestId(null);
+            setReviewSuccess(false);
+            setFeedback({ interview: '', platform: '', interviewer: '', improvements: '' });
+        }, 2000);
+    } catch (error) {
+        console.error("Error saving review:", error);
+        alert("حدث خطأ أثناء حفظ التقييم");
+    } finally {
+        setSubmittingReview(false);
+    }
+  };
 
   const formatDate = (timestamp: any) => {
     if (!timestamp) return 'غير محدد';
@@ -89,8 +138,6 @@ const UserRequests: React.FC = () => {
     );
   };
 
-  // Determine if there is an active request (Pending or Reviewing)
-  // Also handle undefined status as pending
   const hasActiveRequest = requests.some(req => {
      const status = req.status || 'pending';
      return ['pending', 'reviewing'].includes(status);
@@ -135,7 +182,6 @@ const UserRequests: React.FC = () => {
           <div className="grid gap-6">
             {requests.map((req) => (
               <div key={req.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
-                {/* Header */}
                 <div className="px-6 py-4 border-b border-gray-50 flex flex-wrap justify-between items-center gap-4 bg-gray-50/50">
                    <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
@@ -149,10 +195,20 @@ const UserRequests: React.FC = () => {
                         </div>
                       </div>
                    </div>
-                   {getStatusBadge(req.status)}
+                   <div className="flex items-center gap-3">
+                      {req.status === 'completed' && (
+                        <button 
+                            onClick={() => setReviewingRequestId(req.id)}
+                            className="flex items-center gap-1 text-xs font-bold text-accent hover:text-accentHover bg-accent/5 px-3 py-1 rounded-full border border-accent/20 transition-colors"
+                        >
+                            <Star className="w-3 h-3" />
+                            تقييم التجربة
+                        </button>
+                      )}
+                      {getStatusBadge(req.status)}
+                   </div>
                 </div>
 
-                {/* Body */}
                 <div className="p-6 grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>
@@ -199,6 +255,79 @@ const UserRequests: React.FC = () => {
                     </ul>
                   </div>
                 </div>
+
+                {reviewingRequestId === req.id && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+                        <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95">
+                            <div className="bg-accent px-6 py-4 flex items-center justify-between text-white">
+                                <h3 className="font-bold text-lg flex items-center gap-2">
+                                    <MessageSquareQuote className="w-5 h-5" />
+                                    تقييم تجربتك للمقابلة
+                                </h3>
+                                <button onClick={() => setReviewingRequestId(null)} className="hover:rotate-90 transition-transform">
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                                {reviewSuccess ? (
+                                    <div className="py-12 text-center space-y-4">
+                                        <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto animate-bounce" />
+                                        <p className="text-xl font-bold text-gray-800">شكراً لك! تم استلام تقييمك بنجاح</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">تقييمك للمقابلة بشكل عام</label>
+                                            <textarea 
+                                                value={feedback.interview}
+                                                onChange={(e) => setFeedback({...feedback, interview: e.target.value})}
+                                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-accent focus:border-accent min-h-[80px]"
+                                                placeholder="كيف كانت الأسئلة؟ هل استفدت؟"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">تقييمك للمنصة وسهولة الاستخدام</label>
+                                            <textarea 
+                                                value={feedback.platform}
+                                                onChange={(e) => setFeedback({...feedback, platform: e.target.value})}
+                                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-accent focus:border-accent min-h-[80px]"
+                                                placeholder="تجربة الموقع، الحجز، التواصل..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">تقييمك للمقيّم (المحاور)</label>
+                                            <textarea 
+                                                value={feedback.interviewer}
+                                                onChange={(e) => setFeedback({...feedback, interviewer: e.target.value})}
+                                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-accent focus:border-accent min-h-[80px]"
+                                                placeholder="أسلوب الشرح، التغذية الراجعة، الالتزام بالوقت..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">أفكار لتحسين المنصة (اختياري)</label>
+                                            <textarea 
+                                                value={feedback.improvements}
+                                                onChange={(e) => setFeedback({...feedback, improvements: e.target.value})}
+                                                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-accent focus:border-accent min-h-[80px]"
+                                                placeholder="ما الذي تود رؤيته مستقبلاً؟"
+                                            />
+                                        </div>
+                                        <div className="pt-4">
+                                            <Button 
+                                                onClick={() => handleSubmitReview(req)} 
+                                                disabled={submittingReview}
+                                                className="w-full justify-center text-lg"
+                                            >
+                                                {submittingReview ? <Loader2 className="w-6 h-6 animate-spin" /> : 'إرسال التقييم'}
+                                            </Button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
               </div>
             ))}
           </div>

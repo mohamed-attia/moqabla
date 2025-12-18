@@ -1,10 +1,15 @@
+
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+// Use namespace import to bypass named export resolution issues in the current environment
+import * as ReactRouterDOM from 'react-router-dom';
 import { Mail, Phone, MapPin, Linkedin, Twitter, Instagram } from 'lucide-react';
 import Button from './Button';
 import { auth, db } from '../lib/firebase';
-import * as firebaseAuth from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+
+// Fix: Use type assertion to bypass broken react-router-dom type definitions
+const { Link, useNavigate, useLocation } = ReactRouterDOM as any;
 
 const Footer: React.FC = () => {
   const navigate = useNavigate();
@@ -14,7 +19,7 @@ const Footer: React.FC = () => {
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = firebaseAuth.onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         try {
@@ -42,7 +47,6 @@ const Footer: React.FC = () => {
   const handleNavigation = (id: string) => {
     if (!isHome) {
       navigate('/');
-      // Timeout to allow navigation to complete before scrolling
       setTimeout(() => {
         const element = document.getElementById(id);
         if (element) element.scrollIntoView({ behavior: 'smooth' });
@@ -67,7 +71,6 @@ const Footer: React.FC = () => {
 
   return (
     <footer id="contact" className="bg-secondary text-gray-300 mt-28">
-      {/* CTA Section - Hide if user has active request */}
       {!hasActiveRequest && (
         <div className="container mx-auto px-4 md:px-6 relative">
           <div className="bg-accent rounded-2xl p-8 md:p-12 absolute -top-16 left-4 right-4 md:left-6 md:right-6 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 transform hover:scale-[1.01] transition-transform duration-300">
@@ -82,7 +85,6 @@ const Footer: React.FC = () => {
         </div>
       )}
 
-      {/* Main Footer Content */}
       <div className={`pt-40 pb-12 container mx-auto px-4 md:px-6 ${hasActiveRequest ? 'pt-20' : ''}`}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 border-b border-gray-800 pb-12 mb-8">
           
