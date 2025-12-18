@@ -137,6 +137,17 @@ const Header: React.FC = () => {
     }
   };
 
+  const handleCTAAction = () => {
+    if (!user) {
+      navigate('/login');
+    } else if (!user.emailVerified) {
+      navigate('/profile');
+      alert("يرجى تفعيل بريدك الإلكتروني أولاً لتتمكن من حجز مقابلة.");
+    } else {
+      navigate('/request-meeting');
+    }
+  };
+
   return (
     <>
       {showVerifyAlert && (
@@ -190,7 +201,7 @@ const Header: React.FC = () => {
                 </div>
               )}
               {(!user || (!hasActiveRequest && !isAdmin)) && (
-                <Button variant={scrolled || !isHome ? 'primary' : 'white'} onClick={() => navigate(user ? '/request-meeting' : '/login')}>احجز مقابلة</Button>
+                <Button variant={scrolled || !isHome ? 'primary' : 'white'} onClick={handleCTAAction}>احجز مقابلة</Button>
               )}
             </div>
             <button className="md:hidden p-2" onClick={() => setIsOpen(!isOpen)}>{isOpen ? <X className={`w-8 h-8 ${scrolled || !isHome ? 'text-primary' : 'text-white'}`} /> : <Menu className={`w-8 h-8 ${scrolled || !isHome ? 'text-primary' : 'text-white'}`} />}</button>

@@ -1,26 +1,28 @@
 import React, { useState, useEffect } from 'react';
-// Use namespace import to bypass named export resolution issues in the current environment
 import * as ReactRouterDOM from 'react-router-dom';
 import { 
   User, Mail, Globe, Linkedin, Code, 
-  Clock, CheckCircle, ChevronLeft, ChevronRight, AlertCircle, Loader2, Phone
+  Clock, CheckCircle, ChevronLeft, ChevronRight, AlertCircle, Loader2, Phone, MailWarning, RefreshCw
 } from 'lucide-react';
 import Button from './Button';
 import { RegistrationFormData } from '../types';
 import { db, auth } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, sendEmailVerification } from 'firebase/auth';
+import { sendAdminNotification } from '../lib/notifications';
 
-// Fix: Use type assertion to bypass broken react-router-dom type definitions
 const { useNavigate, Link } = ReactRouterDOM as any;
 
 const CreateMeetingRequest: React.FC = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [isUnverified, setIsUnverified] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isResending, setIsResending] = useState(false);
   
   const [formData, setFormData] = useState<RegistrationFormData>({
     fullName: '',
@@ -40,9 +42,12 @@ const CreateMeetingRequest: React.FC = () => {
     termsAccepted: false
   });
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
+  const checkUserStatus = async (user: any) => {
+    if (user) {
+      if (!user.emailVerified) {
+        setIsUnverified(true);
+      } else {
+        setIsUnverified(false);
         setCurrentUser(user);
         if (user.email && !formData.email) {
           setFormData(prev => ({ ...prev, email: user.email! }));
@@ -50,12 +55,41 @@ const CreateMeetingRequest: React.FC = () => {
         if (user.displayName && !formData.fullName) {
             setFormData(prev => ({ ...prev, fullName: user.displayName! }));
         }
-      } else {
-        navigate('/login');
       }
+    } else {
+      navigate('/login');
+    }
+    setCheckingAuth(false);
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      checkUserStatus(user);
     });
     return () => unsubscribe();
   }, [navigate]);
+
+  const refreshStatus = async () => {
+    setCheckingAuth(true);
+    if (auth.currentUser) {
+      await auth.currentUser.reload();
+      checkUserStatus(auth.currentUser);
+    }
+  };
+
+  const resendEmail = async () => {
+    if (auth.currentUser && !isResending) {
+      setIsResending(true);
+      try {
+        await sendEmailVerification(auth.currentUser);
+        alert("تم إرسال رابط التفعيل مجدداً إلى بريدك.");
+      } catch (e) {
+        alert("فشل الإرسال. يرجى المحاولة لاحقاً.");
+      } finally {
+        setIsResending(false);
+      }
+    }
+  };
 
   const [currentTech, setCurrentTech] = useState('');
 
@@ -108,17 +142,25 @@ const CreateMeetingRequest: React.FC = () => {
   const isStep3Valid = () => {
     return formData.goals.length > 0 && 
            formData.preferredTime !== '' &&
-           formData.expectations.trim().length > 10 &&
+           formData.expectations.trim().length >= 10 &&
            formData.termsAccepted === true;
   };
 
   const handleNextStep = () => {
-    if (step === 1 && isStep1Valid()) {
-      setStep(2);
-    } else if (step === 2 && isStep2Valid()) {
-      setStep(3);
-    } else {
-        setError("يرجى استكمال البيانات المطلوبة في هذه الخطوة.");
+    if (step === 1) {
+      if (isStep1Valid()) {
+        setStep(2);
+        setError(null);
+      } else {
+        setError("يرجى التأكد من إكمال جميع البيانات الشخصية بشكل صحيح (الاسم، البريد، واتساب، ورابط LinkedIn).");
+      }
+    } else if (step === 2) {
+      if (isStep2Valid()) {
+        setStep(3);
+        setError(null);
+      } else {
+        setError("يرجى اختيار المجال وإضافة تقنية واحدة على الأقل وتحديد سنوات الخبرة.");
+      }
     }
   };
 
@@ -126,7 +168,15 @@ const CreateMeetingRequest: React.FC = () => {
     if (loading) return;
 
     if (!isStep3Valid()) {
-      setError("يرجى التأكد من تعبئة جميع الحقول والموافقة على الشروط.");
+      if (formData.expectations.trim().length < 10) {
+        setError("يرجى كتابة 10 حروف على الأقل في التوقعات من الجلسة لتساعدنا في التحضير الجيد.");
+      } else if (formData.goals.length === 0) {
+        setError("يرجى اختيار هدف واحد على الأقل من المقابلة.");
+      } else if (!formData.termsAccepted) {
+        setError("يرجى الموافقة على شروط الاستخدام.");
+      } else {
+        setError("يرجى استكمال جميع البيانات المطلوبة في الخطوة الأخيرة.");
+      }
       return;
     }
 
@@ -139,7 +189,6 @@ const CreateMeetingRequest: React.FC = () => {
     setError(null);
 
     try {
-      // Add to Firestore without resumeUrl
       await addDoc(collection(db, "registrations"), {
         ...formData,
         userId: currentUser.uid, 
@@ -147,6 +196,17 @@ const CreateMeetingRequest: React.FC = () => {
         status: 'pending'
       });
       
+      await sendAdminNotification({
+        to_email: "dev.mohattia@gmail.com",
+        from_name: formData.fullName,
+        user_email: formData.email,
+        user_phone: formData.whatsapp,
+        field: formData.field,
+        level: formData.level,
+        tech_stack: formData.techStack.join(', '),
+        expectations: formData.expectations
+      });
+
       setShowSuccessModal(true);
     } catch (err: any) {
       console.error("Error submitting form: ", err);
@@ -155,6 +215,43 @@ const CreateMeetingRequest: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen pt-32 flex flex-col items-center justify-center">
+        <Loader2 className="w-10 h-10 text-accent animate-spin" />
+      </div>
+    );
+  }
+
+  if (isUnverified) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-32 pb-12 px-4 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-xl border border-gray-100 text-center animate-in fade-in zoom-in duration-500">
+           <div className="w-20 h-20 bg-amber-50 text-amber-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+             <MailWarning className="w-10 h-10" />
+           </div>
+           <h2 className="text-2xl font-black text-primary mb-4">تفعيل الحساب مطلوب</h2>
+           <p className="text-gray-600 mb-8 leading-relaxed">
+             عذراً، يجب عليك تفعيل بريدك الإلكتروني <span className="font-bold text-accent">({auth.currentUser?.email})</span> لتتمكن من حجز مقابلة. يرجى مراجعة صندوق الوارد الخاص بك.
+           </p>
+           
+           <div className="space-y-4">
+             <Button onClick={refreshStatus} className="w-full flex items-center justify-center gap-2 py-4">
+               <RefreshCw className="w-5 h-5" /> تحديث حالة التفعيل
+             </Button>
+             <button 
+              onClick={resendEmail} 
+              disabled={isResending}
+              className="text-sm font-bold text-gray-500 hover:text-accent transition-colors underline"
+             >
+               {isResending ? 'جاري الإرسال...' : 'إرسال رابط التفعيل مرة أخرى'}
+             </button>
+           </div>
+        </div>
+      </div>
+    );
+  }
 
   const inputClasses = "block w-full border rounded-lg focus:ring-accent focus:border-accent border-gray-300";
 
@@ -267,7 +364,13 @@ const CreateMeetingRequest: React.FC = () => {
                 <div><label className="block text-sm font-medium text-gray-700 mb-2">الوقت المفضل للمقابلة <span className="text-red-500">*</span></label><select value={formData.preferredTime} onChange={(e) => updateField('preferredTime', e.target.value)} className={`${inputClasses} py-3 px-4`}><option value="">اختر الوقت...</option><option value="morning">صباحاً (9ص - 12م)</option><option value="evening">مساءً (4م - 9م)</option><option value="flexible">مرن في أي وقت</option></select></div>
                 <div><label className="block text-sm font-medium text-gray-700 mb-2">هل لديك مقابلة قادمة؟ <span className="text-red-500">*</span></label><select value={formData.upcomingInterview} onChange={(e) => updateField('upcomingInterview', e.target.value)} className={`${inputClasses} py-3 px-4`}><option value="no">لا يوجد حالياً</option><option value="yes_soon">نعم، خلال هذا الأسبوع</option><option value="yes_later">نعم، في موعد لاحق</option></select></div>
               </div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">توقعاتك من الجلسة <span className="text-red-500">*</span></label><textarea value={formData.expectations} onChange={(e) => updateField('expectations', e.target.value)} className={`${inputClasses} py-3 px-4 min-h-[100px]`} placeholder="ما الذي تود التركيز عليه خلال الجلسة؟" /></div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 flex justify-between items-center">
+                   <span>توقعاتك من الجلسة <span className="text-red-500">*</span></span>
+                   <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full font-bold">10 حروف على الأقل</span>
+                </label>
+                <textarea value={formData.expectations} onChange={(e) => updateField('expectations', e.target.value)} className={`${inputClasses} py-3 px-4 min-h-[100px]`} placeholder="ما الذي تود التركيز عليه خلال الجلسة؟" />
+              </div>
               <div className="pt-4 border-t border-gray-100"><label className="flex items-start gap-3 cursor-pointer group"><input type="checkbox" checked={formData.termsAccepted} onChange={(e) => updateField('termsAccepted', e.target.checked)} className="mt-1 w-5 h-5 text-accent rounded focus:ring-accent border-gray-300" /><span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">أوافق على <Link to="/terms" className="text-accent hover:underline font-bold">شروط الاستخدام</Link> و <Link to="/privacy" className="text-accent hover:underline font-bold">سياسة الخصوصية</Link> المتعلقة بالخدمة.</span></label></div>
             </div>
           )}
@@ -283,7 +386,7 @@ const CreateMeetingRequest: React.FC = () => {
 
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl animate-in zoom-in-95">
+          <div className="bg-white rounded-3xl p-8 max-sm w-full text-center shadow-2xl animate-in zoom-in-95">
             <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle className="w-12 h-12" /></div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">تم استلام طلبك!</h3>
             <p className="text-gray-600 mb-8 leading-relaxed">شكراً لثقتك بنا. سنقوم بمراجعة بياناتك والتواصل معك عبر الواتساب والبريد الإلكتروني خلال 24 ساعة كحد أقصى.</p>
