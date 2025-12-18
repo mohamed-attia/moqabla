@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, ShieldCheck, Zap, Gift, Sparkles, Users } from 'lucide-react';
+import { Check, ShieldCheck, Zap, Gift, Sparkles, Users, Lock, CreditCard } from 'lucide-react';
 import Button from './Button';
 // Use namespace import to bypass named export resolution issues
 import * as ReactRouterDOM from 'react-router-dom';
@@ -16,7 +16,7 @@ const pricingPlans = [
     title: 'سفراء النجاح',
     level: 'Community & Referrals',
     price: 'مجاناً',
-    period: 'عند دعوة 100 صديق',
+    period: 'عند دعوة 15 صديق',
     description: 'شارك المعرفة مع مجتمعك واحصل على التجربة كاملة مجاناً.',
     features: [
       'مقابلة مع خبير (40-45 دقيقة)',
@@ -50,7 +50,7 @@ const pricingPlans = [
     id: 'senior',
     title: 'الاحتراف والتميز',
     level: 'Mid-Senior / Senior',
-    price: '$34.9',
+    price: '$24.9',
     description: 'تحدى قدراتك مع خبراء متمرسين وارفع سقف طموحاتك.',
     features: [
       'مقابلة مع خبير (40-45 دقيقة)',
@@ -67,7 +67,7 @@ const pricingPlans = [
     id: 'staff',
     title: 'القيادة التقنية',
     level: 'Staff / Tech Lead',
-    price: '$24.9',
+    price: '$34.9',
     description: 'نقاشات عالية المستوى في التصميم المعماري والقيادة.',
     features: [
       'مقابلة مع خبير (40-45 دقيقة)',
@@ -143,11 +143,11 @@ const Pricing: React.FC = () => {
           </h2>
           <p className="text-gray-600 text-lg md:text-xl leading-relaxed animate-in fade-in slide-in-from-bottom-4 bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-gray-100 shadow-sm inline-block">
             <span className="font-bold text-gray-800 block mb-1">💡 اختر مستواك بدقة أثناء التسجيل</span>
-             تحديد المستوى الصحيح (من مبتدئ إلى خبير) يضمن لك مقابلة تحاكي واقعك وتكشف لك فرص التحسين الحقيقية.
+             تحديد المستوى الصحيح يضمن لك مقابلة تحاكي واقعك وتكشف لك فرص التحسين الحقيقية.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 align-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 align-stretch mb-12">
           {pricingPlans.map((plan, index) => (
             <div 
               key={plan.id}
@@ -228,8 +228,11 @@ const Pricing: React.FC = () => {
           ))}
         </div>
 
-        <div className="text-center mt-12 text-sm text-gray-500 animate-in fade-in slide-in-from-bottom-5">
-          <p>جميع الأسعار بالدولار الأمريكي. يتم الدفع بشكل آمن عبر بوابات الدفع المعتمدة.</p>
+        {/* Simplified Payment Notice Section */}
+        <div className="max-w-4xl mx-auto text-center animate-in fade-in slide-in-from-bottom-4 delay-500">
+          <p className="text-gray-800 font-bold text-lg">
+            الدفع عن طريق تحويلات PayPal و InstaPay
+          </p>
         </div>
 
       </div>

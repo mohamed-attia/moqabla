@@ -1,41 +1,42 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // دالة التحقق من المسؤول باستخدام البريد الإلكتروني
     function isAdmin() {
       return request.auth != null && 
              request.auth.token.email == 'dev.mohattia@gmail.com';
     }
 
-    // قواعد تسجيلات المقابلات
-    match /registrations/{regId} {
-      // السماح بالقراءة إذا كان المستخدم مسؤولاً أو هو صاحب الطلب
-      // ملاحظة: Firestore يتطلب تطابق الاستعلام مع القاعدة عند عمل List
-      allow read: if request.auth != null && (
-        isAdmin() || 
-        (resource != null && resource.data.userId == request.auth.uid) ||
-        (resource == null)
-      );
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == userId;
       
+      // السماح بالتحديث لصاحب المستند أو المسؤول
+      // السماح للمستخدمين الجدد بتحديث العداد والأسماء في مستند الشخص الداعي
+      allow update: if request.auth != null && (
+        request.auth.uid == userId || 
+        isAdmin() ||
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['referralCount', 'referredUsers']) &&
+          request.resource.data.referralCount == resource.data.referralCount + 1
+        )
+      );
+
+      // السماح للمسؤول فقط بحذف المستخدمين
+      allow delete: if isAdmin();
+    }
+
+    match /registrations/{regId} {
+      allow read: if request.auth != null && (isAdmin() || resource.data.userId == request.auth.uid);
       allow create: if request.auth != null;
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
     
-    // قواعد المستخدمين
-    match /users/{userId} {
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
-      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
-      // قاعدة إضافية للسماح للمسؤول برؤية جميع المستخدمين في لوحة التحكم
-      allow list: if isAdmin();
-    }
-    
-    // قواعد التقييمات
     match /reviews/{reviewId} {
-      allow read: if isAdmin();
-      allow list: if isAdmin();
+      allow read, list: if isAdmin();
       allow create: if request.auth != null;
-      allow update, delete: if isAdmin();
+      allow delete: if isAdmin();
     }
   }
 }

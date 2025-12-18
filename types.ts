@@ -1,3 +1,4 @@
+
 import { LucideIcon } from 'lucide-react';
 
 export interface NavItem {
@@ -49,6 +50,24 @@ export interface RegistrationFormData {
   status?: 'pending' | 'approved' | 'completed' | 'canceled' | 'reviewing';
 }
 
+export interface UserProfile {
+  uid: string;
+  name: string;
+  email: string;
+  phone?: string;
+  jobTitle?: string;
+  country?: string;
+  role: 'user' | 'admin';
+  isEmailVerified: boolean;
+  referralCode: string;
+  referralCount: number;
+  referredUsers?: string[]; 
+  referredBy?: string;
+  referralProcessed?: boolean; // الحقل الجديد لمنع التكرار
+  createdAt: any;
+  updatedAt?: any;
+}
+
 export interface ReviewData {
   id?: string;
   requestId: string;
@@ -61,16 +80,4 @@ export interface ReviewData {
   interviewerFeedback: string;
   improvementIdeas: string;
   submittedAt: any;
-}
-
-export interface UserProfile {
-  uid: string;
-  name: string;
-  email: string;
-  phone?: string;
-  jobTitle?: string;
-  country?: string;
-  role: 'user' | 'admin';
-  createdAt: any;
-  updatedAt?: any;
 }

@@ -1,5 +1,6 @@
+
 import React, { useEffect } from 'react';
-import { FileText, Shield, Clock, CreditCard, AlertTriangle, Briefcase } from 'lucide-react';
+import { FileText, Shield, Clock, CreditCard, AlertTriangle, Briefcase, Wallet } from 'lucide-react';
 
 const Terms: React.FC = () => {
   useEffect(() => {
@@ -32,11 +33,16 @@ const Terms: React.FC = () => {
               <span className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-sm">2</span>
               سياسة الدفع والاسترجاع
             </h2>
-            <ul className="list-disc list-inside mr-10 space-y-2 text-gray-600">
-              <li>يتم دفع رسوم الجلسة كاملة مسبقاً لتأكيد الحجز.</li>
-              <li>يمكن استرداد المبلغ بالكامل في حال إلغاء الطلب قبل 24 ساعة من الموعد المحدد.</li>
-              <li>لا يحق للمستخدم المطالبة باسترداد المبلغ إذا تم الإلغاء قبل أقل من 24 ساعة من الموعد، أو في حال عدم حضور الجلسة دون عذر مقبول.</li>
-            </ul>
+            <div className="mr-10 space-y-4">
+              <p className="text-gray-600">يتم تحصيل رسوم الجلسات عبر القنوات الرسمية المعتمدة لضمان أمان معاملاتك المالية:</p>
+              <ul className="list-disc list-inside space-y-2 text-gray-600">
+                <li>يتم دفع رسوم الجلسة كاملة مسبقاً لتأكيد الحجز.</li>
+                <li><span className="font-bold text-gray-900">PayPal:</span> متاح لجميع المستخدمين عالمياً، وتتم المعاملة بالدولار الأمريكي.</li>
+                <li><span className="font-bold text-gray-900">InstaPay:</span> متاح للمستخدمين داخل مصر للتحويل المباشر اللحظي بما يعادل القيمة الموضحة.</li>
+                <li>يمكن استرداد المبلغ بالكامل في حال إلغاء الطلب قبل 24 ساعة من الموعد المحدد.</li>
+                <li>لا يحق للمستخدم المطالبة باسترداد المبلغ إذا تم الإلغاء قبل أقل من 24 ساعة من الموعد، أو في حال عدم حضور الجلسة دون عذر مقبول.</li>
+              </ul>
+            </div>
           </section>
 
           <section>
