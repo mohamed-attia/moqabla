@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, query, orderBy, where, writeBatch, doc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, writeBatch, doc } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
 import { UserProfile } from '../../types';
 import { Search, User, Mail, Loader2, Trash2, Filter, Briefcase, ShieldCheck, Phone } from 'lucide-react';
@@ -60,6 +60,15 @@ const UsersTab: React.FC = () => {
     } finally {
       setDeletingUid(null);
       setUserPendingDelete(null);
+    }
+  };
+
+  const getLevelLabel = (level?: string) => {
+    switch (level) {
+      case 'junior': return 'مبتدئ';
+      case 'mid-senior': return 'متوسط/خبير';
+      case 'lead-staff': return 'قيادي';
+      default: return level || '-';
     }
   };
 
@@ -180,7 +189,7 @@ const UsersTab: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">{user.field || '-'}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{user.level || '-'}</td>
+                    <td className="px-6 py-4 text-sm font-bold text-gray-700">{getLevelLabel(user.level)}</td>
                     <td className="px-6 py-4 text-center">
                       <button 
                         onClick={() => initiateDelete(user)}

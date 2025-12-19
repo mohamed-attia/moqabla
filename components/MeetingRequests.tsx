@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
 import { RegistrationFormData, UserProfile } from '../types';
-import { Loader2, FileText, Search, ChevronLeft, ChevronRight, Edit2, X, Filter, Link as LinkIcon, Video, FileCheck, Save } from 'lucide-react';
+import { 
+  Loader2, FileText, Search, ChevronLeft, ChevronRight, Edit2, X, Filter, 
+  Link as LinkIcon, Video, FileCheck, Save, Eye, User, Mail, Phone, 
+  Linkedin, Code, Briefcase, Target, Clock, AlertCircle, Calendar, Globe
+} from 'lucide-react';
 import { onAuthStateChanged } from 'firebase/auth';
 import Button from './Button';
 
@@ -22,13 +26,13 @@ const MeetingRequests: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Edit/Update State
+  // Modals State
   const [editingRegistration, setEditingRegistration] = useState<RegistrationWithId | null>(null);
+  const [viewingRegistration, setViewingRegistration] = useState<RegistrationWithId | null>(null);
+  const [linkingRegistration, setLinkingRegistration] = useState<RegistrationWithId | null>(null);
+  
   const [statusToUpdate, setStatusToUpdate] = useState<string>('');
   const [isUpdating, setIsUpdating] = useState(false);
-
-  // Links Modal State
-  const [linkingRegistration, setLinkingRegistration] = useState<RegistrationWithId | null>(null);
   const [links, setLinks] = useState({
     meeting: '',
     report: '',
@@ -83,6 +87,10 @@ const MeetingRequests: React.FC = () => {
     setStatusToUpdate(reg.status || 'pending');
   };
 
+  const handleViewDetails = (reg: RegistrationWithId) => {
+    setViewingRegistration(reg);
+  };
+
   const handleLinkClick = (reg: RegistrationWithId) => {
     setLinkingRegistration(reg);
     setLinks({
@@ -94,6 +102,7 @@ const MeetingRequests: React.FC = () => {
 
   const handleCloseModals = () => {
     setEditingRegistration(null);
+    setViewingRegistration(null);
     setLinkingRegistration(null);
     setIsUpdating(false);
   };
@@ -165,10 +174,18 @@ const MeetingRequests: React.FC = () => {
     }
   };
 
+  const getLevelLabel = (level: string) => {
+    switch (level) {
+      case 'junior': return 'مبتدئ';
+      case 'mid-senior': return 'متوسط/خبير';
+      case 'lead-staff': return 'قيادي';
+      default: return level;
+    }
+  };
+
   const isInterviewer = userProfile?.role === 'interviewer';
   const interviewerField = userProfile?.field;
 
-  // Mapping Profile Fields to Registration Fields
   const fieldMapping: Record<string, string> = {
     'FE': 'Frontend',
     'BE': 'Backend',
@@ -177,18 +194,12 @@ const MeetingRequests: React.FC = () => {
   };
 
   const filteredRegistrations = allRegistrations.filter(reg => {
-    // 1. Interviewer Visibility Restrictions
     if (isInterviewer && interviewerField) {
       const targetField = fieldMapping[interviewerField];
-      
-      // شرط 1: مطابقة التخصص التقني
       if (reg.field !== targetField) return false;
-      
-      // شرط 2: رؤية الطلبات "المقبولة" فقط كما هو مطلوب
       if (reg.status !== 'approved') return false;
     }
 
-    // 2. Global Filters (Search and Manual Status Filter)
     const term = searchTerm.toLowerCase().trim();
     const statusMatch = statusFilter === 'ALL' || reg.status === statusFilter || (!reg.status && statusFilter === 'pending');
     
@@ -205,10 +216,15 @@ const MeetingRequests: React.FC = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = filteredRegistrations.slice(startIndex, startIndex + itemsPerPage);
 
-  // تحديث الحالات المتاحة للمحاور (يمكنه فقط تحويل المقبول إلى مكتمل أو ملغي)
   const availableStatuses = isInterviewer 
     ? ['completed', 'canceled'] 
     : ['pending', 'reviewing', 'approved', 'completed', 'canceled'];
+
+  const formatDate = (timestamp: any) => {
+    if (!timestamp) return '-';
+    if (timestamp.seconds) return new Date(timestamp.seconds * 1000).toLocaleDateString('ar-EG');
+    return new Date(timestamp).toLocaleDateString('ar-EG');
+  };
 
   return (
     <div className="pt-24 pb-16 min-h-screen bg-gray-50 relative">
@@ -270,7 +286,7 @@ const MeetingRequests: React.FC = () => {
                   <tr>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">الاسم</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">التواصل</th>
-                    <th className="px-6 py-4 text-sm font-bold text-gray-700">المجال</th>
+                    <th className="px-6 py-4 text-sm font-bold text-gray-700">المجال والمستوى</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700">الحالة</th>
                     <th className="px-6 py-4 text-sm font-bold text-gray-700 text-center">إجراءات</th>
                   </tr>
@@ -288,12 +304,15 @@ const MeetingRequests: React.FC = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-sm font-medium text-gray-700">{reg.field}</div>
-                          <div className="text-xs text-gray-400">{reg.experience} سنوات خبرة</div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-bold">{getLevelLabel(reg.level)}</span>
+                            <span className="text-[10px] text-gray-400">{reg.experience} سنوات خبرة</span>
+                          </div>
                         </td>
                         <td className="px-6 py-4">
                            <div className="flex items-center gap-2">
                              {getStatusBadge(reg.status)}
-                             {reg.status === 'approved' && (
+                             {(reg.status === 'approved' || reg.status === 'completed') && (
                                <button 
                                  onClick={() => handleLinkClick(reg)}
                                  className="p-1.5 bg-accent/5 text-accent rounded-lg hover:bg-accent/10 transition-colors"
@@ -305,12 +324,22 @@ const MeetingRequests: React.FC = () => {
                            </div>
                         </td>
                         <td className="px-6 py-4 text-center">
-                          <button 
-                            onClick={() => handleEditClick(reg)}
-                            className="p-2 text-gray-400 hover:text-accent hover:bg-accent/10 rounded-full transition-colors"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center justify-center gap-2">
+                             <button 
+                              onClick={() => handleViewDetails(reg)}
+                              className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                              title="عرض ملخص الطلب"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button 
+                              onClick={() => handleEditClick(reg)}
+                              className="p-2 text-gray-400 hover:text-accent hover:bg-accent/10 rounded-full transition-colors"
+                              title="تحديث الحالة"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -388,6 +417,149 @@ const MeetingRequests: React.FC = () => {
                 </Button>
                 <Button variant="outline" onClick={handleCloseModals} className="flex-none">إلغاء</Button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Details Modal */}
+      {viewingRegistration && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95">
+            {/* Header */}
+            <div className="bg-primary px-8 py-6 text-white flex items-center justify-between shrink-0">
+               <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center shadow-lg">
+                    <User className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black">{viewingRegistration.fullName}</h3>
+                    <div className="flex items-center gap-2 text-xs text-white/60">
+                      <Calendar className="w-3 h-3" />
+                      بتاريخ: {formatDate(viewingRegistration.submittedAt)}
+                    </div>
+                  </div>
+               </div>
+               <button onClick={handleCloseModals} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                 <X className="w-6 h-6" />
+               </button>
+            </div>
+
+            {/* Content - Scrollable */}
+            <div className="p-8 overflow-y-auto custom-scrollbar space-y-8">
+              {/* Personal & Contact */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                 <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                      <Mail className="w-3.5 h-3.5" /> البريد الإلكتروني
+                    </div>
+                    <div className="text-sm font-bold text-gray-700 dir-ltr text-right">{viewingRegistration.email}</div>
+                 </div>
+                 <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                      <Phone className="w-3.5 h-3.5" /> رقم الواتساب
+                    </div>
+                    <div className="text-sm font-bold text-gray-700 dir-ltr text-right">{viewingRegistration.whatsapp}</div>
+                 </div>
+                 <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                      <Globe className="w-3.5 h-3.5" /> الدولة / المدينة
+                    </div>
+                    <div className="text-sm font-bold text-gray-700">{viewingRegistration.country}</div>
+                 </div>
+                 <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                      <Linkedin className="w-3.5 h-3.5" /> رابط LinkedIn
+                    </div>
+                    <a href={viewingRegistration.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-accent hover:underline flex items-center gap-1 dir-ltr justify-end">
+                      {viewingRegistration.linkedin}
+                    </a>
+                 </div>
+              </div>
+
+              {/* Technical Background */}
+              <div className="space-y-4">
+                <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg">
+                  <Briefcase className="w-5 h-5 text-accent" /> الخلفية التقنية والخبرة
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
+                      <div className="text-[10px] text-blue-500 font-bold uppercase mb-1">المجال</div>
+                      <div className="font-bold text-blue-900">{viewingRegistration.field}</div>
+                   </div>
+                   <div className="p-4 bg-teal-50 border border-teal-100 rounded-xl">
+                      <div className="text-[10px] text-teal-500 font-bold uppercase mb-1">المستوى</div>
+                      <div className="font-bold text-teal-900">{getLevelLabel(viewingRegistration.level)}</div>
+                   </div>
+                   <div className="p-4 bg-purple-50 border border-purple-100 rounded-xl">
+                      <div className="text-[10px] text-purple-500 font-bold uppercase mb-1">سنوات الخبرة</div>
+                      <div className="font-bold text-purple-900">{viewingRegistration.experience} سنة</div>
+                   </div>
+                   <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl">
+                      <div className="text-[10px] text-amber-500 font-bold uppercase mb-1">وقت المقابلة المفضل</div>
+                      <div className="font-bold text-amber-900">
+                        {viewingRegistration.preferredTime === 'morning' && 'صباحاً (9ص - 12م)'}
+                        {viewingRegistration.preferredTime === 'evening' && 'مساءً (4م - 9م)'}
+                        {viewingRegistration.preferredTime === 'flexible' && 'مرن في أي وقت'}
+                      </div>
+                   </div>
+                </div>
+              </div>
+
+              {/* Tech Stack */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm font-bold text-gray-400">
+                  <Code className="w-4 h-4" /> التقنيات المستخدمة
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {viewingRegistration.techStack.map((tech, idx) => (
+                    <span key={idx} className="px-3 py-1 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-lg shadow-sm">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Goals */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm font-bold text-gray-400">
+                  <Target className="w-4 h-4" /> الأهداف من المقابلة
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {viewingRegistration.goals.map((goal, idx) => (
+                    <span key={idx} className="px-3 py-1.5 bg-accent/5 border border-accent/20 text-accent text-xs font-bold rounded-xl">
+                      {goal}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Expectations */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm font-bold text-gray-400">
+                  <AlertCircle className="w-4 h-4" /> التوقعات من الجلسة
+                </div>
+                <div className="p-5 bg-gray-50 border border-gray-200 rounded-2xl text-sm text-gray-700 leading-relaxed italic">
+                  "{viewingRegistration.expectations}"
+                </div>
+              </div>
+
+              {/* Interview Status Check */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-bold">
+                 <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/50">
+                   <div className={`w-2 h-2 rounded-full ${viewingRegistration.hasInterviewExperience === 'yes' ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                   لديه خبرة سابقة في المقابلات: {viewingRegistration.hasInterviewExperience === 'yes' ? 'نعم' : 'لا'}
+                 </div>
+                 <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/50">
+                   <div className={`w-2 h-2 rounded-full ${viewingRegistration.upcomingInterview !== 'no' ? 'bg-orange-500' : 'bg-gray-300'}`}></div>
+                   لديه مقابلة قادمة قريباً: {viewingRegistration.upcomingInterview !== 'no' ? 'نعم' : 'لا'}
+                 </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t border-gray-100 flex justify-end shrink-0 bg-gray-50">
+               <Button onClick={handleCloseModals}>إغلاق</Button>
             </div>
           </div>
         </div>

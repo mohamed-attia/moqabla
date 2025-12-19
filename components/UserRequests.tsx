@@ -14,7 +14,7 @@ interface MyRequestData {
   email: string;
   whatsapp: string;
   field: string;
-  level: string;
+  level: 'junior' | 'mid-senior' | 'lead-staff';
   status: string;
   submittedAt: any;
   techStack: string[];
@@ -264,11 +264,10 @@ const UserRequests: React.FC = () => {
                           <Briefcase className="w-4 h-4" /> المستوى والتقنيات
                         </h4>
                         <div className="flex flex-wrap gap-2">
-                          <span className="px-2 py-1 bg-gray-100 rounded text-sm text-gray-700">
-                             {req.level === 'junior' && 'مبتدئ'}
-                             {req.level === 'mid' && 'متوسط'}
-                             {req.level === 'senior' && 'خبير'}
-                             {req.level === 'lead' && 'قيادي'}
+                          <span className="px-2 py-1 bg-gray-100 rounded text-sm text-gray-700 font-bold">
+                             {req.level === 'junior' && 'مبتدئ (Fresh/Junior)'}
+                             {req.level === 'mid-senior' && 'متوسط وخبير (Mid/Senior)'}
+                             {req.level === 'lead-staff' && 'قيادي (Lead/Staff)'}
                           </span>
                           {req.techStack?.map((tech, idx) => (
                             <span key={idx} className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm border border-blue-100">

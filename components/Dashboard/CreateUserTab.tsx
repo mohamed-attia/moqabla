@@ -6,7 +6,6 @@ import { db } from '../../lib/firebase';
 import { Mail, Lock, Shield, Briefcase, Award, Loader2, CheckCircle, AlertCircle, UserPlus, User } from 'lucide-react';
 import Button from '../Button';
 
-// Configuration for temporary secondary app
 const firebaseConfig = {
   apiKey: "AIzaSyCaQr0skV-QlYaIIxOx-FIpG6JeBzDTXOc",
   authDomain: "moqabala-9257a.firebaseapp.com",
@@ -88,7 +87,6 @@ const CreateUserTab: React.FC = () => {
         </div>
 
         <form onSubmit={handleCreateUser} className="p-8 space-y-6">
-          {/* Username Field */}
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">اسم المستخدم / الكادر <span className="text-red-500">*</span></label>
             <div className="relative">
@@ -183,9 +181,9 @@ const CreateUserTab: React.FC = () => {
                   className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none appearance-none bg-white"
                 >
                   <option value="">اختر المستوى...</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
+                  <option value="junior">مبتدئ</option>
+                  <option value="mid-senior">متوسط/خبير</option>
+                  <option value="lead-staff">قيادي</option>
                 </select>
               </div>
             </div>
