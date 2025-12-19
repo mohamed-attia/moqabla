@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Briefcase, LogIn, User as UserIcon, ChevronDown, LogOut, FileText, LayoutDashboard, UserCircle, AlertTriangle, MailCheck } from 'lucide-react';
 import * as ReactRouterDOM from 'react-router-dom';
@@ -52,13 +53,8 @@ const Header: React.FC = () => {
           const role = userData?.role;
           const isDevAdmin = currentUser.email === 'dev.mohattia@gmail.com';
           
-          // السماح للـ admin والـ interviewer والـ maintainer برؤية لوحة التحكم
-          setIsAdmin(
-            role === 'admin' || 
-            role === 'maintainer' || 
-            role === 'interviewer' || 
-            isDevAdmin
-          );
+          const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer' || isDevAdmin;
+          setIsAdmin(adminStatus);
         } catch (e) {
           setIsAdmin(currentUser.email === 'dev.mohattia@gmail.com');
         }
@@ -75,7 +71,8 @@ const Header: React.FC = () => {
           const hasActive = snapshot.docs.some(doc => {
             const data = doc.data();
             const status = data.status || 'pending';
-            return ['pending', 'reviewing'].includes(status);
+            // إخفاء الزر إذا كان هناك طلب قيد الانتظار أو المراجعة أو تم قبوله بالفعل
+            return ['pending', 'reviewing', 'approved'].includes(status);
           });
           setHasActiveRequest(hasActive);
         } catch (error) {
@@ -213,7 +210,8 @@ const Header: React.FC = () => {
                   )}
                 </div>
               )}
-              {(!user || (!hasActiveRequest && !isAdmin)) && (
+              {/* منطق الإخفاء: يظهر إذا لم يكن هناك مستخدم، أو إذا كان المسؤول، أو إذا كان مستخدم عادي ليس لديه طلب نشط */}
+              {(!user || isAdmin || !hasActiveRequest) && (
                 <Button variant={scrolled || !isHome ? 'primary' : 'white'} onClick={handleCTAAction}>احجز مقابلة</Button>
               )}
             </div>

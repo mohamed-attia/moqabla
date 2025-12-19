@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 // Use namespace import to bypass named export resolution issues in the current environment
 import * as ReactRouterDOM from 'react-router-dom';
@@ -22,7 +23,9 @@ const Footer: React.FC = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        setIsAdmin(currentUser.email === 'dev.mohattia@gmail.com');
+        const isDevAdmin = currentUser.email === 'dev.mohattia@gmail.com';
+        setIsAdmin(isDevAdmin);
+        
         try {
           const q = query(
             collection(db, "registrations"), 
@@ -33,7 +36,8 @@ const Footer: React.FC = () => {
           const hasActive = snapshot.docs.some(doc => {
             const data = doc.data();
             const status = data.status || 'pending';
-            return ['pending', 'reviewing'].includes(status);
+            // إخفاء الصندوق إذا كان هناك طلب نشط (انتظار، مراجعة، أو مقبول)
+            return ['pending', 'reviewing', 'approved'].includes(status);
           });
           setHasActiveRequest(hasActive);
         } catch (error) {
@@ -72,8 +76,11 @@ const Footer: React.FC = () => {
     }
   };
 
-  // إخفاء الزر إذا كان المستخدم العادي لديه طلب نشط
-  const shouldShowBookingCTA = !user || (!hasActiveRequest && !isAdmin);
+  // يظهر الصندوق إذا:
+  // 1. المستخدم غير مسجل
+  // 2. أو المستخدم هو المسؤول (Admin)
+  // 3. أو المستخدم مسجل وليس لديه أي طلب نشط (pending, reviewing, approved)
+  const shouldShowBookingCTA = !user || isAdmin || !hasActiveRequest;
 
   return (
     <footer id="contact" className="bg-secondary text-gray-300 mt-28">

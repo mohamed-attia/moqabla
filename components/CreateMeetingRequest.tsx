@@ -392,11 +392,17 @@ const CreateMeetingRequest: React.FC = () => {
 
       {showSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl p-8 max-sm w-full text-center shadow-2xl animate-in zoom-in-95">
-            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle className="w-12 h-12" /></div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">تم استلام طلبك!</h3>
-            <p className="text-gray-600 mb-8 leading-relaxed">شكراً لثقتك بنا. سنقوم بمراجعة بياناتك والتواصل معك عبر الواتساب والبريد الإلكتروني خلال 24 ساعة كحد أقصى.</p>
-            <Button className="w-full" onClick={() => navigate('/my-requests')}>متابعة حالة الطلب</Button>
+          <div className="bg-white rounded-[2.5rem] p-10 w-full max-w-md text-center shadow-2xl animate-in zoom-in-95 duration-300 border border-gray-100">
+            <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-inner">
+              <CheckCircle className="w-12 h-12" />
+            </div>
+            <h3 className="text-2xl font-black text-gray-900 mb-3">تم استلام طلبك!</h3>
+            <p className="text-gray-600 mb-8 leading-relaxed">
+              شكراً لثقتك بنا. سنقوم بمراجعة بياناتك والتواصل معك عبر الواتساب والبريد الإلكتروني خلال 24 ساعة كحد أقصى.
+            </p>
+            <Button className="w-full py-4 rounded-2xl shadow-accent/20 text-lg" onClick={() => navigate('/my-requests')}>
+              متابعة حالة الطلب
+            </Button>
           </div>
         </div>
       )}
