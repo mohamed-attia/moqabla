@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Briefcase, LogIn, User as UserIcon, ChevronDown, LogOut, FileText, LayoutDashboard, UserCircle, AlertTriangle, CheckCircle, MailCheck } from 'lucide-react';
+import { Menu, X, Briefcase, LogIn, User as UserIcon, ChevronDown, LogOut, FileText, LayoutDashboard, UserCircle, AlertTriangle, MailCheck } from 'lucide-react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
 import { onAuthStateChanged, signOut, User, sendEmailVerification } from 'firebase/auth';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import Button from './Button';
 import { NavItem } from '../types';
 
@@ -46,7 +45,15 @@ const Header: React.FC = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        setIsAdmin(currentUser.email === 'dev.mohattia@gmail.com');
+        // التحقق من صلاحية المسؤول من قاعدة البيانات
+        try {
+          const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+          const userData = userDoc.data();
+          setIsAdmin(userData?.role === 'admin' || currentUser.email === 'dev.mohattia@gmail.com');
+        } catch (e) {
+          setIsAdmin(currentUser.email === 'dev.mohattia@gmail.com');
+        }
+
         setShowVerifyAlert(!currentUser.emailVerified);
 
         try {
@@ -140,10 +147,9 @@ const Header: React.FC = () => {
   const handleCTAAction = () => {
     if (!user) {
       navigate('/login');
-    } else if (!user.emailVerified) {
-      navigate('/profile');
-      alert("يرجى تفعيل بريدك الإلكتروني أولاً لتتمكن من حجز مقابلة.");
     } else {
+      // التوجيه مباشرة لصفحة الطلب، وسيقوم مكون CreateMeetingRequest بالتحقق من التفعيل 
+      // وعرض واجهة "تفعيل الحساب مطلوب" بدلاً من التنبيه.
       navigate('/request-meeting');
     }
   };

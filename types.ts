@@ -57,13 +57,15 @@ export interface UserProfile {
   phone?: string;
   jobTitle?: string;
   country?: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'interviewer' | 'maintainer';
+  field?: 'UX' | 'FE' | 'BE' | 'mobile';
+  level?: '1' | '2' | '3';
   isEmailVerified: boolean;
   referralCode: string;
   referralCount: number;
   referredUsers?: string[]; 
   referredBy?: string;
-  referralProcessed?: boolean; // الحقل الجديد لمنع التكرار
+  referralProcessed?: boolean;
   createdAt: any;
   updatedAt?: any;
 }

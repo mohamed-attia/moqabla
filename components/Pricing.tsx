@@ -116,10 +116,14 @@ const Pricing: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  const handleBookingAction = () => {
+  const handleBookingAction = (planId?: string) => {
     if (user) {
-      if (hasActiveRequest && !isAdmin) return;
-      navigate('/request-meeting');
+      if (planId === 'referral') {
+        navigate('/profile');
+      } else {
+        if (hasActiveRequest && !isAdmin) return;
+        navigate('/request-meeting');
+      }
     } else {
       navigate('/login');
     }
@@ -212,9 +216,10 @@ const Pricing: React.FC = () => {
                 )}
               </ul>
 
-              {(!user || (!hasActiveRequest && !isAdmin)) && (
+              {/* Show button if logged out OR if it's the referral plan OR if user has no active request */}
+              {(!user || plan.id === 'referral' || (!hasActiveRequest && !isAdmin)) && (
                 <Button 
-                  onClick={handleBookingAction}
+                  onClick={() => handleBookingAction(plan.id)}
                   className={`w-full justify-center ${
                     plan.id === 'referral' 
                       ? 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-500' 

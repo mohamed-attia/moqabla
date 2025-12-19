@@ -318,7 +318,13 @@ const CreateMeetingRequest: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">رابط LinkedIn <span className="text-red-500">*</span></label>
                     <div className="relative rounded-md shadow-sm">
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><Linkedin className="h-5 w-5 text-gray-400" /></div>
-                      <input type="text" value={formData.linkedin} onChange={(e) => updateField('linkedin', e.target.value)} className={`${inputClasses} pr-10 py-3`} placeholder="https://www.linkedin.com/in/" />
+                      <input 
+                        type="text" 
+                        value={formData.linkedin} 
+                        onChange={(e) => updateField('linkedin', e.target.value)} 
+                        className={`${inputClasses} pr-10 py-3 dir-ltr text-left`} 
+                        placeholder="linkedin.com/in/username" 
+                      />
                     </div>
                   </div>
                 </div>

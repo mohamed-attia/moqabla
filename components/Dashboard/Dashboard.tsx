@@ -1,37 +1,55 @@
-
 import React, { useState, useEffect } from 'react';
-// Use namespace import to bypass named export resolution issues
 import * as ReactRouterDOM from 'react-router-dom';
-import { auth } from '../../lib/firebase';
+import { auth, db } from '../../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { Users, FileText, LayoutDashboard, MessageSquareQuote } from 'lucide-react';
+import { doc, getDoc } from 'firebase/firestore';
+import { Users, FileText, LayoutDashboard, MessageSquareQuote, UserPlus, Loader2 } from 'lucide-react';
 import UsersTab from './UsersTab';
 import MeetingRequests from '../MeetingRequests';
 import ReviewsTab from './ReviewsTab';
+import CreateUserTab from './CreateUserTab';
 
-// Fix: Use type assertion to bypass broken react-router-dom type definitions
 const { useNavigate } = ReactRouterDOM as any;
 
 const Dashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'users' | 'requests' | 'reviews'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'requests' | 'reviews' | 'create-user'>('users');
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user && user.email === 'dev.mohattia@gmail.com') {
-        setIsAdmin(true);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // التحقق من قاعدة البيانات أولاً
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          const userData = userDoc.data();
+          if (userData?.role === 'admin' || user.email === 'dev.mohattia@gmail.com') {
+            setIsAdmin(true);
+          } else {
+            navigate('/');
+          }
+        } catch (e) {
+          if (user.email === 'dev.mohattia@gmail.com') {
+            setIsAdmin(true);
+          } else {
+            navigate('/');
+          }
+        }
       } else {
-        navigate('/'); 
+        navigate('/login'); 
       }
       setLoading(false);
     });
     return () => unsubscribe();
   }, [navigate]);
 
-  if (loading) return null;
-
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="w-10 h-10 text-accent animate-spin" />
+    </div>
+  );
+  
   if (!isAdmin) return null;
 
   return (
@@ -43,7 +61,7 @@ const Dashboard: React.FC = () => {
               <LayoutDashboard className="w-8 h-8 text-accent" />
               لوحة التحكم
             </h1>
-            <p className="text-gray-500 mt-1">إدارة المستخدمين وطلبات المقابلات والتقييمات</p>
+            <p className="text-gray-500 mt-1">إدارة الكادر التقني، المستخدمين، والطلبات</p>
           </div>
         </div>
 
@@ -58,6 +76,17 @@ const Dashboard: React.FC = () => {
           >
             <Users className="w-4 h-4" />
             المستخدمين
+          </button>
+          <button
+            onClick={() => setActiveTab('create-user')}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
+              activeTab === 'create-user'
+                ? 'bg-accent text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <UserPlus className="w-4 h-4" />
+            إضافة كادر جديد
           </button>
           <button
             onClick={() => setActiveTab('requests')}
@@ -85,6 +114,7 @@ const Dashboard: React.FC = () => {
 
         <div className="min-h-[500px]">
           {activeTab === 'users' && <UsersTab />}
+          {activeTab === 'create-user' && <CreateUserTab />}
           
           {activeTab === 'requests' && (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-1 md:p-4">
