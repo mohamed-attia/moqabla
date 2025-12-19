@@ -45,11 +45,20 @@ const Header: React.FC = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // التحقق من صلاحية المسؤول من قاعدة البيانات
+        // التحقق من صلاحية الوصول للوحة التحكم من قاعدة البيانات
         try {
           const userDoc = await getDoc(doc(db, "users", currentUser.uid));
           const userData = userDoc.data();
-          setIsAdmin(userData?.role === 'admin' || currentUser.email === 'dev.mohattia@gmail.com');
+          const role = userData?.role;
+          const isDevAdmin = currentUser.email === 'dev.mohattia@gmail.com';
+          
+          // السماح للـ admin والـ interviewer والـ maintainer برؤية لوحة التحكم
+          setIsAdmin(
+            role === 'admin' || 
+            role === 'maintainer' || 
+            role === 'interviewer' || 
+            isDevAdmin
+          );
         } catch (e) {
           setIsAdmin(currentUser.email === 'dev.mohattia@gmail.com');
         }
@@ -148,8 +157,6 @@ const Header: React.FC = () => {
     if (!user) {
       navigate('/login');
     } else {
-      // التوجيه مباشرة لصفحة الطلب، وسيقوم مكون CreateMeetingRequest بالتحقق من التفعيل 
-      // وعرض واجهة "تفعيل الحساب مطلوب" بدلاً من التنبيه.
       navigate('/request-meeting');
     }
   };

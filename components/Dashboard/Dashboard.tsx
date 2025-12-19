@@ -13,25 +13,33 @@ const { useNavigate } = ReactRouterDOM as any;
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'users' | 'requests' | 'reviews' | 'create-user'>('users');
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'maintainer' | 'interviewer' | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // التحقق من قاعدة البيانات أولاً
         try {
           const userDoc = await getDoc(doc(db, "users", user.uid));
           const userData = userDoc.data();
-          if (userData?.role === 'admin' || user.email === 'dev.mohattia@gmail.com') {
-            setIsAdmin(true);
+          const role = userData?.role;
+          const isDevAdmin = user.email === 'dev.mohattia@gmail.com';
+
+          if (role === 'admin' || role === 'maintainer' || role === 'interviewer' || isDevAdmin) {
+            const finalRole = isDevAdmin ? 'admin' : (role as 'admin' | 'maintainer' | 'interviewer');
+            setUserRole(finalRole);
+            
+            // التبويب الافتراضي بناءً على الصلاحيات
+            if (finalRole === 'interviewer' || finalRole === 'maintainer') {
+              setActiveTab('requests');
+            }
           } else {
             navigate('/');
           }
         } catch (e) {
           if (user.email === 'dev.mohattia@gmail.com') {
-            setIsAdmin(true);
+            setUserRole('admin');
           } else {
             navigate('/');
           }
@@ -50,7 +58,11 @@ const Dashboard: React.FC = () => {
     </div>
   );
   
-  if (!isAdmin) return null;
+  if (!userRole) return null;
+
+  const isAdmin = userRole === 'admin';
+  const isMaintainer = userRole === 'maintainer';
+  const isInterviewer = userRole === 'interviewer';
 
   return (
     <div className="min-h-screen bg-gray-50 pt-28 pb-12 px-4 md:px-8">
@@ -61,33 +73,42 @@ const Dashboard: React.FC = () => {
               <LayoutDashboard className="w-8 h-8 text-accent" />
               لوحة التحكم
             </h1>
-            <p className="text-gray-500 mt-1">إدارة الكادر التقني، المستخدمين، والطلبات</p>
+            <p className="text-gray-500 mt-1">
+              {isAdmin ? 'إدارة الكادر التقني، المستخدمين، والطلبات' : 
+               isMaintainer ? 'إدارة طلبات المقابلات ومراجعة التقييمات' : 
+               'مراجعة طلبات المقابلات وإدارة الجلسات'}
+            </p>
           </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-1 mb-8 inline-flex flex-wrap gap-1">
-          <button
-            onClick={() => setActiveTab('users')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
-              activeTab === 'users'
-                ? 'bg-primary text-white shadow-md'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            المستخدمين
-          </button>
-          <button
-            onClick={() => setActiveTab('create-user')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
-              activeTab === 'create-user'
-                ? 'bg-accent text-white shadow-md'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            <UserPlus className="w-4 h-4" />
-            إضافة كادر جديد
-          </button>
+          {isAdmin && (
+            <>
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                  activeTab === 'users'
+                    ? 'bg-primary text-white shadow-md'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                المستخدمين
+              </button>
+              <button
+                onClick={() => setActiveTab('create-user')}
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                  activeTab === 'create-user'
+                    ? 'bg-accent text-white shadow-md'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <UserPlus className="w-4 h-4" />
+                إضافة كادر جديد
+              </button>
+            </>
+          )}
+          
           <button
             onClick={() => setActiveTab('requests')}
             className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
@@ -99,22 +120,25 @@ const Dashboard: React.FC = () => {
             <FileText className="w-4 h-4" />
             طلبات المقابلات
           </button>
-          <button
-            onClick={() => setActiveTab('reviews')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
-              activeTab === 'reviews'
-                ? 'bg-primary text-white shadow-md'
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            <MessageSquareQuote className="w-4 h-4" />
-            التقييمات
-          </button>
+          
+          {(isAdmin || isMaintainer) && (
+            <button
+              onClick={() => setActiveTab('reviews')}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                activeTab === 'reviews'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <MessageSquareQuote className="w-4 h-4" />
+              التقييمات
+            </button>
+          )}
         </div>
 
         <div className="min-h-[500px]">
-          {activeTab === 'users' && <UsersTab />}
-          {activeTab === 'create-user' && <CreateUserTab />}
+          {isAdmin && activeTab === 'users' && <UsersTab />}
+          {isAdmin && activeTab === 'create-user' && <CreateUserTab />}
           
           {activeTab === 'requests' && (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-1 md:p-4">
@@ -129,7 +153,7 @@ const Dashboard: React.FC = () => {
             </div>
           )}
 
-          {activeTab === 'reviews' && <ReviewsTab />}
+          {(isAdmin || isMaintainer) && activeTab === 'reviews' && <ReviewsTab />}
         </div>
       </div>
     </div>

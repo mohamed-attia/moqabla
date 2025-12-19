@@ -48,6 +48,10 @@ export interface RegistrationFormData {
   userId?: string;
   submittedAt?: any;
   status?: 'pending' | 'approved' | 'completed' | 'canceled' | 'reviewing';
+  // New Fields
+  meetingLink?: string;
+  reportLink?: string;
+  videoLink?: string;
 }
 
 export interface UserProfile {

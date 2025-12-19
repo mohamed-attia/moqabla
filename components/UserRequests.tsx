@@ -3,7 +3,7 @@ import { collection, query, where, getDocs, addDoc, serverTimestamp } from 'fire
 import { db, auth } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import * as ReactRouterDOM from 'react-router-dom';
-import { Loader2, Calendar, FileText, Code, Clock, Briefcase, Star, X, MessageSquareQuote, CheckCircle2 } from 'lucide-react';
+import { Loader2, Calendar, FileText, Code, Clock, Briefcase, Star, X, MessageSquareQuote, CheckCircle2, Video, FileCheck, ExternalLink, Link as LinkIcon } from 'lucide-react';
 import Button from './Button';
 
 const { useNavigate } = ReactRouterDOM as any;
@@ -20,6 +20,9 @@ interface MyRequestData {
   techStack: string[];
   goals: string[];
   preferredTime: string;
+  meetingLink?: string;
+  reportLink?: string;
+  videoLink?: string;
 }
 
 const UserRequests: React.FC = () => {
@@ -209,50 +212,96 @@ const UserRequests: React.FC = () => {
                    </div>
                 </div>
 
-                <div className="p-6 grid md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-500 mb-2 flex items-center gap-2">
-                        <Briefcase className="w-4 h-4" /> المستوى والتقنيات
+                <div className="p-6">
+                  {/* Meeting Results Links - Only if Completed */}
+                  {req.status === 'completed' && (req.reportLink || req.videoLink || req.meetingLink) && (
+                    <div className="mb-8 p-5 bg-accent/5 rounded-2xl border border-accent/10">
+                      <h4 className="text-sm font-black text-accent mb-4 flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4" /> مخرجات المقابلة النهائية
                       </h4>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="px-2 py-1 bg-gray-100 rounded text-sm text-gray-700">
-                           {req.level === 'junior' && 'مبتدئ'}
-                           {req.level === 'mid' && 'متوسط'}
-                           {req.level === 'senior' && 'خبير'}
-                           {req.level === 'lead' && 'قيادي'}
-                        </span>
-                        {req.techStack?.map((tech, idx) => (
-                          <span key={idx} className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm border border-blue-100">
-                            {tech}
-                          </span>
-                        ))}
+                      <div className="flex flex-wrap gap-3">
+                        {req.reportLink && (
+                          <a 
+                            href={req.reportLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl text-xs font-bold border border-gray-100 hover:border-accent hover:text-accent shadow-sm transition-all"
+                          >
+                            <FileCheck className="w-4 h-4" /> التقرير النهائي
+                            <ExternalLink className="w-3 h-3 opacity-50" />
+                          </a>
+                        )}
+                        {req.videoLink && (
+                          <a 
+                            href={req.videoLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl text-xs font-bold border border-gray-100 hover:border-accent hover:text-accent shadow-sm transition-all"
+                          >
+                            <Video className="w-4 h-4" /> تسجيل المقابلة
+                            <ExternalLink className="w-3 h-3 opacity-50" />
+                          </a>
+                        )}
+                        {req.meetingLink && (
+                          <a 
+                            href={req.meetingLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl text-xs font-bold border border-gray-100 hover:border-accent hover:text-accent shadow-sm transition-all"
+                          >
+                            <LinkIcon className="w-4 h-4" /> رابط الاجتماع
+                            <ExternalLink className="w-3 h-3 opacity-50" />
+                          </a>
+                        )}
                       </div>
                     </div>
-                    
-                    <div>
-                       <h4 className="text-sm font-semibold text-gray-500 mb-2 flex items-center gap-2">
-                        <Clock className="w-4 h-4" /> الوقت المفضل
-                      </h4>
-                      <p className="text-sm text-gray-700">
-                        {req.preferredTime === 'morning' && 'صباحاً (9ص - 12م)'}
-                        {req.preferredTime === 'evening' && 'مساءً (4م - 9م)'}
-                        {req.preferredTime === 'flexible' && 'مرن في أي وقت'}
-                        {!req.preferredTime && 'غير محدد'}
-                      </p>
-                    </div>
-                  </div>
+                  )}
 
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-500 mb-2">الأهداف من المقابلة</h4>
-                    <ul className="space-y-2">
-                      {req.goals?.map((goal, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
-                          <span className="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0"></span>
-                          {goal}
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-500 mb-2 flex items-center gap-2">
+                          <Briefcase className="w-4 h-4" /> المستوى والتقنيات
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="px-2 py-1 bg-gray-100 rounded text-sm text-gray-700">
+                             {req.level === 'junior' && 'مبتدئ'}
+                             {req.level === 'mid' && 'متوسط'}
+                             {req.level === 'senior' && 'خبير'}
+                             {req.level === 'lead' && 'قيادي'}
+                          </span>
+                          {req.techStack?.map((tech, idx) => (
+                            <span key={idx} className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm border border-blue-100">
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-500 mb-2 flex items-center gap-2">
+                          <Clock className="w-4 h-4" /> الوقت المفضل
+                        </h4>
+                        <p className="text-sm text-gray-700">
+                          {req.preferredTime === 'morning' && 'صباحاً (9ص - 12م)'}
+                          {req.preferredTime === 'evening' && 'مساءً (4م - 9م)'}
+                          {req.preferredTime === 'flexible' && 'مرن في أي وقت'}
+                          {!req.preferredTime && 'غير محدد'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-500 mb-2">الأهداف من المقابلة</h4>
+                      <ul className="space-y-2">
+                        {req.goals?.map((goal, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
+                            <span className="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0"></span>
+                            {goal}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
                 </div>
 
@@ -296,7 +345,7 @@ const UserRequests: React.FC = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-2">تقييمك للمقيّم (المحاور)</label>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">تقييمك للمقيم (المحاور)</label>
                                             <textarea 
                                                 value={feedback.interviewer}
                                                 onChange={(e) => setFeedback({...feedback, interviewer: e.target.value})}

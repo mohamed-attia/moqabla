@@ -1,18 +1,33 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isAdmin() {
+    // التحقق مما إذا كان المستخدم هو المسؤول الرئيسي عبر البريد الإلكتروني
+    function isMainAdmin() {
       return request.auth != null && 
              request.auth.token.email == 'dev.mohattia@gmail.com';
+    }
+
+    // التحقق من الرتبة من مستند المستخدم
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return request.auth != null && (isMainAdmin() || getUserRole() == 'admin');
+    }
+
+    function isMaintainer() {
+      return request.auth != null && (isAdmin() || getUserRole() == 'maintainer');
+    }
+
+    function isInterviewer() {
+      return request.auth != null && (isAdmin() || getUserRole() == 'interviewer');
     }
 
     match /users/{userId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.auth.uid == userId;
       
-      // السماح بالتحديث لصاحب المستند أو المسؤول
-      // السماح للمستخدمين الجدد بتحديث العداد والأسماء في مستند الشخص الداعي
       allow update: if request.auth != null && (
         request.auth.uid == userId || 
         isAdmin() ||
@@ -22,19 +37,18 @@ service cloud.firestore {
         )
       );
 
-      // السماح للمسؤول فقط بحذف المستخدمين
       allow delete: if isAdmin();
     }
 
     match /registrations/{regId} {
-      allow read: if request.auth != null && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow read: if request.auth != null && (isMaintainer() || isInterviewer() || resource.data.userId == request.auth.uid);
       allow create: if request.auth != null;
-      allow update: if isAdmin();
+      allow update: if isMaintainer() || (isInterviewer() && request.resource.data.status in ['completed', 'canceled']);
       allow delete: if isAdmin();
     }
     
     match /reviews/{reviewId} {
-      allow read, list: if isAdmin();
+      allow read, list: if isMaintainer() || isAdmin();
       allow create: if request.auth != null;
       allow delete: if isAdmin();
     }
