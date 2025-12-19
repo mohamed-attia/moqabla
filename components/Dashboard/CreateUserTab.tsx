@@ -181,9 +181,10 @@ const CreateUserTab: React.FC = () => {
                   className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none appearance-none bg-white"
                 >
                   <option value="">اختر المستوى...</option>
-                  <option value="junior">مبتدئ</option>
-                  <option value="mid-senior">متوسط/خبير</option>
-                  <option value="lead-staff">قيادي</option>
+                  <option value="fresh">مبتدأ (fresh)</option>
+                  <option value="junior">مبتدأ (junior)</option>
+                  <option value="mid-senior">متوسط وخبير (mid/senior)</option>
+                  <option value="lead-staff">قيادي (lead/staff)</option>
                 </select>
               </div>
             </div>

@@ -33,7 +33,7 @@ const CreateMeetingRequest: React.FC = () => {
     field: '',
     techStack: [],
     experience: 0,
-    level: 'junior',
+    level: 'fresh',
     goals: [],
     hasInterviewExperience: 'no',
     upcomingInterview: 'no',
@@ -357,7 +357,7 @@ const CreateMeetingRequest: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div><label className="block text-sm font-medium text-gray-700 mb-1">سنوات الخبرة <span className="text-red-500">*</span></label><input type="number" min="0" value={formData.experience} onChange={(e) => updateField('experience', parseInt(e.target.value))} className={`${inputClasses} py-3 px-4`} /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">المستوى الوظيفي <span className="text-red-500">*</span></label><select value={formData.level} onChange={(e) => updateField('level', e.target.value)} className={`${inputClasses} py-3 px-4`}><option value="junior">مبتدئ (Fresh / Junior)</option><option value="mid-senior">متوسط وخبير (Mid / Senior)</option><option value="lead-staff">قيادي (Lead / Staff)</option></select></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">المستوى الوظيفي <span className="text-red-500">*</span></label><select value={formData.level} onChange={(e) => updateField('level', e.target.value)} className={`${inputClasses} py-3 px-4`}><option value="fresh">مبتدأ (fresh)</option><option value="junior">مبتدأ (junior)</option><option value="mid-senior">متوسط وخبير (mid/senior)</option><option value="lead-staff">قيادي (lead/staff)</option></select></div>
               </div>
             </div>
           )}

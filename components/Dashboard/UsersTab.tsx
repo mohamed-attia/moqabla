@@ -65,9 +65,10 @@ const UsersTab: React.FC = () => {
 
   const getLevelLabel = (level?: string) => {
     switch (level) {
-      case 'junior': return 'مبتدئ';
-      case 'mid-senior': return 'متوسط/خبير';
-      case 'lead-staff': return 'قيادي';
+      case 'fresh': return 'مبتدأ (fresh)';
+      case 'junior': return 'مبتدأ (junior)';
+      case 'mid-senior': return 'متوسط وخبير (mid/senior)';
+      case 'lead-staff': return 'قيادي (lead/staff)';
       default: return level || '-';
     }
   };

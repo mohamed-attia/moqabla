@@ -38,7 +38,7 @@ export interface RegistrationFormData {
   field: string;
   techStack: string[];
   experience: number;
-  level: 'junior' | 'mid-senior' | 'lead-staff';
+  level: 'fresh' | 'junior' | 'mid-senior' | 'lead-staff';
   goals: string[];
   hasInterviewExperience: string;
   upcomingInterview: string;
@@ -63,7 +63,7 @@ export interface UserProfile {
   country?: string;
   role: 'user' | 'admin' | 'interviewer' | 'maintainer';
   field?: 'UX' | 'FE' | 'BE' | 'mobile';
-  level?: 'junior' | 'mid-senior' | 'lead-staff';
+  level?: 'fresh' | 'junior' | 'mid-senior' | 'lead-staff';
   isEmailVerified: boolean;
   referralCode: string;
   referralCount: number;
