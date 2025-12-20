@@ -174,7 +174,7 @@ const Header: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
               <div className="bg-accent p-2 rounded-lg">
-                <img src="public/logo-new.png" alt="Logo" className="w-8 h-8" />
+                <img src="./logo-new.png" alt="Logo" className="w-8 h-8" />
               </div>
               <span className={`text-2xl font-bold ${scrolled || !isHome ? 'text-primary' : 'text-white'}`}>منصة مقابلة</span>
             </div>
