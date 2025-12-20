@@ -1,7 +1,7 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: "AIzaSyCI5DVfAvEORjgtT1c171ZRRYG40iMii-E" });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 /**
  * AI Agent for Interview Evaluation
@@ -50,21 +50,24 @@ export const AIAgent = {
     - Role: ${level}
     - Interviewer: ${interviewerName}
     
-    Full Evaluation Data:
+    Full Evaluation Data (Sections, Skills, Scores, and Interviewer Notes):
     ${JSON.stringify(evaluationData, null, 2)}
     
-    Report Structure (Arabic):
-    1. Executive Summary: Overall impression of the candidate.
-    2. Detailed Breakdown: For each section, list what they did well and what to focus on next based on the provided items.
-    3. Final Decision: Clearly state if they are Ready, Almost Ready, or Not Ready Yet based on the total score.
-    4. Pro Tips: Personalized advice for their career path.
+    CRITICAL INSTRUCTIONS FOR THE REPORT STRUCTURE (Arabic):
+    1. Executive Summary: Overall impression.
+    2. Detailed Breakdown by Section:
+       - For EACH SKILL within a section, you MUST display it as follows:
+         * Skill Name & Score (e.g., Programming Logic: 4/5)
+         * "ملاحظات المقيم المباشرة": [HERE YOU MUST INCLUDE THE VERBATIM NOTES WRITTEN BY THE INTERVIEWER FROM THE DATA PROVIDED]
+         * "تحليل وتوصية": [Your AI coaching tip based on the score and note]
+    3. Final Decision: Ready, Almost Ready, or Not Ready Yet.
+    4. Pro Tips: Personalized advice.
     
-    Use Markdown with beautiful formatting, emojis, and clear headings. 
-    Ensure all points from the interviewer are accurately reflected.`;
+    IMPORTANT: Do NOT summarize the interviewer notes into one paragraph. Keep them attached to each skill as "Direct Observations". If a note is empty, write "لم يتم إضافة ملاحظات إضافية".
+    
+    Use Markdown with beautiful formatting, emojis, and clear headings.`;
 
     try {
-      // تم تغيير النموذج إلى gemini-3-flash-preview استجابة لطلب نموذج flash
-      // ولضمان استقرار الخدمة وتجنب أخطاء الـ Thinking Budget.
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt,
