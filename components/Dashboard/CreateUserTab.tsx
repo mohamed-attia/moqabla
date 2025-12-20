@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
-import { initializeApp, getApps, deleteApp } from 'firebase/app';
+// Fix: Use namespace import for FirebaseApp to bypass named export resolution issues
+import * as FirebaseApp from 'firebase/app';
+const { initializeApp, getApps, deleteApp } = FirebaseApp as any;
 // Fix: Use namespace import for FirebaseAuth to bypass named export resolution issues
 import * as FirebaseAuth from 'firebase/auth';
 const { getAuth, createUserWithEmailAndPassword, signOut } = FirebaseAuth as any;

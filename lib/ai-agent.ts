@@ -1,8 +1,6 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: "AIzaSyCI5DVfAvEORjgtT1c171ZRRYG40iMii-E" });
-
 /**
  * AI Agent for Interview Evaluation
  * Mimics LangChain functionality using standardized prompts and structured output.
@@ -12,6 +10,8 @@ export const AIAgent = {
    * Suggests professional notes for a specific skill based on the score and context.
    */
   async suggestNote(skill: string, score: number, level: string, previousNotes?: string) {
+    // Fix: Create a new instance right before the API call per guidelines
+    const ai = new GoogleGenAI({ apiKey: "AIzaSyCI5DVfAvEORjgtT1c171ZRRYG40iMii"});
     const labels = ['Not Demonstrated', 'Basic Awareness', 'Developing', 'Competent', 'Strong for Fresh Level'];
     const label = labels[score - 1];
 
@@ -26,8 +26,9 @@ export const AIAgent = {
     Output only the note text in Arabic.`;
 
     try {
+      // Fix: Use gemini-3-pro-preview for complex reasoning tasks
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-3-pro-preview',
         contents: prompt,
         config: { temperature: 0.7 }
       });
@@ -42,6 +43,8 @@ export const AIAgent = {
    * Generates the final detailed report for the candidate.
    */
   async generateFinalReport(candidateName: string, interviewerName: string, level: string, evaluationData: any) {
+    // Fix: Create a new instance right before the API call per guidelines
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const prompt = `You are an expert technical career coach. 
     Generate a high-quality, professional, and encouraging "Software Engineering Interview Evaluation Report" in Arabic.
     
@@ -82,8 +85,9 @@ export const AIAgent = {
     - Use Markdown emojis to make it professional yet encouraging.`;
 
     try {
+      // Fix: Use gemini-3-pro-preview for complex reasoning tasks
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-3-pro-preview',
         contents: prompt,
         config: { 
           temperature: 0.8

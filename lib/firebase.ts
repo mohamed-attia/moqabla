@@ -1,6 +1,8 @@
 
 // Modular Firebase (v11.1.0) initialization
-import { initializeApp, getApps, getApp } from "firebase/app";
+// Fix: Use namespace import for FirebaseApp to bypass named export resolution issues
+import * as FirebaseApp from "firebase/app";
+const { initializeApp, getApps, getApp } = FirebaseApp as any;
 import { getFirestore } from "firebase/firestore";
 // Fix: Use namespace import for FirebaseAuth to bypass named export resolution issues
 import * as FirebaseAuth from "firebase/auth";

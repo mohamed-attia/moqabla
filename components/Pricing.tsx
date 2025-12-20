@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Check, ShieldCheck, Zap, Gift, Sparkles, Users, Video, MessageSquare, Star, Plus, CreditCard, AlertCircle } from 'lucide-react';
+import { Check, ShieldCheck, Zap, Gift, Sparkles, Users, Video, MessageSquare, Star, Plus, CreditCard, AlertCircle, Wallet } from 'lucide-react';
 import Button from './Button';
 import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
@@ -221,6 +221,39 @@ const Pricing: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* قسم الضمان ووسائل الدفع */}
+        <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-gray-100 pt-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+           <div className="flex flex-col items-center text-center group">
+              <div className="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                <ShieldCheck className="w-7 h-7" />
+              </div>
+              <h4 className="font-black text-gray-900 mb-2">ضمان استرداد الأموال 100%</h4>
+              <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">
+                نحن نثق في جودة خبرائنا، لذا نضمن لك استرداد كامل المبلغ في حال لم تكن راضياً عن الجلسة.
+              </p>
+           </div>
+
+           <div className="flex flex-col items-center text-center group">
+              <div className="w-14 h-14 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                <CreditCard className="w-7 h-7" />
+              </div>
+              <h4 className="font-black text-gray-900 mb-2">وسائل دفع آمنة وعالمية</h4>
+              <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">
+                نقبل الدفع عبر <span className="font-bold text-blue-600">PayPal</span> لضمان سهولة المعاملات لجميع مستخدمينا حول العالم.
+              </p>
+           </div>
+
+           <div className="flex flex-col items-center text-center group">
+              <div className="w-14 h-14 bg-purple-50 text-purple-500 rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                <Wallet className="w-7 h-7" />
+              </div>
+              <h4 className="font-black text-gray-900 mb-2">تحويل لحظي عبر InstaPay</h4>
+              <p className="text-xs text-gray-500 leading-relaxed max-w-[250px]">
+                للمستخدمين داخل مصر، نوفر خيار التحويل اللحظي عبر <span className="font-bold text-purple-600">InstaPay</span> لسرعة تأكيد الحجز.
+              </p>
+           </div>
         </div>
       </div>
     </section>
