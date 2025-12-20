@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { 
   User, Mail, Globe, Linkedin, Code, 
-  CheckCircle, ChevronLeft, ChevronRight, AlertCircle, Loader2, Phone, MailWarning, RefreshCw, Hash
+  CheckCircle, ChevronLeft, ChevronRight, AlertCircle, Loader2, Phone, MailWarning, RefreshCw, Hash, X, FileText, Shield, Clock, CreditCard, AlertTriangle, Briefcase, Wallet
 } from 'lucide-react';
 import Button from './Button';
 import { RegistrationFormData } from '../types';
@@ -15,7 +15,6 @@ import { sendAdminNotification } from '../lib/notifications';
 
 const { useNavigate, Link } = ReactRouterDOM as any;
 
-// تعريف بريد الاستقبال للتنبيهات في مكان واحد (يمكن لاحقاً جلبه من Firestore settings)
 const ADMIN_CONTACT_EMAIL = "contact@moqabala.info";
 
 const CreateMeetingRequest: React.FC = () => {
@@ -26,6 +25,7 @@ const CreateMeetingRequest: React.FC = () => {
   const [isUnverified, setIsUnverified] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isResending, setIsResending] = useState(false);
   
@@ -36,7 +36,7 @@ const CreateMeetingRequest: React.FC = () => {
     whatsapp: '',
     linkedin: '',
     field: '',
-    techStack: [],
+    techStack: '', 
     experience: 0,
     level: 'fresh',
     goals: [],
@@ -96,25 +96,9 @@ const CreateMeetingRequest: React.FC = () => {
     }
   };
 
-  const [currentTech, setCurrentTech] = useState('');
-
   const updateField = (field: keyof RegistrationFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError(null);
-  };
-
-  const handleTechAdd = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && currentTech.trim()) {
-      e.preventDefault();
-      if (!formData.techStack.includes(currentTech.trim())) {
-        updateField('techStack', [...formData.techStack, currentTech.trim()]);
-      }
-      setCurrentTech('');
-    }
-  };
-
-  const removeTech = (tech: string) => {
-    updateField('techStack', formData.techStack.filter(t => t !== tech));
   };
 
   const toggleGoal = (goal: string) => {
@@ -140,7 +124,7 @@ const CreateMeetingRequest: React.FC = () => {
 
   const isStep2Valid = () => {
     return formData.field !== '' && 
-           formData.techStack.length > 0 && 
+           formData.techStack.trim().length > 0 && 
            !isNaN(formData.experience) && formData.experience >= 0;
   };
 
@@ -164,7 +148,7 @@ const CreateMeetingRequest: React.FC = () => {
         setStep(3);
         setError(null);
       } else {
-        setError("يرجى اختيار المجال وإضافة تقنية واحدة على الأقل وتحديد سنوات الخبرة.");
+        setError("يرجى اختيار المجال وكتابة التقنيات التي تتقنها وتحديد سنوات الخبرة.");
       }
     }
   };
@@ -196,7 +180,6 @@ const CreateMeetingRequest: React.FC = () => {
         requestNumber: reqNum
       });
       
-      // إرسال التنبيه للمسؤول باستخدام بريد الإعدادات الثابت الموحد
       await sendAdminNotification({
         to_email: ADMIN_CONTACT_EMAIL,
         from_name: formData.fullName,
@@ -204,7 +187,7 @@ const CreateMeetingRequest: React.FC = () => {
         user_phone: formData.whatsapp,
         field: formData.field,
         level: formData.level,
-        tech_stack: formData.techStack.join(', '),
+        tech_stack: formData.techStack,
         expectations: formData.expectations
       });
 
@@ -347,13 +330,13 @@ const CreateMeetingRequest: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">التقنيات التي تتقنها <span className="text-red-500">*</span></label>
                 <div className="relative rounded-md shadow-sm">
-                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><Code className="h-5 w-5 text-gray-400" /></div>
-                  <input type="text" value={currentTech} onChange={(e) => setCurrentTech(e.target.value)} onKeyDown={handleTechAdd} className={`${inputClasses} pr-10 py-3`} placeholder="اكتب واضغط Enter" />
-                </div>
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {formData.techStack.map((tech) => (
-                    <span key={tech} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">{tech}<button type="button" onClick={() => removeTech(tech)} className="mr-2 text-gray-500 hover:text-red-500">×</button></span>
-                  ))}
+                   <div className="absolute inset-y-0 right-3 top-3 pointer-events-none"><Code className="h-5 w-5 text-gray-400" /></div>
+                   <textarea 
+                    value={formData.techStack} 
+                    onChange={(e) => updateField('techStack', e.target.value)} 
+                    className={`${inputClasses} pr-10 py-3 min-h-[100px]`} 
+                    placeholder="مثال: React, Node.js, TypeScript, PostgreSQL..." 
+                   />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -378,7 +361,14 @@ const CreateMeetingRequest: React.FC = () => {
                 </label>
                 <textarea value={formData.expectations} onChange={(e) => updateField('expectations', e.target.value)} className={`${inputClasses} py-3 px-4 min-h-[100px]`} placeholder="ما الذي تود التركيز عليه خلال الجلسة؟" />
               </div>
-              <div className="pt-4 border-t border-gray-100"><label className="flex items-start gap-3 cursor-pointer group"><input type="checkbox" checked={formData.termsAccepted} onChange={(e) => updateField('termsAccepted', e.target.checked)} className="mt-1 w-5 h-5 text-accent rounded focus:ring-accent border-gray-300" /><span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">أوافق على <Link to="/terms" className="text-accent hover:underline font-bold">شروط الاستخدام</Link> و <Link to="/privacy" className="text-accent hover:underline font-bold">سياسة الخصوصية</Link> المتعلقة بالخدمة.</span></label></div>
+              <div className="pt-4 border-t border-gray-100">
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <input type="checkbox" checked={formData.termsAccepted} onChange={(e) => updateField('termsAccepted', e.target.checked)} className="mt-1 w-5 h-5 text-accent rounded focus:ring-accent border-gray-300" />
+                  <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
+                    أوافق على <button type="button" onClick={() => setShowTermsModal(true)} className="text-accent hover:underline font-bold">شروط الاستخدام</button> و <button type="button" onClick={() => setShowTermsModal(true)} className="text-accent hover:underline font-bold">سياسة الخصوصية</button> المتعلقة بالخدمة.
+                  </span>
+                </label>
+              </div>
             </div>
           )}
 
@@ -404,6 +394,83 @@ const CreateMeetingRequest: React.FC = () => {
             <Button className="w-full py-4 rounded-2xl shadow-accent/20 text-lg" onClick={() => navigate('/my-requests')}>
               متابعة حالة الطلب
             </Button>
+          </div>
+        </div>
+      )}
+
+      {showTermsModal && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-[2rem] max-w-2xl w-full max-h-[85vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-gray-100 flex flex-col">
+            <div className="bg-primary p-6 text-white flex items-center justify-between shrink-0">
+               <div className="flex items-center gap-3">
+                 <Shield className="w-6 h-6 text-accent" />
+                 <h3 className="text-xl font-bold">شروط الاستخدام والخصوصية</h3>
+               </div>
+               <button onClick={() => setShowTermsModal(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                 <X className="w-6 h-6" />
+               </button>
+            </div>
+            <div className="p-8 overflow-y-auto custom-scrollbar space-y-8 text-gray-700 leading-relaxed text-right">
+                <section>
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm">1</span>
+                    وصف الخدمة
+                    </h2>
+                    <p className="mr-10 text-gray-600">
+                    منصة "مقابلة" تقدم خدمات محاكاة للمقابلات الوظيفية، مراجعة السير الذاتية، وتقديم تقارير تقييمية للأداء. 
+                    هدفنا هو مساعدة الباحثين عن عمل في تحسين مهاراتهم، ولكننا لا نضمن الحصول على وظيفة بعد استخدام الخدمة.
+                    </p>
+                </section>
+
+                <section>
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-sm">2</span>
+                    سياسة الدفع والاسترجاع
+                    </h2>
+                    <div className="mr-10 space-y-4">
+                    <p className="text-gray-600">يتم تحصيل رسوم الجلسات عبر القنوات الرسمية المعتمدة لضمان أمان معاملاتك المالية:</p>
+                    <ul className="list-disc list-inside space-y-2 text-gray-600">
+                        <li>يتم دفع رسوم الجلسة كاملة مسبقاً لتأكيد الحجز.</li>
+                        <li><span className="font-bold text-gray-900">PayPal:</span> متاح لجميع المستخدمين عالمياً.</li>
+                        <li><span className="font-bold text-gray-900">InstaPay:</span> متاح للمستخدمين داخل مصر للتحويل اللحظي.</li>
+                        <li>يمكن استرداد المبلغ بالكامل في حال إلغاء الطلب قبل 24 ساعة.</li>
+                    </ul>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span className="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-sm">3</span>
+                    مسؤوليات المستخدم
+                    </h2>
+                    <p className="mr-10 text-gray-600">
+                    يتعهد المستخدم بتقديم معلومات صحيحة ودقيقة لضمان جودة التقييم. كما يلتزم بالسلوك المهني واللائق خلال جلسات المقابلة.
+                    </p>
+                </section>
+
+                <section>
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span className="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-sm">4</span>
+                    الخصوصية واستخدام البيانات
+                    </h2>
+                    <p className="mr-10 text-gray-600">
+                    نحن نحترم خصوصيتك. جميع البيانات التي تشاركها معنا يتم التعامل معها بسرية تامة وتستخدم فقط لغرض تقديم الخدمة وتحسين الجودة.
+                    </p>
+                </section>
+
+                <section>
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-sm">5</span>
+                    الموافقة على مشاركة البيانات
+                    </h2>
+                    <p className="mr-10 text-gray-600 font-bold">
+                    باستخدامك للمنصة، فإنك توافق على إمكانية عرض سيرتك الذاتية وبياناتك المهنية مع شركائنا في التوظيف لتعزيز فرص حصولك على العمل.
+                    </p>
+                </section>
+            </div>
+            <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-center shrink-0">
+               <Button onClick={() => setShowTermsModal(false)} className="px-12 rounded-2xl">فهمت ذلك، إغلاق</Button>
+            </div>
           </div>
         </div>
       )}

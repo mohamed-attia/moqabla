@@ -25,7 +25,7 @@ interface MyRequestData {
   level: 'fresh' | 'junior' | 'mid-senior' | 'lead-staff';
   status: string;
   submittedAt: any;
-  techStack: string[];
+  techStack: string; // تم التغيير لنص
   goals: string[];
   preferredTime: string;
   meetingLink?: string;
@@ -343,11 +343,9 @@ const UserRequests: React.FC = () => {
                              {req.level === 'mid-senior' && 'متوسط وخبير (mid/senior)'}
                              {req.level === 'lead-staff' && 'قيادي (lead/staff)'}
                           </span>
-                          {req.techStack?.map((tech, idx) => (
-                            <span key={idx} className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm border border-blue-100">
-                              {tech}
-                            </span>
-                          ))}
+                          <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-sm border border-blue-100">
+                             {req.techStack}
+                          </span>
                         </div>
                       </div>
                       

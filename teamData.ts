@@ -58,7 +58,7 @@ export const teamMembers: TeamMember[] = [
   {
     "id": 7,
     "name": "Muhammad Helmi",
-    "role": "Senior Android Engineer | Built STC Bank & STC Pay for 12M+ users | Kotlin Multiplatform | Clean Architecture | Jetpack Composer",
+    "role": "Senior Android Engineer | Kotlin Multiplatform | Clean Architecture | Jetpack Composer",
     "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQH1KA3KIxANTw/profile-displayphoto-scale_200_200/B4DZqcRJ7hHsAY-/0/1763558335929?e=1767225600&v=beta&t=0tKOhPZ2QkIe1-36zaWVUmqeIUSlanFMYLTltYcOED0",
     "rating": 5.0,
     "linkedinUrl": "https://www.linkedin.com/in/developermohamedhelmy/",
@@ -67,7 +67,7 @@ export const teamMembers: TeamMember[] = [
   {
     "id": 8,
     "name": "Ahmed Saeed",
-    "role": "Senior iOS Developer at STCBank | Expert in Mobile App Development",
+    "role": "Senior iOS Developer  | Expert in Mobile App Development",
     "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQG7aNfviv9hpg/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1722794057634?e=1767225600&v=beta&t=ZpfvbnQWUN39uurYto0vp13gxPedQ7tdxJSJxsY_GsM",
     "rating": 5.0,
     "linkedinUrl": "https://www.linkedin.com/in/ihendi/",
@@ -85,7 +85,7 @@ export const teamMembers: TeamMember[] = [
     {
     "id": 10,
     "name": "Aly Hamalawey",
-    "role": "Senior Android Engineer at D360 || EX-STC Bank, EX-Yassir, EX-SWVL",
+    "role": "Senior Android Engineer  EX-STC Bank, EX-Yassir, EX-SWVL",
     "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQHWRqMWb9U2sg/profile-displayphoto-scale_200_200/B4DZlOXG40H0AY-/0/1757956307313?e=1767225600&v=beta&t=W6aq4qsAMN1JBzB-vreuIuh7oi3LFrXqnbO7pdueXyQ",
     "rating": 5.0,
     "linkedinUrl": "https://www.linkedin.com/in/aly-hamalawey/",
@@ -98,6 +98,24 @@ export const teamMembers: TeamMember[] = [
     "photoUrl": "https://media.licdn.com/dms/image/v2/D4D35AQHUJET2VdlU3g/profile-framedphoto-shrink_400_400/B4DZiP.3f_GQAg-/0/1754762279219?e=1766502000&v=beta&t=8Rmt7B0wSMNJ2NkuaPcsx8SceTndKNksNu6rKud4Gog",
     "rating": 5.0,
     "linkedinUrl": "https://www.linkedin.com/in/aly-hamalawey/",
+    "category": "FE"
+  },
+  {
+    "id": 12,
+    "name": "Ahmed Ramez",
+    "role": "Senior Frontend Developer",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQE_e2IZ51vpmA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1704047344357?e=1767830400&v=beta&t=el-ABhduYJ19qaDEcRPRkXzKFEACPYP-gbr-3I5PsDQ",
+    "rating": 5.0,
+    "linkedinUrl": "https://www.linkedin.com/in/ahmedramez/",
+    "category": "FE"
+  },
+  {
+    "id": 13,
+    "name": "MHD Alaa Alhaj",
+    "role": "Senior Frontend Engineer Javascript | Typescript | React | Next.js | Mobile-First | Crafting Engaging Web",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQF5sSEQsxUwmg/profile-displayphoto-scale_200_200/B4DZkDvm1WIgAc-/0/1756704436515?e=1767830400&v=beta&t=4mqsswJB-fV8ikaliFYwFjHduyJZsRiDhdIRQd9sxAg",
+    "rating": 5.0,
+    "linkedinUrl": "https://www.linkedin.com/in/mhdalaa/",
     "category": "FE"
   }
 ];

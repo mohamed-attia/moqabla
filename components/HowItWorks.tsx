@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { FileEdit, Clock, CreditCard, CalendarCheck, ArrowLeft } from 'lucide-react';
+import { FileEdit, Clock, CalendarCheck, ArrowLeft } from 'lucide-react';
 import { FeatureItem } from '../types';
 
 const steps: FeatureItem[] = [
@@ -10,17 +11,12 @@ const steps: FeatureItem[] = [
   },
   {
     title: 'استجابة سريعة',
-    description: 'يقوم فريقنا بدراسة طلبك والرد عليك خلال 24 ساعة عمل كحد أقصى لتأكيد التفاصيل.',
+    description: 'يقوم فريقنا بدراسة طلبك والرد عليك خلال 24 ساعة عمل كحد أقصى لتأكيد التفاصيل وحجز الموعد.',
     Icon: Clock,
   },
   {
-    title: 'عرض السعر',
-    description: 'نوضح لك تكلفة الجلسة المناسبة لمستواك المهني بشفافية تامة قبل الاعتماد.',
-    Icon: CreditCard,
-  },
-  {
     title: 'ابدأ المقابلة',
-    description: 'بعد سداد الرسوم، نجدول مقابلتك فوراً في الوقت الذي يناسب جدولك لتبدأ رحلة التطوير.',
+    description: 'في الموعد المحدد، نجدول مقابلتك فوراً في الوقت الذي يناسب جدولك لتبدأ رحلة التطوير المهني.',
     Icon: CalendarCheck,
   },
 ];
@@ -42,10 +38,10 @@ const HowItWorks: React.FC = () => {
         </div>
 
         {/* Steps Grid */}
-        <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="relative grid grid-cols-1 md:grid-cols-3 gap-12 max-w-5xl mx-auto">
           
           {/* Connector Line (Desktop Only) */}
-          <div className="hidden lg:block absolute top-12 left-0 right-0 h-1 bg-gray-100 -z-10 translate-y-1/2 w-3/4 mx-auto"></div>
+          <div className="hidden lg:block absolute top-12 left-0 right-0 h-1 bg-gray-100 -z-10 translate-y-1/2 w-2/3 mx-auto"></div>
 
           {steps.map((step, index) => (
             <div 
@@ -67,7 +63,7 @@ const HowItWorks: React.FC = () => {
               <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-accent transition-colors duration-300">
                 {step.title}
               </h3>
-              <p className="text-gray-500 text-sm leading-relaxed px-2">
+              <p className="text-gray-500 text-sm leading-relaxed px-4">
                 {step.description}
               </p>
 

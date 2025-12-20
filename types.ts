@@ -52,7 +52,7 @@ export interface RegistrationFormData {
   whatsapp: string;
   linkedin: string;
   field: string;
-  techStack: string[];
+  techStack: string; // تم التغيير من string[] إلى string
   experience: number;
   level: 'fresh' | 'junior' | 'mid-senior' | 'lead-staff';
   goals: string[];

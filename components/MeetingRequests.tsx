@@ -489,6 +489,10 @@ const MeetingRequests: React.FC = () => {
                    <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl"><div className="text-[10px] text-blue-500 font-bold uppercase mb-1">المجال</div><div className="font-bold text-blue-900">{viewingRegistration.field}</div></div>
                    <div className="p-4 bg-teal-50 border border-teal-100 rounded-xl"><div className="text-[10px] text-teal-500 font-bold uppercase mb-1">المستوى</div><div className="font-bold text-teal-900">{getLevelLabel(viewingRegistration.level)}</div></div>
                    <div className="p-4 bg-purple-50 border border-purple-100 rounded-xl"><div className="text-[10px] text-purple-500 font-bold uppercase mb-1">سنوات الخبرة</div><div className="font-bold text-purple-900">{viewingRegistration.experience} سنة</div></div>
+                   <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl col-span-2">
+                     <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">التقنيات التي يتقنها</div>
+                     <div className="text-sm font-medium text-gray-700 whitespace-pre-wrap">{viewingRegistration.techStack}</div>
+                   </div>
                 </div>
               </div>
               {viewingRegistration.evaluationReport && (
