@@ -16,9 +16,10 @@ interface Props {
   registration: any;
   onComplete: () => void;
   onCancel: () => void;
+  interviewerName?: string;
 }
 
-const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel }) => {
+const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel, interviewerName }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [aiGenerating, setAiGenerating] = useState<string | null>(null);
@@ -66,11 +67,11 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
   const handleGenerateReport = async () => {
     setLoading(true);
     const totalScore = calculateTotalScore();
-    const interviewerName = auth.currentUser?.displayName || "المقيم";
+    const nameToDisplay = interviewerName || auth.currentUser?.displayName || "المقيم";
     
     const report = await AIAgent.generateFinalReport(
       registration.fullName,
-      interviewerName,
+      nameToDisplay,
       'Senior Software Engineer',
       { 
         sections: sections.map(s => ({
@@ -97,7 +98,9 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
         status: 'completed',
         evaluationReport: finalReport,
         finalScore: calculateTotalScore(),
-        completedAt: serverTimestamp()
+        completedAt: serverTimestamp(),
+        interviewerId: auth.currentUser?.uid,
+        interviewerName: interviewerName || auth.currentUser?.displayName || 'المحاور'
       });
       onComplete();
     } catch (e) {
@@ -114,7 +117,6 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
     <div className="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-xl flex items-center justify-center p-0 md:p-4 overflow-y-auto">
       <div className="bg-white w-full max-w-5xl md:h-[90vh] md:rounded-[3rem] shadow-2xl flex flex-col animate-in zoom-in-95 duration-300">
         
-        {/* Dynamic Header */}
         <div className="bg-primary p-6 md:p-10 text-white relative shrink-0">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-5">
@@ -145,7 +147,6 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
             </div>
           </div>
 
-          {/* Progress Bar - Life Line Style */}
           <div className="mt-8 h-2 w-full bg-white/10 rounded-full overflow-hidden">
             <div 
               className="h-full bg-accent shadow-[0_0_15px_rgba(13,148,136,0.8)] transition-all duration-700"
@@ -154,7 +155,6 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
           </div>
         </div>
 
-        {/* Scrollable Form Body */}
         {!isReviewing ? (
           <div className="flex-grow overflow-y-auto p-6 md:p-10 custom-scrollbar space-y-12">
             <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
@@ -176,7 +176,6 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
                       <p className="text-xs text-gray-400 mr-9">حدد مستوى التقييم للمرشح بناءً على هذه المهارة.</p>
                     </div>
                     
-                    {/* Score Buttons */}
                     <div className="flex flex-wrap gap-2 shrink-0 justify-end">
                       {[1, 2, 3, 4, 5].map((s) => (
                         <button
@@ -246,7 +245,7 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
                 </div>
               </div>
               
-              <div id="final-report-preview-senior" className="bg-white rounded-[2rem] p-6 md:p-10 shadow-sm border border-gray-100 prose prose-slate max-w-none dir-rtl text-right">
+              <div id="final-report-preview-senior" className="bg-white rounded-[2rem] p-6 md:p-10 shadow-sm border border-gray-100 prose prose-teal max-w-none dir-rtl text-right">
                 <div className="mb-6 p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex justify-between items-center no-pdf">
                    <span className="font-bold text-emerald-800">الدرجة النهائية (Senior):</span>
                    <span className="text-3xl font-black text-emerald-600">{calculateTotalScore()}%</span>
@@ -261,7 +260,6 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
           </div>
         )}
 
-        {/* Cinematic Footer Navigation */}
         <div className="p-6 md:p-10 border-t border-gray-100 bg-gray-50/50 flex flex-col md:flex-row justify-between items-center gap-6 shrink-0">
           <Button variant="outline" onClick={onCancel} className="w-full md:w-auto rounded-2xl">
             إغلاق التقييم

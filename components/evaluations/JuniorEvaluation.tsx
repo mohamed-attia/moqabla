@@ -16,16 +16,16 @@ interface Props {
   registration: any;
   onComplete: () => void;
   onCancel: () => void;
+  interviewerName?: string;
 }
 
-const JuniorEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel }) => {
+const JuniorEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel, interviewerName }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [aiGenerating, setAiGenerating] = useState<string | null>(null);
   const [finalReport, setFinalReport] = useState<string | null>(null);
   const [isReviewing, setIsReviewing] = useState(false);
   
-  // Choose template based on candidate level
   const template = registration.level === 'junior' ? JUNIOR_EVALUATION_TEMPLATE : FRESH_EVALUATION_TEMPLATE;
   const [sections, setSections] = useState<EvaluationSection[]>(JSON.parse(JSON.stringify(template)));
 
@@ -68,11 +68,11 @@ const JuniorEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel 
   const handleGenerateReport = async () => {
     setLoading(true);
     const totalScore = calculateTotalScore();
-    const interviewerName = auth.currentUser?.displayName || "المقيم";
+    const nameToDisplay = interviewerName || auth.currentUser?.displayName || "المقيم";
     
     const report = await AIAgent.generateFinalReport(
       registration.fullName,
-      interviewerName,
+      nameToDisplay,
       registration.level === 'junior' ? 'Junior Software Engineer' : 'Fresh Software Engineer',
       { 
         sections: sections.map(s => ({
@@ -99,7 +99,9 @@ const JuniorEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel 
         status: 'completed',
         evaluationReport: finalReport,
         finalScore: calculateTotalScore(),
-        completedAt: serverTimestamp()
+        completedAt: serverTimestamp(),
+        interviewerId: auth.currentUser?.uid,
+        interviewerName: interviewerName || auth.currentUser?.displayName || 'المحاور'
       });
       onComplete();
     } catch (e) {
@@ -116,7 +118,6 @@ const JuniorEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel 
     <div className="fixed inset-0 z-[100] bg-slate-900/95 backdrop-blur-2xl flex items-center justify-center p-0 md:p-4 overflow-y-auto">
       <div className="bg-white w-full max-w-5xl md:h-[90vh] md:rounded-[3rem] shadow-2xl flex flex-col animate-in zoom-in-95 duration-300 overflow-hidden">
         
-        {/* Dynamic Header with Gamified Score */}
         <div className="bg-primary p-6 md:p-10 text-white relative shrink-0 border-b-4 border-accent">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-5">
@@ -155,7 +156,6 @@ const JuniorEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel 
           </div>
         </div>
 
-        {/* Content Body */}
         {!isReviewing ? (
           <div className="flex-grow overflow-y-auto p-6 md:p-10 custom-scrollbar space-y-12">
             <div className="flex items-center justify-between border-b border-gray-100 pb-6">
@@ -273,7 +273,6 @@ const JuniorEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel 
           </div>
         )}
 
-        {/* Footer Navigation */}
         <div className="p-6 md:p-10 border-t border-gray-100 bg-gray-50/80 flex flex-col md:flex-row justify-between items-center gap-6 shrink-0">
           <button onClick={onCancel} className="text-gray-400 hover:text-rose-500 font-black text-sm flex items-center gap-2 transition-colors">
              <X className="w-5 h-5" /> إلغاء التقييم والخروج

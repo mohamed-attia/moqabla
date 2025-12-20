@@ -53,19 +53,33 @@ export const AIAgent = {
     Full Evaluation Data (Sections, Skills, Scores, and Interviewer Notes):
     ${JSON.stringify(evaluationData, null, 2)}
     
-    CRITICAL INSTRUCTIONS FOR THE REPORT STRUCTURE (Arabic):
-    1. Executive Summary: Overall impression.
-    2. Detailed Breakdown by Section:
-       - For EACH SKILL within a section, you MUST display it as follows:
-         * Skill Name & Score (e.g., Programming Logic: 4/5)
-         * "ملاحظات المقيم المباشرة": [HERE YOU MUST INCLUDE THE VERBATIM NOTES WRITTEN BY THE INTERVIEWER FROM THE DATA PROVIDED]
-         * "تحليل وتوصية": [Your AI coaching tip based on the score and note]
-    3. Final Decision: Ready, Almost Ready, or Not Ready Yet.
-    4. Pro Tips: Personalized advice.
+    CRITICAL INSTRUCTIONS FOR THE REPORT MARKDOWN FORMAT (Arabic):
     
-    IMPORTANT: Do NOT summarize the interviewer notes into one paragraph. Keep them attached to each skill as "Direct Observations". If a note is empty, write "لم يتم إضافة ملاحظات إضافية".
+    1. Header: Use "# 📝 تقرير التقييم الفني"
+    2. Candidate Summary: Use a table or bold list for Name, Level, and Final Result.
     
-    Use Markdown with beautiful formatting, emojis, and clear headings.`;
+    3. FOR EACH SECTION:
+       - Use "## [Section Title]"
+       
+    4. FOR EACH SKILL (The most important part):
+       Follow this exact visual pattern:
+       ### 🔹 [Skill Name] | النتيجة: [Score]/5
+       > **💬 رأي المحاور المباشر:**
+       > [INSERT VERBATIM NOTES FROM INTERVIEWER HERE. If empty, write "لم يتم إضافة ملاحظات إضافية من قبل المحاور."]
+       
+       💡 **تحليل وتوصية المقابل الذكي (AI Analysis):**
+       [Provide a deep analysis and a specific actionable tip based on the score and interviewer's observation]
+       
+       --- (Horizontal line between skills)
+
+    5. Final Summary & Roadmap:
+       - Give a "Final Verdict" (e.g., Ready, Needs Practice).
+       - Provide a "3-Step Growth Plan" based on the weaknesses found.
+
+    IMPORTANT: 
+    - Use clear spacing and bold headers. 
+    - The Interviewer's notes MUST be clearly separated from your (AI) analysis using the blockquote style (">").
+    - Use Markdown emojis to make it professional yet encouraging.`;
 
     try {
       const response = await ai.models.generateContent({

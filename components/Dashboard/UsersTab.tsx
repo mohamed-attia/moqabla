@@ -1,47 +1,61 @@
 
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, query, orderBy, writeBatch, doc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, writeBatch, doc, where } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
-import { UserProfile } from '../../types';
-import { Search, User, Mail, Loader2, Trash2, Filter, Briefcase, ShieldCheck, Phone, ChevronRight, ChevronLeft, Users as UsersIcon } from 'lucide-react';
+import { UserProfile, RegistrationFormData } from '../../types';
+import { Search, User, Mail, Loader2, Trash2, Filter, Briefcase, ShieldCheck, Phone, ChevronRight, ChevronLeft, Users as UsersIcon, Award, UserCheck } from 'lucide-react';
 import Button from '../Button';
 
 const UsersTab: React.FC = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [interviewCounts, setInterviewCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('ALL');
   const [fieldFilter, setFieldFilter] = useState<string>('ALL');
   const [deletingUid, setDeletingUid] = useState<string | null>(null);
   
-  // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userPendingDelete, setUserPendingDelete] = useState<UserProfile | null>(null);
 
-  const fetchUsers = async () => {
+  const fetchData = async () => {
     try {
-      const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(q);
+      // 1. Fetch Users
+      const uQ = query(collection(db, "users"), orderBy("createdAt", "desc"));
+      const userSnapshot = await getDocs(uQ);
       const results: UserProfile[] = [];
-      querySnapshot.forEach((doc) => {
+      userSnapshot.forEach((doc) => {
         results.push(doc.data() as UserProfile);
       });
       setUsers(results);
+
+      // 2. Fetch Interview Counts (Calculate counts based on completed registrations)
+      const rQ = query(collection(db, "registrations"), where("status", "==", "completed"));
+      const regSnapshot = await getDocs(rQ);
+      const counts: Record<string, number> = {};
+      
+      regSnapshot.forEach((doc) => {
+        const data = doc.data() as RegistrationFormData;
+        if (data.interviewerId) {
+          counts[data.interviewerId] = (counts[data.interviewerId] || 0) + 1;
+        }
+      });
+      setInterviewCounts(counts);
+
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchData();
   }, []);
 
-  // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, roleFilter, fieldFilter]);
@@ -163,9 +177,9 @@ const UsersTab: React.FC = () => {
               <tr>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">المستخدم</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">الإحالات</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-600">المقابلات المنجزة</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">الصلاحية</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">التخصص</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">المستوى</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600 text-center">حذف</th>
               </tr>
             </thead>
@@ -195,6 +209,20 @@ const UsersTab: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
+                      {user.role === 'interviewer' || user.role === 'admin' ? (
+                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black ${
+                          (interviewCounts[user.uid] || 0) > 10 ? 'bg-indigo-100 text-indigo-700 border border-indigo-200' : 
+                          (interviewCounts[user.uid] || 0) > 0 ? 'bg-blue-100 text-blue-700 border border-blue-200' : 
+                          'bg-gray-50 text-gray-400'
+                        }`}>
+                          <UserCheck className="w-3 h-3" />
+                          {interviewCounts[user.uid] || 0} مقابلة
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-300">-</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         user.role === 'admin' ? 'bg-red-50 text-red-600' :
                         user.role === 'interviewer' ? 'bg-teal-50 text-teal-600' :
@@ -204,7 +232,6 @@ const UsersTab: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">{user.field || '-'}</td>
-                    <td className="px-6 py-4 text-sm font-bold text-gray-700">{getLevelLabel(user.level)}</td>
                     <td className="px-6 py-4 text-center">
                       <button 
                         onClick={() => initiateDelete(user)}
@@ -224,7 +251,6 @@ const UsersTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Pagination Controls */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-8">
           <button 

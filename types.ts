@@ -68,7 +68,10 @@ export interface RegistrationFormData {
   reportLink?: string;
   videoLink?: string;
   evaluationReport?: string; // AI Generated Report Content
+  finalScore?: number;
   requestNumber?: string; // Unique human-readable ID
+  interviewerId?: string; // المعرف الخاص بالمحاور
+  interviewerName?: string; // اسم المحاور الذي أجرى المقابلة
 }
 
 export interface UserProfile {

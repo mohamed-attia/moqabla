@@ -2,15 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { Check, ShieldCheck, Zap, Gift, Sparkles, Users, Lock, CreditCard } from 'lucide-react';
 import Button from './Button';
-// Use namespace import to bypass named export resolution issues
 import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
-// Fix: Use namespace import for FirebaseAuth to bypass named export resolution issues
 import * as FirebaseAuth from 'firebase/auth';
 const { onAuthStateChanged } = FirebaseAuth as any;
 import { collection, query, where, getDocs, limit, doc, getDoc } from 'firebase/firestore';
 
-// Fix: Use type assertion to bypass broken react-router-dom type definitions
 const { useNavigate } = ReactRouterDOM as any;
 
 const pricingPlans = [
@@ -94,29 +91,27 @@ const Pricing: React.FC = () => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
       setUser(currentUser);
       if (currentUser) {
-        // Robust role check matching Header.tsx
         try {
           const userDoc = await getDoc(doc(db, "users", currentUser.uid));
-          const userData = userDoc.data();
-          const role = userData?.role;
-          const isDevAdmin = currentUser.email === 'dev.mohattia@gmail.com';
-          const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer' || isDevAdmin;
-          setIsAdmin(adminStatus);
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const role = userData?.role;
+            const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer';
+            setIsAdmin(adminStatus);
+          }
         } catch (e) {
-          setIsAdmin(currentUser.email === 'dev.mohattia@gmail.com');
+          setIsAdmin(false);
         }
 
         try {
           const q = query(
             collection(db, "registrations"), 
-            where("userId", "==", currentUser.uid),
-            limit(15)
+            where("userId", "==", currentUser.uid)
           );
           const snapshot = await getDocs(q);
           const hasActive = snapshot.docs.some(doc => {
             const data = doc.data();
             const status = data.status || 'pending';
-            // Hide if pending, reviewing, or approved
             return ['pending', 'reviewing', 'approved'].includes(status);
           });
           setHasActiveRequest(hasActive);
@@ -231,7 +226,6 @@ const Pricing: React.FC = () => {
                 )}
               </ul>
 
-              {/* Show button if logged out OR if it's the referral plan OR if admin OR user has no active request */}
               {(!user || plan.id === 'referral' || isAdmin || !hasActiveRequest) && (
                 <Button 
                   onClick={() => handleBookingAction(plan.id)}
@@ -248,7 +242,6 @@ const Pricing: React.FC = () => {
           ))}
         </div>
 
-        {/* Simplified Payment Notice Section */}
         <div className="max-w-4xl mx-auto text-center animate-in fade-in slide-in-from-bottom-4 delay-500">
           <p className="text-gray-800 font-bold text-lg">
             الدفع عن طريق تحويلات PayPal و InstaPay

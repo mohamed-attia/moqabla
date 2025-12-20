@@ -15,6 +15,9 @@ import { sendAdminNotification } from '../lib/notifications';
 
 const { useNavigate, Link } = ReactRouterDOM as any;
 
+// تعريف بريد الاستقبال للتنبيهات في مكان واحد (يمكن لاحقاً جلبه من Firestore settings)
+const ADMIN_CONTACT_EMAIL = "contact@moqabala.info";
+
 const CreateMeetingRequest: React.FC = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -170,15 +173,7 @@ const CreateMeetingRequest: React.FC = () => {
     if (loading) return;
 
     if (!isStep3Valid()) {
-      if (formData.expectations.trim().length < 10) {
-        setError("يرجى كتابة 10 حروف على الأقل في التوقعات من الجلسة لتساعدنا في التحضير الجيد.");
-      } else if (formData.goals.length === 0) {
-        setError("يرجى اختيار هدف واحد على الأقل من المقابلة.");
-      } else if (!formData.termsAccepted) {
-        setError("يرجى الموافقة على شروط الاستخدام.");
-      } else {
-        setError("يرجى استكمال جميع البيانات المطلوبة في الخطوة الأخيرة.");
-      }
+      setError("يرجى استكمال جميع البيانات المطلوبة في الخطوة الأخيرة.");
       return;
     }
 
@@ -191,7 +186,6 @@ const CreateMeetingRequest: React.FC = () => {
     setError(null);
 
     try {
-      // Generate a nice human-readable Order ID
       const reqNum = `MQ-${Math.floor(100000 + Math.random() * 900000)}`;
       
       await addDoc(collection(db, "registrations"), {
@@ -202,8 +196,9 @@ const CreateMeetingRequest: React.FC = () => {
         requestNumber: reqNum
       });
       
+      // إرسال التنبيه للمسؤول باستخدام بريد الإعدادات الثابت الموحد
       await sendAdminNotification({
-        to_email: "dev.mohattia@gmail.com",
+        to_email: ADMIN_CONTACT_EMAIL,
         from_name: formData.fullName,
         user_email: formData.email,
         user_phone: formData.whatsapp,
@@ -239,7 +234,7 @@ const CreateMeetingRequest: React.FC = () => {
            </div>
            <h2 className="text-2xl font-black text-primary mb-4">تفعيل الحساب مطلوب</h2>
            <p className="text-gray-600 mb-8 leading-relaxed">
-             عذراً، يجب عليك تفعيل بريدك الإلكتروني <span className="font-bold text-accent">({auth.currentUser?.email})</span> لتتمكن من حجز مقابلة. يرجى مراجعة صندوق الوارد الخاص بك.
+             عذراً، يجب عليك تفعيل بريدك الإلكتروني لتتمكن من حجز مقابلة. يرجى مراجعة صندوق الوارد الخاص بك.
            </p>
            
            <div className="space-y-4">

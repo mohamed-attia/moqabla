@@ -25,7 +25,6 @@ const Hero: React.FC = () => {
           const userData = userDoc.data();
           const role = userData?.role;
           
-          // الاعتماد على الرتبة فقط
           const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer';
           setIsAdmin(adminStatus);
         } catch (e) {
@@ -35,8 +34,7 @@ const Hero: React.FC = () => {
         try {
           const q = query(
             collection(db, "registrations"), 
-            where("userId", "==", currentUser.uid),
-            limit(15) 
+            where("userId", "==", currentUser.uid)
           );
           const snapshot = await getDocs(q);
           const hasActive = snapshot.docs.some(doc => {
@@ -89,7 +87,7 @@ const Hero: React.FC = () => {
           </div>
           <div className="w-1/2 relative mt-8 lg:mt-0">
             <div className="relative mx-auto max-w-xs lg:max-w-[18rem] xl:max-w-sm">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5 animate-in fade-in zoom-in-95 duration-700 bg-slate-800"><div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent z-10 pointer-events-none"></div><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Professional Interview Success" className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"/></div>
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5 animate-in fade-in zoom-in-95 duration-700 bg-slate-800"><div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent z-10 pointer-none"></div><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Professional Interview Success" className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"/></div>
               <div className="absolute -bottom-8 -left-8 bg-white rounded-xl shadow-xl p-4 w-56 lg:w-64 border border-gray-100 z-20 animate-in slide-in-from-bottom-8 delay-500 duration-700 hidden sm:block scale-90 lg:scale-[0.85] xl:scale-100 origin-bottom-left"><div className="flex items-center gap-3 border-b border-gray-100 pb-2 mb-2"><div className="bg-accent/10 p-1.5 rounded-lg"><MessageSquare className="w-4 h-4 text-accent" /></div><span className="font-bold text-gray-800 text-sm">تقييم المقابلة</span></div><div className="space-y-3"><div><div className="flex justify-between text-xs text-gray-600 mb-1"><span>التقييم التقني</span><span className="font-bold text-green-600">ممتاز</span></div><div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden"><div className="bg-green-500 h-full rounded-full" style={{ width: '95%' }}></div></div></div><div><div className="flex justify-between text-xs text-gray-600 mb-1"><span>التواصل الفعّال</span><span className="font-bold text-accent">9.5/10</span></div><div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden"><div className="bg-accent h-full rounded-full" style={{ width: '92%' }}></div></div></div></div></div>
               <div className="absolute -top-6 -right-6 bg-slate-800/90 backdrop-blur-md rounded-xl shadow-lg p-3 border border-slate-700 z-20 animate-in slide-in-from-top-8 delay-700 duration-700 flex items-center gap-3 transform hover:scale-105 transition-transform scale-90 lg:scale-[0.85] xl:scale-100 origin-top-right"><div className="bg-green-500 p-2 rounded-lg shadow-lg shadow-green-500/20"><Briefcase className="w-6 h-6 text-white" /></div><div><p className="text-white font-bold text-base">تم القبول!</p><p className="text-xs text-gray-400">مبروك الوظيفة</p></div></div>
             </div>

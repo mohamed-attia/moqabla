@@ -6,7 +6,7 @@ import { RegistrationFormData, UserProfile } from '../types';
 import { 
   Loader2, FileText, Search, ChevronLeft, ChevronRight, Edit2, X, Filter, 
   Link as LinkIcon, Video, FileCheck, Save, Eye, User, Mail, Phone, 
-  Linkedin, Code, Briefcase, Target, Clock, AlertCircle, Calendar, Globe, ClipboardCheck, Award, Download, Hash, Users as UsersIcon
+  Linkedin, Code, Briefcase, Target, Clock, AlertCircle, Calendar, Globe, ClipboardCheck, Award, Download, Hash, Users as UsersIcon, UserCheck
 } from 'lucide-react';
 import * as FirebaseAuth from 'firebase/auth';
 const { onAuthStateChanged } = FirebaseAuth as any;
@@ -19,7 +19,6 @@ declare var html2pdf: any;
 
 interface RegistrationWithId extends RegistrationFormData {
   id: string;
-  finalScore?: number;
 }
 
 const MeetingRequests: React.FC = () => {
@@ -103,7 +102,6 @@ const MeetingRequests: React.FC = () => {
 
   const handleViewDetails = async (reg: RegistrationWithId) => {
     setViewingRegistration(reg);
-    // جلب عدد إحالات المستخدم بشكل منفصل لعرضها للأدمن
     if (reg.userId) {
       try {
         const uDoc = await getDoc(doc(db, "users", reg.userId));
@@ -231,17 +229,12 @@ const MeetingRequests: React.FC = () => {
     const phoneMatch = reg.whatsapp?.includes(term) || false;
     const nameMatch = reg.fullName?.toLowerCase().includes(term) || false;
     const idMatch = reg.requestNumber?.toLowerCase().includes(term) || false;
-    return (emailMatch || phoneMatch || nameMatch || idMatch) && statusMatch;
+    const interviewerMatch = reg.interviewerName?.toLowerCase().includes(term) || false;
+    return (emailMatch || phoneMatch || nameMatch || idMatch || interviewerMatch) && statusMatch;
   });
 
   const totalPages = Math.ceil(filteredRegistrations.length / itemsPerPage);
   const currentItems = filteredRegistrations.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  const formatDate = (timestamp: any) => {
-    if (!timestamp) return '-';
-    if (timestamp.seconds) return new Date(timestamp.seconds * 1000).toLocaleDateString('ar-EG');
-    return new Date(timestamp).toLocaleDateString('ar-EG');
-  };
 
   const getAllowedStatuses = () => {
     if (isAdmin || isMaintainer) return ['pending', 'reviewing', 'approved', 'completed', 'canceled'];
@@ -265,7 +258,7 @@ const MeetingRequests: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-grow max-w-md">
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><Search className="h-5 w-5 text-gray-400" /></div>
-              <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent bg-white shadow-sm" placeholder="بحث بالاسم، رقم الطلب، الهاتف..." />
+              <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent bg-white shadow-sm" placeholder="بحث بالاسم، المحاور، الهاتف..." />
             </div>
             <div className="relative w-full md:w-56">
                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><Filter className="h-5 w-5 text-gray-400" /></div>
@@ -292,6 +285,7 @@ const MeetingRequests: React.FC = () => {
                       <th className="px-6 py-4 text-sm font-bold text-gray-700">الاسم</th>
                       <th className="px-6 py-4 text-sm font-bold text-gray-700">التواصل</th>
                       <th className="px-6 py-4 text-sm font-bold text-gray-700">المجال والمستوى</th>
+                      <th className="px-6 py-4 text-sm font-bold text-gray-700">المحاور</th>
                       <th className="px-6 py-4 text-sm font-bold text-gray-700">الحالة</th>
                       <th className="px-6 py-4 text-sm font-bold text-gray-700 text-center">إجراءات</th>
                     </tr>
@@ -307,6 +301,18 @@ const MeetingRequests: React.FC = () => {
                           <td className="px-6 py-4 font-bold text-gray-900">{reg.fullName}</td>
                           <td className="px-6 py-4"><div className="flex flex-col text-xs text-gray-600"><span className="dir-ltr text-right">{reg.email}</span><span className="dir-ltr text-right">{reg.whatsapp}</span></div></td>
                           <td className="px-6 py-4"><div className="text-sm font-medium text-gray-700">{reg.field}</div><div className="flex items-center gap-2 mt-0.5"><span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-bold">{getLevelLabel(reg.level)}</span><span className="text-[10px] text-gray-400">{reg.experience} سنوات خبرة</span></div></td>
+                          <td className="px-6 py-4">
+                             {reg.interviewerName ? (
+                               <div className="flex items-center gap-2">
+                                 <div className="w-7 h-7 bg-primary text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+                                   {reg.interviewerName.charAt(0)}
+                                 </div>
+                                 <span className="text-xs font-bold text-gray-600">{reg.interviewerName}</span>
+                               </div>
+                             ) : (
+                               <span className="text-xs text-gray-400">-</span>
+                             )}
+                          </td>
                           <td className="px-6 py-4"><div className="flex items-center gap-2">{getStatusBadge(reg.status)}</div></td>
                           <td className="px-6 py-4 text-center">
                             <div className="flex items-center justify-center gap-2">
@@ -324,7 +330,7 @@ const MeetingRequests: React.FC = () => {
                             </div>
                           </td>
                         </tr>
-                    )) : <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-500">لا توجد طلبات تطابق المعايير.</td></tr>}
+                    )) : <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-500">لا توجد طلبات تطابق المعايير.</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -342,11 +348,10 @@ const MeetingRequests: React.FC = () => {
         )}
       </div>
 
-      {evaluatingRegistration && <JuniorEvaluation registration={evaluatingRegistration} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
-      {evaluatingSeniorRegistration && <SeniorMidEvaluation registration={evaluatingSeniorRegistration} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
-      {evaluatingLeadRegistration && <LeadEvaluation registration={evaluatingLeadRegistration} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+      {evaluatingRegistration && <JuniorEvaluation registration={evaluatingRegistration} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+      {evaluatingSeniorRegistration && <SeniorMidEvaluation registration={evaluatingSeniorRegistration} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+      {evaluatingLeadRegistration && <LeadEvaluation registration={evaluatingLeadRegistration} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
 
-      {/* AI Report Viewer Modal */}
       {viewingReport && (
         <div className="fixed inset-0 z-[110] bg-slate-900/90 backdrop-blur-lg flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[3rem] shadow-2xl relative animate-in zoom-in-95 overflow-hidden flex flex-col">
@@ -369,7 +374,6 @@ const MeetingRequests: React.FC = () => {
         </div>
       )}
 
-      {/* Edit Status Modal */}
       {editingRegistration && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
@@ -389,7 +393,6 @@ const MeetingRequests: React.FC = () => {
         </div>
       )}
 
-      {/* View Details Modal */}
       {viewingRegistration && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in">
           <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95">
@@ -419,7 +422,6 @@ const MeetingRequests: React.FC = () => {
             </div>
             <div className="p-8 overflow-y-auto custom-scrollbar space-y-8 text-right">
               
-              {/* User Stats Banner for Admin */}
               <div className="bg-slate-800 rounded-2xl p-6 text-white flex items-center justify-between shadow-xl">
                  <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-accent">
@@ -466,6 +468,21 @@ const MeetingRequests: React.FC = () => {
                     </a>
                  </div>
               </div>
+
+              {viewingRegistration.interviewerName && (
+                <div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">
+                       <UserCheck className="w-5 h-5" />
+                    </div>
+                    <div className="text-right">
+                       <div className="text-[10px] font-bold text-gray-400 uppercase">المحاور الذي أجرى الجلسة</div>
+                       <div className="text-sm font-black text-primary">{viewingRegistration.interviewerName}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-4">
                 <h4 className="font-black text-gray-900 flex flex-row-reverse items-center gap-2 text-lg"><Briefcase className="w-5 h-5 text-accent" /> الخلفية التقنية والخبرة</h4>
                 <div className="grid grid-cols-2 gap-4">
@@ -480,23 +497,12 @@ const MeetingRequests: React.FC = () => {
                   <div className="p-6 bg-emerald-50/30 border-2 border-emerald-100 rounded-[2rem] text-sm text-gray-700 leading-relaxed overflow-x-auto text-right dir-rtl"><pre className="whitespace-pre-wrap font-sans">{viewingRegistration.evaluationReport}</pre></div>
                 </div>
               )}
-              <div className="space-y-3">
-                <div className="flex flex-row-reverse items-center gap-2 text-sm font-bold text-gray-400"><Code className="w-4 h-4" /> التقنيات المستخدمة</div>
-                <div className="flex flex-row-reverse flex-wrap gap-2">
-                  {viewingRegistration.techStack.map((tech, idx) => (<span key={idx} className="px-3 py-1 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-lg shadow-sm">{tech}</span>))}
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex flex-row-reverse items-center gap-2 text-sm font-bold text-gray-400"><AlertCircle className="w-4 h-4" /> التوقعات من الجلسة</div>
-                <div className="p-5 bg-gray-50 border border-gray-200 rounded-2xl text-sm text-gray-700 leading-relaxed italic">"{viewingRegistration.expectations}"</div>
-              </div>
             </div>
             <div className="p-6 border-t border-gray-100 flex justify-end shrink-0 bg-gray-50"><Button onClick={handleCloseModals}>إغلاق</Button></div>
           </div>
         </div>
       )}
 
-      {/* Links Modal */}
       {linkingRegistration && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">

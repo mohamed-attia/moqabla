@@ -36,8 +36,7 @@ const Footer: React.FC = () => {
         try {
           const q = query(
             collection(db, "registrations"), 
-            where("userId", "==", currentUser.uid),
-            limit(10)
+            where("userId", "==", currentUser.uid)
           );
           const snapshot = await getDocs(q);
           const hasActive = snapshot.docs.some(doc => {
@@ -75,13 +74,14 @@ const Footer: React.FC = () => {
   const handleBookingAction = () => {
     if (!user) {
       navigate('/login');
-    } else if (hasActiveRequest) {
+    } else if (hasActiveRequest && !isAdmin) {
       navigate('/my-requests');
     } else {
       navigate('/request-meeting');
     }
   };
 
+  // التحقق النهائي لإخفاء قسم CTA بالكامل
   const shouldShowBookingCTA = !user || isAdmin || !hasActiveRequest;
 
   return (

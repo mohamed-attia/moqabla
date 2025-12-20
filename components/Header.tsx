@@ -52,7 +52,6 @@ const Header: React.FC = () => {
           const userData = userDoc.data();
           const role = userData?.role;
           
-          // التحقق من الرتبة فقط دون بريد محدد
           const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer';
           setIsAdmin(adminStatus);
         } catch (e) {
@@ -64,8 +63,7 @@ const Header: React.FC = () => {
         try {
           const q = query(
             collection(db, "registrations"), 
-            where("userId", "==", currentUser.uid),
-            limit(10)
+            where("userId", "==", currentUser.uid)
           );
           const snapshot = await getDocs(q);
           const hasActive = snapshot.docs.some(doc => {
@@ -229,7 +227,10 @@ const Header: React.FC = () => {
               </>
             )}
             <div className="pt-4 flex flex-col gap-3">
-              {!user ? <Button onClick={() => navigate('/login')} className="w-full justify-center">تسجيل دخول</Button> : (
+              {(!user || isAdmin || !hasActiveRequest) && (
+                <Button onClick={handleCTAAction} className="w-full justify-center">احجز مقابلة</Button>
+              )}
+              {!user ? <button onClick={() => navigate('/login')} className="flex items-center justify-center gap-2 p-3 text-gray-600 font-bold border border-gray-100 rounded-lg bg-gray-50"><LogIn className="w-5 h-5" />تسجيل دخول</button> : (
                 <button onClick={handleLogout} className="flex items-center justify-center gap-2 p-3 text-red-600 font-bold border border-red-100 rounded-lg bg-red-50"><LogOut className="w-5 h-5" />تسجيل الخروج</button>
               )}
             </div>
