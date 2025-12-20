@@ -52,7 +52,7 @@ export interface RegistrationFormData {
   whatsapp: string;
   linkedin: string;
   field: string;
-  techStack: string; // تم التغيير من string[] إلى string
+  techStack: string; 
   experience: number;
   level: 'fresh' | 'junior' | 'mid-senior' | 'lead-staff';
   goals: string[];
@@ -61,17 +61,18 @@ export interface RegistrationFormData {
   preferredTime: string;
   expectations: string;
   termsAccepted: boolean;
+  planName: string; // الحقل الجديد
   userId?: string;
   submittedAt?: any;
   status?: 'pending' | 'approved' | 'completed' | 'canceled' | 'reviewing';
   meetingLink?: string;
   reportLink?: string;
   videoLink?: string;
-  evaluationReport?: string; // AI Generated Report Content
+  evaluationReport?: string; 
   finalScore?: number;
-  requestNumber?: string; // Unique human-readable ID
-  interviewerId?: string; // المعرف الخاص بالمحاور
-  interviewerName?: string; // اسم المحاور الذي أجرى المقابلة
+  requestNumber?: string; 
+  interviewerId?: string; 
+  interviewerName?: string; 
 }
 
 export interface UserProfile {

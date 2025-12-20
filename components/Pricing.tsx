@@ -6,7 +6,7 @@ import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
 import * as FirebaseAuth from 'firebase/auth';
 const { onAuthStateChanged } = FirebaseAuth as any;
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
 
 const { useNavigate } = ReactRouterDOM as any;
 
@@ -15,30 +15,45 @@ const Pricing: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isPremium, setIsPremium] = useState(true); // المميز هو الافتراضي لعرض القيمة الكاملة
+  const [isPremium, setIsPremium] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
+    let unsubscribeSnapshot: any = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser: any) => {
       setUser(currentUser);
       if (currentUser) {
         try {
           const userDoc = await getDoc(doc(db, "users", currentUser.uid));
           if (userDoc.exists()) {
-            const userData = userDoc.data();
-            const role = userData?.role;
-            const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer';
-            setIsAdmin(adminStatus);
+            const role = userDoc.data()?.role;
+            setIsAdmin(role === 'admin' || role === 'maintainer' || role === 'interviewer');
           }
-          const q = query(collection(db, "registrations"), where("userId", "==", currentUser.uid));
-          const snapshot = await getDocs(q);
-          const hasActive = snapshot.docs.some(doc => ['pending', 'reviewing', 'approved'].includes(doc.data().status));
+        } catch (e) {}
+
+        const q = query(
+          collection(db, "registrations"), 
+          where("userId", "==", currentUser.uid)
+        );
+
+        unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+          const hasActive = snapshot.docs.some(doc => {
+            const status = doc.data().status || 'pending';
+            return ['pending', 'reviewing', 'approved'].includes(status);
+          });
           setHasActiveRequest(hasActive);
-        } catch (e) {
-          console.error(e);
-        }
+        });
+      } else {
+        setHasActiveRequest(false);
+        setIsAdmin(false);
+        if (unsubscribeSnapshot) unsubscribeSnapshot();
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+    };
   }, []);
 
   const handleBookingAction = (planId: string) => {
@@ -116,14 +131,12 @@ const Pricing: React.FC = () => {
   return (
     <section id="pricing" className="py-24 bg-white relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
-        
         <div className="text-center mb-12">
           <span className="text-accent font-black tracking-[0.2em] uppercase mb-3 block">استثمارك الذكي</span>
           <h2 className="text-4xl md:text-6xl font-black text-primary mb-6">
             اختر باقة <span className="text-accent">نجاحك</span>
           </h2>
           
-          {/* Requested Text Block */}
           <div className="max-w-2xl mx-auto mb-10 animate-in fade-in slide-in-from-bottom-4">
              <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 shadow-sm">
                 <p className="text-gray-800 text-lg leading-relaxed">
@@ -133,7 +146,6 @@ const Pricing: React.FC = () => {
              </div>
           </div>
           
-          {/* Toggle Switch */}
           <div className="flex items-center justify-center mb-6">
             <div className="bg-gray-100 p-1.5 rounded-[1.5rem] flex items-center shadow-inner border border-gray-200">
               <button 
@@ -151,9 +163,6 @@ const Pricing: React.FC = () => {
               </button>
             </div>
           </div>
-          <p className="text-gray-400 text-xs font-bold">
-            {isPremium ? '✨ الباقة المميزة تشمل تسجيل الفيديو والمناقشة المفتوحة' : '💡 الباقة العادية توفر لك التقييم الأساسي والتقرير'}
-          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -164,7 +173,7 @@ const Pricing: React.FC = () => {
                 plan.popular 
                   ? 'bg-slate-900 border-primary shadow-2xl scale-105 z-10 text-white' 
                   : 'bg-white border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-2'
-              }`}
+              } ${hasActiveRequest && !isAdmin && plan.id !== 'referral' ? 'opacity-75' : ''}`}
             >
               {(plan.highlight || (plan.id === 'junior' && isPremium)) && (
                 <div className={`absolute -top-5 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full text-xs font-black shadow-lg flex items-center gap-2 whitespace-nowrap ${
@@ -187,50 +196,31 @@ const Pricing: React.FC = () => {
 
               <div className="flex items-baseline gap-1 mb-6">
                 <span className={`text-4xl font-black transition-all duration-300 ${plan.popular ? 'text-white' : 'text-gray-900'}`}>{plan.price}</span>
-                {plan.id !== 'referral' && <span className={`text-sm ${plan.popular ? 'text-gray-400' : 'text-gray-500'}`}>/ مقابلة</span>}
               </div>
-
-              <p className={`text-sm leading-relaxed mb-8 flex-grow ${plan.popular ? 'text-gray-400' : 'text-gray-600'}`}>
-                {plan.description}
-              </p>
 
               <div className="space-y-4 mb-10">
-                {plan.features.map((feature, idx) => {
-                  const isPlusItem = isPremium && (feature.includes('مناقشة') || feature.includes('تسجيل'));
-                  return (
-                    <div key={idx} className="flex items-start gap-3">
-                      <div className={`mt-1 shrink-0 ${isPlusItem ? 'text-accent' : 'text-accent'}`}>
-                        <Check className="w-4 h-4" />
-                      </div>
-                      <span className={`text-sm font-medium ${isPlusItem ? 'font-black' : ''}`}>{feature}</span>
-                    </div>
-                  );
-                })}
+                {plan.features.map((feature, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <Check className="w-4 h-4 text-accent mt-1 shrink-0" />
+                    <span className="text-sm font-medium">{feature}</span>
+                  </div>
+                ))}
               </div>
 
-              <Button 
-                onClick={() => handleBookingAction(plan.id)}
-                className={`w-full py-4 rounded-2xl shadow-xl transition-all font-black text-sm ${
-                  plan.id === 'referral' ? 'bg-purple-600 hover:bg-purple-700' :
-                  plan.popular ? 'bg-accent hover:bg-accentHover text-white' : 'bg-primary hover:bg-secondary text-white'
-                }`}
-              >
-                {plan.id === 'referral' ? 'ابدأ التحدي' : 'احجز موعدك'}
-              </Button>
+              <div className="mt-auto pt-4">
+                <Button 
+                  onClick={() => handleBookingAction(plan.id)}
+                  disabled={hasActiveRequest && !isAdmin && plan.id !== 'referral'}
+                  className={`w-full py-4 rounded-2xl shadow-xl transition-all font-black text-sm ${
+                    plan.id === 'referral' ? 'bg-purple-600 hover:bg-purple-700' :
+                    plan.popular ? 'bg-accent hover:bg-accentHover text-white' : 'bg-primary hover:bg-secondary text-white'
+                  }`}
+                >
+                  {hasActiveRequest && !isAdmin && plan.id !== 'referral' ? 'لديك طلب نشط' : (plan.id === 'referral' ? 'ابدأ التحدي' : 'احجز موعدك')}
+                </Button>
+              </div>
             </div>
           ))}
-        </div>
-
-        <div className="mt-16 text-center">
-           <div className="inline-flex items-center gap-6 px-8 py-4 bg-white border border-gray-100 rounded-full shadow-lg">
-             <div className="flex items-center gap-2 text-sm font-bold text-gray-600">
-               <ShieldCheck className="w-5 h-5 text-emerald-500" /> ضمان استرجاع 100%
-             </div>
-             <div className="w-px h-6 bg-gray-100"></div>
-             <div className="flex items-center gap-2 text-sm font-bold text-gray-600">
-               <CreditCard className="w-5 h-5 text-blue-500" /> PayPal & InstaPay
-             </div>
-           </div>
         </div>
       </div>
     </section>

@@ -6,7 +6,7 @@ import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
 import * as FirebaseAuth from 'firebase/auth';
 const { onAuthStateChanged } = FirebaseAuth as any;
-import { collection, query, where, getDocs, limit, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
 
 const { useNavigate } = ReactRouterDOM as any;
 
@@ -17,41 +17,41 @@ const Hero: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
+    let unsubscribeSnapshot: any = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser: any) => {
       setUser(currentUser);
       if (currentUser) {
         try {
           const userDoc = await getDoc(doc(db, "users", currentUser.uid));
           const userData = userDoc.data();
           const role = userData?.role;
-          
-          const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer';
-          setIsAdmin(adminStatus);
-        } catch (e) {
-          setIsAdmin(false);
-        }
+          setIsAdmin(role === 'admin' || role === 'maintainer' || role === 'interviewer');
+        } catch (e) { setIsAdmin(false); }
 
-        try {
-          const q = query(
-            collection(db, "registrations"), 
-            where("userId", "==", currentUser.uid)
-          );
-          const snapshot = await getDocs(q);
+        const q = query(
+          collection(db, "registrations"), 
+          where("userId", "==", currentUser.uid)
+        );
+
+        unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
           const hasActive = snapshot.docs.some(doc => {
-            const data = doc.data();
-            const status = data.status || 'pending';
+            const status = doc.data().status || 'pending';
             return ['pending', 'reviewing', 'approved'].includes(status);
           });
           setHasActiveRequest(hasActive);
-        } catch (error) {
-          console.error("Error checking active requests", error);
-        }
+        });
       } else {
         setHasActiveRequest(false);
         setIsAdmin(false);
+        if (unsubscribeSnapshot) unsubscribeSnapshot();
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+    };
   }, []);
 
   const handleBookingAction = () => {
@@ -71,7 +71,7 @@ const Hero: React.FC = () => {
       </div>
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-          <div className="w-1/2 text-center lg:text-right">
+          <div className="w-full lg:w-1/2 text-center lg:text-right">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 border border-accent/30 text-accent mb-6 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
               <span className="relative flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span></span>
               <span className="text-sm font-semibold text-white">ابدأ مسارك المهني الآن</span>
@@ -85,7 +85,7 @@ const Hero: React.FC = () => {
               <Button variant="outline" className="text-white border-white hover:bg-white hover:!text-slate-900" onClick={() => navigate('/team')}>تعرف علينا أكثر<ArrowLeft className="mr-2 w-5 h-5 inline-block" /></Button>
             </div>
           </div>
-          <div className="w-1/2 relative mt-8 lg:mt-0">
+          <div className="w-full lg:w-1/2 relative mt-8 lg:mt-0">
             <div className="relative mx-auto max-w-xs lg:max-w-[18rem] xl:max-w-sm">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5 animate-in fade-in zoom-in-95 duration-700 bg-slate-800"><div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-transparent z-10 pointer-none"></div><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Professional Interview Success" className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"/></div>
               <div className="absolute -bottom-8 -left-8 bg-white rounded-xl shadow-xl p-4 w-56 lg:w-64 border border-gray-100 z-20 animate-in slide-in-from-bottom-8 delay-500 duration-700 hidden sm:block scale-90 lg:scale-[0.85] xl:scale-100 origin-bottom-left"><div className="flex items-center gap-3 border-b border-gray-100 pb-2 mb-2"><div className="bg-accent/10 p-1.5 rounded-lg"><MessageSquare className="w-4 h-4 text-accent" /></div><span className="font-bold text-gray-800 text-sm">تقييم المقابلة</span></div><div className="space-y-3"><div><div className="flex justify-between text-xs text-gray-600 mb-1"><span>التقييم التقني</span><span className="font-bold text-green-600">ممتاز</span></div><div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden"><div className="bg-green-500 h-full rounded-full" style={{ width: '95%' }}></div></div></div><div><div className="flex justify-between text-xs text-gray-600 mb-1"><span>التواصل الفعّال</span><span className="font-bold text-accent">9.5/10</span></div><div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden"><div className="bg-accent h-full rounded-full" style={{ width: '92%' }}></div></div></div></div></div>

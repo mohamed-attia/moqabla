@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { 
   User, Mail, Globe, Linkedin, Code, 
-  CheckCircle, ChevronLeft, ChevronRight, AlertCircle, Loader2, Phone, MailWarning, RefreshCw, Hash, X, FileText, Shield, Clock, CreditCard, AlertTriangle, Briefcase, Wallet
+  CheckCircle, ChevronLeft, ChevronRight, AlertCircle, Loader2, Phone, MailWarning, RefreshCw, Hash, X, FileText, Shield, Clock, CreditCard, AlertTriangle, Briefcase, Wallet, Sparkles
 } from 'lucide-react';
 import Button from './Button';
 import { RegistrationFormData } from '../types';
@@ -15,7 +15,8 @@ import { sendAdminNotification } from '../lib/notifications';
 
 const { useNavigate, Link } = ReactRouterDOM as any;
 
-const ADMIN_CONTACT_EMAIL = "contact@moqabala.info";
+// تم تحديث الإيميل بناءً على طلبك
+const ADMIN_CONTACT_EMAIL = "m.attia@outlook.sa";
 
 const CreateMeetingRequest: React.FC = () => {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ const CreateMeetingRequest: React.FC = () => {
     upcomingInterview: 'no',
     preferredTime: '',
     expectations: '',
+    planName: 'باقة مميزة', // الافتراضي
     termsAccepted: false
   });
 
@@ -132,6 +134,7 @@ const CreateMeetingRequest: React.FC = () => {
     return formData.goals.length > 0 && 
            formData.preferredTime !== '' &&
            formData.expectations.trim().length >= 10 &&
+           formData.planName !== '' &&
            formData.termsAccepted === true;
   };
 
@@ -349,7 +352,30 @@ const CreateMeetingRequest: React.FC = () => {
           {step === 3 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                <div className="text-center mb-6"><h3 className="text-xl font-bold text-primary">ماذا تتوقع منا؟ 🎯</h3><p className="text-sm text-gray-500">هذه التفاصيل تساعد الخبير في التحضير الجيد لمقابلتك.</p></div>
+               
+               {/* اختيار الباقة */}
+               <div className="p-4 bg-accent/5 rounded-2xl border border-accent/20">
+                  <label className="block text-sm font-black text-accent mb-3 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" /> اختيار الباقة المطلوبة <span className="text-red-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {['باقة عادية', 'باقة مميزة'].map((plan) => (
+                      <div 
+                        key={plan} 
+                        onClick={() => updateField('planName', plan)} 
+                        className={`cursor-pointer border-2 rounded-xl p-3 text-center transition-all ${formData.planName === plan ? 'border-accent bg-white shadow-md text-accent font-black scale-[1.02]' : 'border-gray-200 bg-white text-gray-500 text-sm font-bold'}`}
+                      >
+                        {plan}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-gray-400 mt-2 font-bold px-1">
+                    {formData.planName === 'باقة مميزة' ? '✨ تشمل تسجيل الفيديو والمناقشة المفتوحة' : '💡 تشمل التقييم الأساسي والتقرير الفني'}
+                  </p>
+               </div>
+
                <div><label className="block text-sm font-medium text-gray-700 mb-3">أهدافك من المقابلة <span className="text-red-500">*</span></label><div className="space-y-2">{['تطوير المهارات التقنية', 'تحسين مهارات التواصل وعرض النفس', 'التعرف على نقاط الضعف والفجوات', 'التدرب على مقابلة وظيفية قادمة', 'الحصول على ترشيح (Referral)'].map((goal) => (<label key={goal} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 cursor-pointer"><input type="checkbox" checked={formData.goals.includes(goal)} onChange={() => toggleGoal(goal)} className="w-5 h-5 text-accent rounded focus:ring-accent" /><span className="text-gray-700 text-sm">{goal}</span></label>))}</div></div>
+               
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div><label className="block text-sm font-medium text-gray-700 mb-2">الوقت المفضل للمقابلة <span className="text-red-500">*</span></label><select value={formData.preferredTime} onChange={(e) => updateField('preferredTime', e.target.value)} className={`${inputClasses} py-3 px-4`}><option value="">اختر الوقت...</option><option value="morning">صباحاً (9ص - 12م)</option><option value="evening">مساءً (4م - 9م)</option><option value="flexible">مرن في أي وقت</option></select></div>
                 <div><label className="block text-sm font-medium text-gray-700 mb-2">هل لديك مقابلة قادمة؟ <span className="text-red-500">*</span></label><select value={formData.upcomingInterview} onChange={(e) => updateField('upcomingInterview', e.target.value)} className={`${inputClasses} py-3 px-4`}><option value="no">لا يوجد حالياً</option><option value="yes_soon">نعم، خلال هذا الأسبوع</option><option value="yes_later">نعم، في موعد لاحق</option></select></div>

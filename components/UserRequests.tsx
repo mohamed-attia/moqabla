@@ -25,9 +25,10 @@ interface MyRequestData {
   level: 'fresh' | 'junior' | 'mid-senior' | 'lead-staff';
   status: string;
   submittedAt: any;
-  techStack: string; // تم التغيير لنص
+  techStack: string; 
   goals: string[];
   preferredTime: string;
+  planName?: string; // أضفناه هنا
   meetingLink?: string;
   reportLink?: string;
   videoLink?: string;
@@ -238,6 +239,9 @@ const UserRequests: React.FC = () => {
                       </div>
                    </div>
                    <div className="flex items-center gap-3">
+                      <div className={`text-[10px] font-black px-2 py-1 rounded-lg border ${req.planName?.includes('مميزة') ? 'bg-accent/5 text-accent border-accent/20' : 'bg-gray-100 text-gray-500 border-gray-200'}`}>
+                         {req.planName || 'باقة عادية'}
+                      </div>
                       {req.status === 'completed' && (
                         <button 
                             onClick={() => setReviewingRequestId(req.id)}
@@ -378,7 +382,7 @@ const UserRequests: React.FC = () => {
 
                 {viewingReportId === req.id && (
                   <div className="fixed inset-0 z-[110] bg-slate-900/90 backdrop-blur-lg flex items-center justify-center p-4">
-                    <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[3rem] shadow-2xl relative animate-in zoom-in-95 overflow-hidden flex flex-col">
+                    <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[3rem] shadow-2xl relative animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col">
                       <div className="bg-primary p-6 md:p-8 text-white flex justify-between items-center shrink-0 border-b border-white/10">
                          <div className="flex items-center gap-4">
                            <div className="w-12 h-12 md:w-14 md:h-14 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20">

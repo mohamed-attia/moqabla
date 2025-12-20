@@ -6,7 +6,7 @@ import { RegistrationFormData, UserProfile } from '../types';
 import { 
   Loader2, FileText, Search, ChevronLeft, ChevronRight, Edit2, X, Filter, 
   Link as LinkIcon, Video, FileCheck, Save, Eye, User, Mail, Phone, 
-  Linkedin, Code, Briefcase, Target, Clock, AlertCircle, Calendar, Globe, ClipboardCheck, Award, Download, Hash, Users as UsersIcon, UserCheck
+  Linkedin, Code, Briefcase, Target, Clock, AlertCircle, Calendar, Globe, ClipboardCheck, Award, Download, Hash, Users as UsersIcon, UserCheck, Sparkles
 } from 'lucide-react';
 import * as FirebaseAuth from 'firebase/auth';
 const { onAuthStateChanged } = FirebaseAuth as any;
@@ -14,6 +14,7 @@ import Button from './Button';
 import JuniorEvaluation from './evaluations/JuniorEvaluation';
 import SeniorMidEvaluation from './evaluations/SeniorMidEvaluation';
 import LeadEvaluation from './evaluations/LeadEvaluation';
+import { sendUserStatusUpdateNotification } from '../lib/notifications';
 
 declare var html2pdf: any;
 
@@ -165,6 +166,15 @@ const MeetingRequests: React.FC = () => {
     try {
       const regRef = doc(db, "registrations", editingRegistration.id);
       await updateDoc(regRef, { status: statusToUpdate });
+      
+      // إرسال إيميل للمستخدم
+      await sendUserStatusUpdateNotification({
+        to_email: editingRegistration.email,
+        user_name: editingRegistration.fullName,
+        request_number: editingRegistration.requestNumber || editingRegistration.id,
+        new_status: statusToUpdate
+      });
+
       setAllRegistrations(prev => prev.map(item => item.id === editingRegistration.id ? { ...item, status: statusToUpdate as any } : item));
       handleCloseModals();
     } catch (err) {
@@ -283,7 +293,7 @@ const MeetingRequests: React.FC = () => {
                     <tr>
                       <th className="px-6 py-4 text-sm font-bold text-gray-700">رقم الطلب</th>
                       <th className="px-6 py-4 text-sm font-bold text-gray-700">الاسم</th>
-                      <th className="px-6 py-4 text-sm font-bold text-gray-700">التواصل</th>
+                      <th className="px-6 py-4 text-sm font-bold text-gray-700">الباقة</th>
                       <th className="px-6 py-4 text-sm font-bold text-gray-700">المجال والمستوى</th>
                       <th className="px-6 py-4 text-sm font-bold text-gray-700">المحاور</th>
                       <th className="px-6 py-4 text-sm font-bold text-gray-700">الحالة</th>
@@ -298,8 +308,16 @@ const MeetingRequests: React.FC = () => {
                               {reg.requestNumber || `MQ-${reg.id.slice(0, 6).toUpperCase()}`}
                             </span>
                           </td>
-                          <td className="px-6 py-4 font-bold text-gray-900">{reg.fullName}</td>
-                          <td className="px-6 py-4"><div className="flex flex-col text-xs text-gray-600"><span className="dir-ltr text-right">{reg.email}</span><span className="dir-ltr text-right">{reg.whatsapp}</span></div></td>
+                          <td className="px-6 py-4">
+                            <div className="font-bold text-gray-900">{reg.fullName}</div>
+                            <div className="flex flex-col text-[10px] text-gray-400"><span className="dir-ltr text-right">{reg.email}</span></div>
+                          </td>
+                          <td className="px-6 py-4">
+                             <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black border ${reg.planName?.includes('مميزة') ? 'bg-accent/5 text-accent border-accent/20' : 'bg-gray-50 text-gray-500 border-gray-200'}`}>
+                               {reg.planName?.includes('مميزة') && <Sparkles className="w-3 h-3" />}
+                               {reg.planName || 'باقة عادية'}
+                             </div>
+                          </td>
                           <td className="px-6 py-4"><div className="text-sm font-medium text-gray-700">{reg.field}</div><div className="flex items-center gap-2 mt-0.5"><span className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-bold">{getLevelLabel(reg.level)}</span><span className="text-[10px] text-gray-400">{reg.experience} سنوات خبرة</span></div></td>
                           <td className="px-6 py-4">
                              {reg.interviewerName ? (
@@ -354,7 +372,7 @@ const MeetingRequests: React.FC = () => {
 
       {viewingReport && (
         <div className="fixed inset-0 z-[110] bg-slate-900/90 backdrop-blur-lg flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[3rem] shadow-2xl relative animate-in zoom-in-95 overflow-hidden flex flex-col">
+          <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[3rem] shadow-2xl relative animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col">
             <div className="bg-primary p-6 md:p-8 text-white flex justify-between items-center shrink-0 border-b border-white/10">
                <div className="flex items-center gap-4"><div className="w-12 h-12 md:w-14 md:h-14 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20"><Award className="w-6 h-6 md:w-8 md:h-8" /></div><div><h3 className="text-lg md:text-xl font-black text-right">تقرير التقييم النهائي</h3><p className="text-accent text-xs font-bold uppercase tracking-widest text-right">{viewingReport.fullName}</p></div></div>
                <div className="flex items-center gap-2">
@@ -461,11 +479,9 @@ const MeetingRequests: React.FC = () => {
                  </div>
                  <div className="space-y-3">
                     <div className="flex flex-row-reverse items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                      <Linkedin className="w-3.5 h-3.5" /> رابط LinkedIn
+                      <Sparkles className="w-3.5 h-3.5" /> الباقة المختارة
                     </div>
-                    <a href={viewingRegistration.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-accent hover:underline flex items-center gap-1 dir-ltr justify-end">
-                      {viewingRegistration.linkedin}
-                    </a>
+                    <div className="text-sm font-bold text-accent">{viewingRegistration.planName || 'باقة عادية'}</div>
                  </div>
               </div>
 

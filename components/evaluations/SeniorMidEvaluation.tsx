@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  CheckCircle, ChevronLeft, ChevronRight, Star, Sparkles, 
-  Loader2, Trophy, Brain, Target, MessageSquare, Save, Eye, Edit3,
-  X, AlertTriangle, ArrowRight, Zap, Award
+  CheckCircle, ChevronLeft, Star, Sparkles, 
+  Loader2, Brain, Target, Save, Edit3,
+  X, Award, Zap
 } from 'lucide-react';
 import Button from '../Button';
 import { AIAgent } from '../../lib/ai-agent';
@@ -11,6 +11,7 @@ import { SENIOR_EVALUATION_TEMPLATE } from '../../lib/evaluation-templates';
 import { EvaluationSection, EvaluationScore } from '../../types';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
+import { sendUserStatusUpdateNotification } from '../../lib/notifications';
 
 interface Props {
   registration: any;
@@ -102,6 +103,15 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
         interviewerId: auth.currentUser?.uid,
         interviewerName: interviewerName || auth.currentUser?.displayName || 'المحاور'
       });
+
+      // إرسال تنبيه للمستخدم صاحب الطلب
+      await sendUserStatusUpdateNotification({
+        to_email: registration.email,
+        user_name: registration.fullName,
+        request_number: registration.requestNumber || registration.id,
+        new_status: 'completed'
+      });
+
       onComplete();
     } catch (e) {
       alert("خطأ أثناء الحفظ النهائي.");
@@ -186,7 +196,7 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
                             ${item.score === s 
                               ? s >= 4 ? 'bg-emerald-500 border-emerald-400 text-white shadow-lg shadow-emerald-100' :
                                 s === 3 ? 'bg-amber-500 border-amber-400 text-white shadow-xl shadow-amber-100' :
-                                'bg-rose-500 border-rose-400 text-white shadow-lg shadow-rose-100'
+                                'bg-rose-500 border-rose-400 text-white shadow-xl shadow-rose-100'
                               : 'bg-white border-gray-100 text-gray-400 hover:border-accent/30 hover:bg-accent/5'
                             }
                           `}

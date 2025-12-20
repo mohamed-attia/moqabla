@@ -11,6 +11,7 @@ import { STAFF_EVALUATION_TEMPLATE } from '../../lib/evaluation-templates';
 import { EvaluationSection, EvaluationScore } from '../../types';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
+import { sendUserStatusUpdateNotification } from '../../lib/notifications';
 
 interface Props {
   registration: any;
@@ -102,6 +103,15 @@ const LeadEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel, i
         interviewerId: auth.currentUser?.uid,
         interviewerName: interviewerName || auth.currentUser?.displayName || 'المحاور'
       });
+
+      // إرسال تنبيه للمستخدم صاحب الطلب
+      await sendUserStatusUpdateNotification({
+        to_email: registration.email,
+        user_name: registration.fullName,
+        request_number: registration.requestNumber || registration.id,
+        new_status: 'completed'
+      });
+
       onComplete();
     } catch (e) {
       alert("خطأ أثناء الحفظ النهائي.");
@@ -245,7 +255,7 @@ const LeadEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel, i
                 </div>
               </div>
               
-              <div id="final-report-preview-staff" className="bg-white rounded-[2rem] p-6 md:p-10 shadow-sm border border-gray-100 prose prose-slate max-w-none dir-rtl text-right">
+              <div id="final-report-preview-staff" className="bg-white rounded-[2rem] p-6 md:p-10 shadow-sm border border-gray-100 prose prose-teal max-w-none dir-rtl text-right">
                 <div className="mb-6 p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex justify-between items-center no-pdf">
                    <span className="font-bold text-emerald-800">الدرجة النهائية (Staff):</span>
                    <span className="text-3xl font-black text-emerald-600">{calculateTotalScore()}%</span>

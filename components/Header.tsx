@@ -5,7 +5,7 @@ import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
 import * as FirebaseAuth from 'firebase/auth';
 const { onAuthStateChanged, signOut, sendEmailVerification } = FirebaseAuth as any;
-import { doc, getDoc, collection, query, where, limit, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, onSnapshot } from 'firebase/firestore';
 import Button from './Button';
 import { NavItem } from '../types';
 
@@ -44,41 +44,39 @@ const Header: React.FC = () => {
     };
     window.addEventListener('scroll', handleScroll);
     
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
+    let unsubscribeSnapshot: any = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser: any) => {
       setUser(currentUser);
       if (currentUser) {
+        // التحقق من الصلاحيات
         try {
           const userDoc = await getDoc(doc(db, "users", currentUser.uid));
           const userData = userDoc.data();
           const role = userData?.role;
-          
-          const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer';
-          setIsAdmin(adminStatus);
-        } catch (e) {
-          setIsAdmin(false);
-        }
+          setIsAdmin(role === 'admin' || role === 'maintainer' || role === 'interviewer');
+        } catch (e) { setIsAdmin(false); }
 
         setShowVerifyAlert(!currentUser.emailVerified);
 
-        try {
-          const q = query(
-            collection(db, "registrations"), 
-            where("userId", "==", currentUser.uid)
-          );
-          const snapshot = await getDocs(q);
+        // الاستماع اللحظي للطلبات
+        const q = query(
+          collection(db, "registrations"), 
+          where("userId", "==", currentUser.uid)
+        );
+        
+        unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
           const hasActive = snapshot.docs.some(doc => {
-            const data = doc.data();
-            const status = data.status || 'pending';
+            const status = doc.data().status || 'pending';
             return ['pending', 'reviewing', 'approved'].includes(status);
           });
           setHasActiveRequest(hasActive);
-        } catch (error) {
-          console.error("Error checking active requests", error);
-        }
+        });
       } else {
         setIsAdmin(false);
         setHasActiveRequest(false);
         setShowVerifyAlert(false);
+        if (unsubscribeSnapshot) unsubscribeSnapshot();
       }
     });
 
@@ -92,7 +90,8 @@ const Header: React.FC = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('mousedown', handleClickOutside);
-      unsubscribe();
+      unsubscribeAuth();
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
     };
   }, []);
 

@@ -6,7 +6,7 @@ import Button from './Button';
 import { auth, db } from '../lib/firebase';
 import * as FirebaseAuth from 'firebase/auth';
 const { onAuthStateChanged } = FirebaseAuth as any;
-import { collection, query, where, getDocs, limit, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
 
 const { Link, useNavigate, useLocation } = ReactRouterDOM as any;
 
@@ -19,41 +19,41 @@ const Footer: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
+    let unsubscribeSnapshot: any = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser: any) => {
       setUser(currentUser);
       if (currentUser) {
         try {
           const userDoc = await getDoc(doc(db, "users", currentUser.uid));
           const userData = userDoc.data();
           const role = userData?.role;
-          
-          const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer';
-          setIsAdmin(adminStatus);
-        } catch (e) {
-          setIsAdmin(false);
-        }
+          setIsAdmin(role === 'admin' || role === 'maintainer' || role === 'interviewer');
+        } catch (e) { setIsAdmin(false); }
         
-        try {
-          const q = query(
-            collection(db, "registrations"), 
-            where("userId", "==", currentUser.uid)
-          );
-          const snapshot = await getDocs(q);
+        const q = query(
+          collection(db, "registrations"), 
+          where("userId", "==", currentUser.uid)
+        );
+
+        unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
           const hasActive = snapshot.docs.some(doc => {
-            const data = doc.data();
-            const status = data.status || 'pending';
+            const status = doc.data().status || 'pending';
             return ['pending', 'reviewing', 'approved'].includes(status);
           });
           setHasActiveRequest(hasActive);
-        } catch (error) {
-          console.error("Error checking active requests", error);
-        }
+        });
       } else {
         setHasActiveRequest(false);
         setIsAdmin(false);
+        if (unsubscribeSnapshot) unsubscribeSnapshot();
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+    };
   }, []);
 
   const handleNavigation = (id: string) => {
@@ -81,7 +81,6 @@ const Footer: React.FC = () => {
     }
   };
 
-  // التحقق النهائي لإخفاء قسم CTA بالكامل
   const shouldShowBookingCTA = !user || isAdmin || !hasActiveRequest;
 
   return (

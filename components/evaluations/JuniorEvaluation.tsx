@@ -11,6 +11,7 @@ import { FRESH_EVALUATION_TEMPLATE, JUNIOR_EVALUATION_TEMPLATE } from '../../lib
 import { EvaluationSection, EvaluationScore } from '../../types';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
+import { sendUserStatusUpdateNotification } from '../../lib/notifications';
 
 interface Props {
   registration: any;
@@ -103,6 +104,15 @@ const JuniorEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel,
         interviewerId: auth.currentUser?.uid,
         interviewerName: interviewerName || auth.currentUser?.displayName || 'المحاور'
       });
+
+      // إرسال تنبيه للمستخدم
+      await sendUserStatusUpdateNotification({
+        to_email: registration.email,
+        user_name: registration.fullName,
+        request_number: registration.requestNumber || registration.id,
+        new_status: 'completed'
+      });
+
       onComplete();
     } catch (e) {
       alert("خطأ أثناء الحفظ النهائي.");
