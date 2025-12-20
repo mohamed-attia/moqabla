@@ -1,10 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import Button from './Button';
 import { ArrowLeft, MessageSquare, Briefcase } from 'lucide-react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import * as FirebaseAuth from 'firebase/auth';
+const { onAuthStateChanged } = FirebaseAuth as any;
+import { collection, query, where, getDocs, limit, doc, getDoc } from 'firebase/firestore';
 
 const { useNavigate } = ReactRouterDOM as any;
 
@@ -15,21 +17,32 @@ const Hero: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
       setUser(currentUser);
       if (currentUser) {
-        setIsAdmin(currentUser.email === 'dev.mohattia@gmail.com');
+        try {
+          const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+          const userData = userDoc.data();
+          const role = userData?.role;
+          
+          // الاعتماد على الرتبة فقط
+          const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer';
+          setIsAdmin(adminStatus);
+        } catch (e) {
+          setIsAdmin(false);
+        }
+
         try {
           const q = query(
             collection(db, "registrations"), 
             where("userId", "==", currentUser.uid),
-            limit(5)
+            limit(15) 
           );
           const snapshot = await getDocs(q);
           const hasActive = snapshot.docs.some(doc => {
             const data = doc.data();
             const status = data.status || 'pending';
-            return ['pending', 'reviewing'].includes(status);
+            return ['pending', 'reviewing', 'approved'].includes(status);
           });
           setHasActiveRequest(hasActive);
         } catch (error) {
@@ -68,7 +81,7 @@ const Hero: React.FC = () => {
             <h1 className="text-4xl md:text-5xl lg:text-5xl xl:text-7xl font-bold text-white leading-tight mb-6 animate-in fade-in slide-in-from-bottom-5 delay-100 duration-700"><span className="block mb-2">أتقن مهارات</span><span className="text-transparent bg-clip-text bg-gradient-to-l from-teal-400 to-emerald-400">المقابلة الوظيفية</span></h1>
             <p className="text-lg md:text-xl lg:text-lg xl:text-xl text-gray-300 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed animate-in fade-in slide-in-from-bottom-6 delay-200 duration-700">لا تترك وظيفة أحلامك للصدفة. احصل على تجربة محاكاة واقعية مع خبراء تقنيين، واكتشف نقاط قوتك ومجالات التحسين قبل المقابلة الحقيقية.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-7 delay-300 duration-700">
-              {(!user || (!hasActiveRequest && !isAdmin)) && (
+              {(!user || isAdmin || !hasActiveRequest) && (
                 <Button variant="primary" onClick={handleBookingAction}>احجز موعد الآن</Button>
               )}
               <Button variant="outline" className="text-white border-white hover:bg-white hover:!text-slate-900" onClick={() => navigate('/team')}>تعرف علينا أكثر<ArrowLeft className="mr-2 w-5 h-5 inline-block" /></Button>

@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import * as FirebaseAuth from 'firebase/auth';
+const { onAuthStateChanged } = FirebaseAuth as any;
 import { doc, getDoc } from 'firebase/firestore';
 import { Users, FileText, LayoutDashboard, MessageSquareQuote, UserPlus, Loader2 } from 'lucide-react';
 import UsersTab from './UsersTab';
@@ -12,37 +14,31 @@ import CreateUserTab from './CreateUserTab';
 const { useNavigate } = ReactRouterDOM as any;
 
 const Dashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'users' | 'requests' | 'reviews' | 'create-user'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'requests' | 'reviews' | 'create-user'>('requests');
   const [userRole, setUserRole] = useState<'admin' | 'maintainer' | 'interviewer' | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user: any) => {
       if (user) {
         try {
           const userDoc = await getDoc(doc(db, "users", user.uid));
           const userData = userDoc.data();
-          const role = userData?.role;
-          const isDevAdmin = user.email === 'dev.mohattia@gmail.com';
+          const role = userData?.role as 'admin' | 'maintainer' | 'interviewer';
 
-          if (role === 'admin' || role === 'maintainer' || role === 'interviewer' || isDevAdmin) {
-            const finalRole = isDevAdmin ? 'admin' : (role as 'admin' | 'maintainer' | 'interviewer');
-            setUserRole(finalRole);
-            
-            // التبويب الافتراضي بناءً على الصلاحيات
-            if (finalRole === 'interviewer' || finalRole === 'maintainer') {
+          if (role === 'admin' || role === 'maintainer' || role === 'interviewer') {
+            setUserRole(role);
+            if (role === 'admin') {
+              setActiveTab('users');
+            } else {
               setActiveTab('requests');
             }
           } else {
             navigate('/');
           }
         } catch (e) {
-          if (user.email === 'dev.mohattia@gmail.com') {
-            setUserRole('admin');
-          } else {
-            navigate('/');
-          }
+          navigate('/');
         }
       } else {
         navigate('/login'); 
@@ -62,7 +58,6 @@ const Dashboard: React.FC = () => {
 
   const isAdmin = userRole === 'admin';
   const isMaintainer = userRole === 'maintainer';
-  const isInterviewer = userRole === 'interviewer';
 
   return (
     <div className="min-h-screen bg-gray-50 pt-28 pb-12 px-4 md:px-8">

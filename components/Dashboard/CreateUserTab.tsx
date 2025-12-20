@@ -1,6 +1,9 @@
+
 import React, { useState } from 'react';
 import { initializeApp, getApps, deleteApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+// Fix: Use namespace import for FirebaseAuth to bypass named export resolution issues
+import * as FirebaseAuth from 'firebase/auth';
+const { getAuth, createUserWithEmailAndPassword, signOut } = FirebaseAuth as any;
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { Mail, Lock, Shield, Briefcase, Award, Loader2, CheckCircle, AlertCircle, UserPlus, User } from 'lucide-react';

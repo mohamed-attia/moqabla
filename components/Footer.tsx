@@ -1,14 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-// Use namespace import to bypass named export resolution issues in the current environment
 import * as ReactRouterDOM from 'react-router-dom';
 import { Mail, Phone, MapPin, Linkedin, Twitter, Instagram } from 'lucide-react';
 import Button from './Button';
 import { auth, db } from '../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import * as FirebaseAuth from 'firebase/auth';
+const { onAuthStateChanged } = FirebaseAuth as any;
+import { collection, query, where, getDocs, limit, doc, getDoc } from 'firebase/firestore';
 
-// Fix: Use type assertion to bypass broken react-router-dom type definitions
 const { Link, useNavigate, useLocation } = ReactRouterDOM as any;
 
 const Footer: React.FC = () => {
@@ -20,11 +19,19 @@ const Footer: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
       setUser(currentUser);
       if (currentUser) {
-        const isDevAdmin = currentUser.email === 'dev.mohattia@gmail.com';
-        setIsAdmin(isDevAdmin);
+        try {
+          const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+          const userData = userDoc.data();
+          const role = userData?.role;
+          
+          const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer';
+          setIsAdmin(adminStatus);
+        } catch (e) {
+          setIsAdmin(false);
+        }
         
         try {
           const q = query(
@@ -36,7 +43,6 @@ const Footer: React.FC = () => {
           const hasActive = snapshot.docs.some(doc => {
             const data = doc.data();
             const status = data.status || 'pending';
-            // إخفاء الصندوق إذا كان هناك طلب نشط (انتظار، مراجعة، أو مقبول)
             return ['pending', 'reviewing', 'approved'].includes(status);
           });
           setHasActiveRequest(hasActive);
@@ -76,10 +82,6 @@ const Footer: React.FC = () => {
     }
   };
 
-  // يظهر الصندوق إذا:
-  // 1. المستخدم غير مسجل
-  // 2. أو المستخدم هو المسؤول (Admin)
-  // 3. أو المستخدم مسجل وليس لديه أي طلب نشط (pending, reviewing, approved)
   const shouldShowBookingCTA = !user || isAdmin || !hasActiveRequest;
 
   return (

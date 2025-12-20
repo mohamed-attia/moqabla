@@ -29,6 +29,22 @@ export interface TeamMember {
   category: 'FE' | 'BE' | 'UX' | 'MOBILE' | 'PM' | 'QA' | 'DATA' | 'DEVOPS';
 }
 
+export type EvaluationScore = 1 | 2 | 3 | 4 | 5;
+
+export interface EvaluationDetail {
+  skill: string;
+  score: EvaluationScore;
+  notes: string;
+}
+
+export interface EvaluationSection {
+  id: string;
+  title: string;
+  weight: number;
+  items: EvaluationDetail[];
+  summary: string;
+}
+
 export interface RegistrationFormData {
   fullName: string;
   email: string;
@@ -48,10 +64,11 @@ export interface RegistrationFormData {
   userId?: string;
   submittedAt?: any;
   status?: 'pending' | 'approved' | 'completed' | 'canceled' | 'reviewing';
-  // New Fields
   meetingLink?: string;
   reportLink?: string;
   videoLink?: string;
+  evaluationReport?: string; // AI Generated Report Content
+  requestNumber?: string; // Unique human-readable ID
 }
 
 export interface UserProfile {
@@ -75,7 +92,7 @@ export interface UserProfile {
 }
 
 export interface ReviewData {
-  id?: string;
+  id: string;
   requestId: string;
   userId: string;
   userName: string;
@@ -84,6 +101,6 @@ export interface ReviewData {
   interviewFeedback: string;
   platformFeedback: string;
   interviewerFeedback: string;
-  improvementIdeas: string;
+  improvementIdeas?: string;
   submittedAt: any;
 }

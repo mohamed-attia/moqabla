@@ -3,8 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, Briefcase, LogIn, User as UserIcon, ChevronDown, LogOut, FileText, LayoutDashboard, UserCircle, AlertTriangle, MailCheck } from 'lucide-react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
-import { onAuthStateChanged, signOut, User, sendEmailVerification } from 'firebase/auth';
-import { doc, getDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
+import * as FirebaseAuth from 'firebase/auth';
+const { onAuthStateChanged, signOut, sendEmailVerification } = FirebaseAuth as any;
+import { doc, getDoc, collection, query, where, limit, getDocs } from 'firebase/firestore';
 import Button from './Button';
 import { NavItem } from '../types';
 
@@ -23,7 +24,7 @@ const navItems: NavItem[] = [
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
@@ -43,20 +44,19 @@ const Header: React.FC = () => {
     };
     window.addEventListener('scroll', handleScroll);
     
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
       setUser(currentUser);
       if (currentUser) {
-        // التحقق من صلاحية الوصول للوحة التحكم من قاعدة البيانات
         try {
           const userDoc = await getDoc(doc(db, "users", currentUser.uid));
           const userData = userDoc.data();
           const role = userData?.role;
-          const isDevAdmin = currentUser.email === 'dev.mohattia@gmail.com';
           
-          const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer' || isDevAdmin;
+          // التحقق من الرتبة فقط دون بريد محدد
+          const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer';
           setIsAdmin(adminStatus);
         } catch (e) {
-          setIsAdmin(currentUser.email === 'dev.mohattia@gmail.com');
+          setIsAdmin(false);
         }
 
         setShowVerifyAlert(!currentUser.emailVerified);
@@ -71,7 +71,6 @@ const Header: React.FC = () => {
           const hasActive = snapshot.docs.some(doc => {
             const data = doc.data();
             const status = data.status || 'pending';
-            // إخفاء الزر إذا كان هناك طلب قيد الانتظار أو المراجعة أو تم قبوله بالفعل
             return ['pending', 'reviewing', 'approved'].includes(status);
           });
           setHasActiveRequest(hasActive);
@@ -210,7 +209,6 @@ const Header: React.FC = () => {
                   )}
                 </div>
               )}
-              {/* منطق الإخفاء: يظهر إذا لم يكن هناك مستخدم، أو إذا كان المسؤول، أو إذا كان مستخدم عادي ليس لديه طلب نشط */}
               {(!user || isAdmin || !hasActiveRequest) && (
                 <Button variant={scrolled || !isHome ? 'primary' : 'white'} onClick={handleCTAAction}>احجز مقابلة</Button>
               )}
@@ -239,7 +237,6 @@ const Header: React.FC = () => {
         </div>
       </header>
 
-      {/* Verification Email Sent Modal */}
       {showResendModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white rounded-[2.5rem] p-8 md:p-12 max-w-md w-full text-center shadow-2xl animate-in zoom-in-95 duration-300 border border-gray-100">

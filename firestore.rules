@@ -1,19 +1,15 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // التحقق مما إذا كان المستخدم هو المسؤول الرئيسي عبر البريد الإلكتروني
-    function isMainAdmin() {
-      return request.auth != null && 
-             request.auth.token.email == 'dev.mohattia@gmail.com';
-    }
-
-    // التحقق من الرتبة من مستند المستخدم
+    
+    // التحقق من الرتبة من مستند المستخدم بشكل ديناميكي
     function getUserRole() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
     }
 
     function isAdmin() {
-      return request.auth != null && (isMainAdmin() || getUserRole() == 'admin');
+      return request.auth != null && getUserRole() == 'admin';
     }
 
     function isMaintainer() {

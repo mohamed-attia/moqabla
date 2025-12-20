@@ -1,14 +1,16 @@
+
 import React, { useState, useEffect } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { 
   User, Mail, Globe, Linkedin, Code, 
-  CheckCircle, ChevronLeft, ChevronRight, AlertCircle, Loader2, Phone, MailWarning, RefreshCw
+  CheckCircle, ChevronLeft, ChevronRight, AlertCircle, Loader2, Phone, MailWarning, RefreshCw, Hash
 } from 'lucide-react';
 import Button from './Button';
 import { RegistrationFormData } from '../types';
 import { db, auth } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { onAuthStateChanged, sendEmailVerification } from 'firebase/auth';
+import * as FirebaseAuth from 'firebase/auth';
+const { onAuthStateChanged, sendEmailVerification } = FirebaseAuth as any;
 import { sendAdminNotification } from '../lib/notifications';
 
 const { useNavigate, Link } = ReactRouterDOM as any;
@@ -63,7 +65,7 @@ const CreateMeetingRequest: React.FC = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user: any) => {
       checkUserStatus(user);
     });
     return () => unsubscribe();
@@ -72,7 +74,7 @@ const CreateMeetingRequest: React.FC = () => {
   const refreshStatus = async () => {
     setCheckingAuth(true);
     if (auth.currentUser) {
-      await auth.currentUser.reload();
+      await (auth.currentUser as any).reload();
       checkUserStatus(auth.currentUser);
     }
   };
@@ -189,11 +191,15 @@ const CreateMeetingRequest: React.FC = () => {
     setError(null);
 
     try {
+      // Generate a nice human-readable Order ID
+      const reqNum = `MQ-${Math.floor(100000 + Math.random() * 900000)}`;
+      
       await addDoc(collection(db, "registrations"), {
         ...formData,
         userId: currentUser.uid, 
         submittedAt: serverTimestamp(),
-        status: 'pending'
+        status: 'pending',
+        requestNumber: reqNum
       });
       
       await sendAdminNotification({

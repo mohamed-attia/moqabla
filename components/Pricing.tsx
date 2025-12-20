@@ -1,11 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import { Check, ShieldCheck, Zap, Gift, Sparkles, Users, Lock, CreditCard } from 'lucide-react';
 import Button from './Button';
 // Use namespace import to bypass named export resolution issues
 import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+// Fix: Use namespace import for FirebaseAuth to bypass named export resolution issues
+import * as FirebaseAuth from 'firebase/auth';
+const { onAuthStateChanged } = FirebaseAuth as any;
+import { collection, query, where, getDocs, limit, doc, getDoc } from 'firebase/firestore';
 
 // Fix: Use type assertion to bypass broken react-router-dom type definitions
 const { useNavigate } = ReactRouterDOM as any;
@@ -88,21 +91,33 @@ const Pricing: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
       setUser(currentUser);
       if (currentUser) {
-        setIsAdmin(currentUser.email === 'dev.mohattia@gmail.com');
+        // Robust role check matching Header.tsx
+        try {
+          const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+          const userData = userDoc.data();
+          const role = userData?.role;
+          const isDevAdmin = currentUser.email === 'dev.mohattia@gmail.com';
+          const adminStatus = role === 'admin' || role === 'maintainer' || role === 'interviewer' || isDevAdmin;
+          setIsAdmin(adminStatus);
+        } catch (e) {
+          setIsAdmin(currentUser.email === 'dev.mohattia@gmail.com');
+        }
+
         try {
           const q = query(
             collection(db, "registrations"), 
             where("userId", "==", currentUser.uid),
-            limit(10)
+            limit(15)
           );
           const snapshot = await getDocs(q);
           const hasActive = snapshot.docs.some(doc => {
             const data = doc.data();
             const status = data.status || 'pending';
-            return ['pending', 'reviewing'].includes(status);
+            // Hide if pending, reviewing, or approved
+            return ['pending', 'reviewing', 'approved'].includes(status);
           });
           setHasActiveRequest(hasActive);
         } catch (error) {
@@ -203,7 +218,7 @@ const Pricing: React.FC = () => {
                 {plan.features.map((feature, idx) => (
                   <li key={idx} className="flex items-start gap-3 text-sm text-gray-700">
                     <div className="mt-0.5 shrink-0">
-                      <Check className={`w-4 h-4 ${plan.id === 'referral' ? 'text-purple-500' : 'text-accent'}`} />
+                      <span className={`w-4 h-4 ${plan.id === 'referral' ? 'text-purple-500' : 'text-accent'}`}><Check className="w-4 h-4" /></span>
                     </div>
                     <span>{feature}</span>
                   </li>
@@ -216,8 +231,8 @@ const Pricing: React.FC = () => {
                 )}
               </ul>
 
-              {/* Show button if logged out OR if it's the referral plan OR if user has no active request */}
-              {(!user || plan.id === 'referral' || (!hasActiveRequest && !isAdmin)) && (
+              {/* Show button if logged out OR if it's the referral plan OR if admin OR user has no active request */}
+              {(!user || plan.id === 'referral' || isAdmin || !hasActiveRequest) && (
                 <Button 
                   onClick={() => handleBookingAction(plan.id)}
                   className={`w-full justify-center ${

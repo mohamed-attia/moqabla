@@ -1,8 +1,9 @@
+
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, orderBy, writeBatch, doc } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
 import { UserProfile } from '../../types';
-import { Search, User, Mail, Loader2, Trash2, Filter, Briefcase, ShieldCheck, Phone } from 'lucide-react';
+import { Search, User, Mail, Loader2, Trash2, Filter, Briefcase, ShieldCheck, Phone, ChevronRight, ChevronLeft, Users as UsersIcon } from 'lucide-react';
 import Button from '../Button';
 
 const UsersTab: React.FC = () => {
@@ -13,6 +14,10 @@ const UsersTab: React.FC = () => {
   const [fieldFilter, setFieldFilter] = useState<string>('ALL');
   const [deletingUid, setDeletingUid] = useState<string | null>(null);
   
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userPendingDelete, setUserPendingDelete] = useState<UserProfile | null>(null);
 
@@ -35,6 +40,11 @@ const UsersTab: React.FC = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, roleFilter, fieldFilter]);
 
   const initiateDelete = (user: UserProfile) => {
     if (user.uid === auth.currentUser?.uid) {
@@ -83,6 +93,10 @@ const UsersTab: React.FC = () => {
 
     return termMatch && roleMatch && fieldMatch;
   });
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
 
   if (loading) return (
     <div className="flex justify-center items-center h-64">
@@ -148,7 +162,7 @@ const UsersTab: React.FC = () => {
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">المستخدم</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">التواصل</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-600">الإحالات</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">الصلاحية</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">التخصص</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">المستوى</th>
@@ -156,8 +170,8 @@ const UsersTab: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filteredUsers.length > 0 ? (
-                filteredUsers.map((user) => (
+              {currentItems.length > 0 ? (
+                currentItems.map((user) => (
                   <tr key={user.uid} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -171,14 +185,14 @@ const UsersTab: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      {user.phone ? (
-                        <div className="flex items-center gap-1.5 text-xs text-gray-600 font-medium dir-ltr justify-end">
-                           <Phone className="w-3 h-3 text-accent" />
-                           {user.phone}
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-300">-</span>
-                      )}
+                      <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black ${
+                        (user.referralCount || 0) >= 15 ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 
+                        (user.referralCount || 0) > 0 ? 'bg-amber-100 text-amber-700 border border-amber-200' : 
+                        'bg-gray-100 text-gray-400'
+                      }`}>
+                        <UsersIcon className="w-3 h-3" />
+                        {user.referralCount || 0}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
@@ -209,6 +223,41 @@ const UsersTab: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button 
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="p-2 rounded-lg border border-gray-200 disabled:opacity-50 hover:bg-gray-100 transition-colors bg-white shadow-sm"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-600" />
+          </button>
+          <div className="flex items-center gap-2">
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                  currentPage === i + 1 
+                  ? 'bg-accent text-white shadow-md' 
+                  : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+          <button 
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="p-2 rounded-lg border border-gray-200 disabled:opacity-50 hover:bg-gray-100 transition-colors bg-white shadow-sm"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+      )}
 
       {showDeleteModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">

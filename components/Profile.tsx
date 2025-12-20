@@ -1,7 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+// Fix: Use namespace import for FirebaseAuth to bypass named export resolution issues
+import * as FirebaseAuth from 'firebase/auth';
+const { onAuthStateChanged } = FirebaseAuth as any;
 import { doc, getDoc, setDoc, serverTimestamp, updateDoc, runTransaction, arrayUnion } from 'firebase/firestore';
 import * as ReactRouterDOM from 'react-router-dom';
 import { 
@@ -76,7 +78,7 @@ const Profile: React.FC = () => {
       setIsSent(true);
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser: any) => {
       if (currentUser) {
         setUser(currentUser);
         try {

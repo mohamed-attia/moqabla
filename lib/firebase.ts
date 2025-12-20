@@ -1,7 +1,10 @@
+
 // Modular Firebase (v11.1.0) initialization
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+// Fix: Use namespace import for FirebaseAuth to bypass named export resolution issues
+import * as FirebaseAuth from "firebase/auth";
+const { getAuth, GoogleAuthProvider } = FirebaseAuth as any;
 
 // Access environment variables safely
 const env = (import.meta as any).env || {};
