@@ -117,5 +117,23 @@ export const teamMembers: TeamMember[] = [
     "rating": 5.0,
     "linkedinUrl": "https://www.linkedin.com/in/mhdalaa/",
     "category": "FE"
+  },
+  {
+    "id": 14,
+    "name": "Mohamed Saber",
+    "role": "Frontend Lead | Next.js | React | TypeScript | UI/UX Enthusiast | Driving Frontend Excellence",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQH9hjmvVH8gVA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1727217188683?e=1767830400&v=beta&t=RwmdWPYHPJQVUB9JDuWTjsI_GGIS6k7tgv_XO6DMCEw",
+    "rating": 5.0,
+    "linkedinUrl": "https://www.linkedin.com/in/mohamed-saber-0ab8a6112/",
+    "category": "FE"
+  },
+  {
+    "id": 15,
+    "name": "Mohamed Elzanaty",
+    "role": "Engineering Manager",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQE43zeiXl3Skg/profile-displayphoto-scale_200_200/B4DZeuHXo7HMAY-/0/1750972863951?e=1767830400&v=beta&t=CiRNDXXquJU2Z6ABeY_oCqdo6e1TCiAgRu2ElvXR9N4",
+    "rating": 5.0,
+    "linkedinUrl": "https://www.linkedin.com/in/moelzanaty3/",
+    "category": "FE"
   }
 ];
