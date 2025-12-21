@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
-import { Mail, Phone, MapPin, Linkedin, Twitter, Instagram } from 'lucide-react';
+import { Mail, Phone, MapPin, Linkedin, Twitter, Instagram, Facebook } from 'lucide-react';
 import Button from './Button';
 import { auth, db } from '../lib/firebase';
 import * as FirebaseAuth from 'firebase/auth';
@@ -108,8 +108,9 @@ const Footer: React.FC = () => {
               منصتك الأولى للتدريب على المقابلات الوظيفية وتطوير المهارات الشخصية.
             </p>
             <div className="flex gap-4">
+              <a href="https://www.facebook.com/profile.php?id=61585619515037" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors"><Facebook className="w-5 h-5" /></a>
               <a href="#" className="hover:text-accent transition-colors"><Twitter className="w-5 h-5" /></a>
-              <a href="https://www.linkedin.com/in/%D9%85%D9%86%D8%B5%D8%A9-%D9%85%D9%82%D8%A7%D8%A8%D9%84%D8%A9-84a22139b/" className="hover:text-accent transition-colors"><Linkedin className="w-5 h-5" /></a>
+              <a href="https://www.linkedin.com/in/%D9%85%D9%86%D8%B5%D8%A9-%D9%85%D9%82%D8%A7%D8%A8%D9%84%D8%A9-84a22139b/" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors"><Linkedin className="w-5 h-5" /></a>
               <a href="#" className="hover:text-accent transition-colors"><Instagram className="w-5 h-5" /></a>
             </div>
           </div>
