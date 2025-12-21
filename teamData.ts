@@ -135,5 +135,14 @@ export const teamMembers: TeamMember[] = [
     "rating": 5.0,
     "linkedinUrl": "https://www.linkedin.com/in/moelzanaty3/",
     "category": "FE"
+  },
+  {
+    "id": 15,
+    "name": "Basma E.",
+    "role": "Head of Design",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/C5603AQFYI8XQggzRXg/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1644312532500?e=1767830400&v=beta&t=YsrFKK6HHmYz1kVxCzQDVHTkjtdVCnL9VYUNueqIfAE",
+    "rating": 5.0,
+    "linkedinUrl": "https://www.linkedin.com/in/basmaezzatezzat/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
+    "category": "UX"
   }
 ];

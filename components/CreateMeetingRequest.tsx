@@ -353,7 +353,21 @@ const CreateMeetingRequest: React.FC = () => {
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                <div className="text-center mb-6"><h3 className="text-xl font-bold text-primary">ماذا تتوقع منا؟ 🎯</h3><p className="text-sm text-gray-500">هذه التفاصيل تساعد الخبير في التحضير الجيد لمقابلتك.</p></div>
                
-               {/* اختيار الباقة */}
+               <div><label className="block text-sm font-medium text-gray-700 mb-3">أهدافك من المقابلة <span className="text-red-500">*</span></label><div className="space-y-2">{['تطوير المهارات التقنية', 'تحسين مهارات التواصل وعرض النفس', 'التعرف على نقاط الضعف والفجوات', 'التدرب على مقابلة وظيفية قادمة', 'الحصول على ترشيح (Referral)'].map((goal) => (<label key={goal} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 cursor-pointer"><input type="checkbox" checked={formData.goals.includes(goal)} onChange={() => toggleGoal(goal)} className="w-5 h-5 text-accent rounded focus:ring-accent" /><span className="text-gray-700 text-sm">{goal}</span></label>))}</div></div>
+               
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div><label className="block text-sm font-medium text-gray-700 mb-2">الوقت المفضل للمقابلة <span className="text-red-500">*</span></label><select value={formData.preferredTime} onChange={(e) => updateField('preferredTime', e.target.value)} className={`${inputClasses} py-3 px-4`}><option value="">اختر الوقت...</option><option value="morning">صباحاً (9ص - 12م)</option><option value="evening">مساءً (4م - 9م)</option><option value="flexible">مرن في أي وقت</option></select></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-2">هل لديك مقابلة قادمة؟ <span className="text-red-500">*</span></label><select value={formData.upcomingInterview} onChange={(e) => updateField('upcomingInterview', e.target.value)} className={`${inputClasses} py-3 px-4`}><option value="no">لا يوجد حالياً</option><option value="yes_soon">نعم، خلال هذا الأسبوع</option><option value="yes_later">نعم، في موعد لاحق</option></select></div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1 flex justify-between items-center">
+                   <span>توقعاتك من الجلسة <span className="text-red-500">*</span></span>
+                   <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full font-bold">10 حروف على الأقل</span>
+                </label>
+                <textarea value={formData.expectations} onChange={(e) => updateField('expectations', e.target.value)} className={`${inputClasses} py-3 px-4 min-h-[100px]`} placeholder="ما الذي تود التركيز عليه خلال الجلسة؟" />
+              </div>
+
+               {/* اختيار الباقة - تم نقله ليكون آخر حقل قبل الشروط */}
                <div className="p-4 bg-accent/5 rounded-2xl border border-accent/20">
                   <label className="block text-sm font-black text-accent mb-3 flex items-center gap-2">
                     <Sparkles className="w-4 h-4" /> اختيار الباقة المطلوبة <span className="text-red-500">*</span>
@@ -374,19 +388,6 @@ const CreateMeetingRequest: React.FC = () => {
                   </p>
                </div>
 
-               <div><label className="block text-sm font-medium text-gray-700 mb-3">أهدافك من المقابلة <span className="text-red-500">*</span></label><div className="space-y-2">{['تطوير المهارات التقنية', 'تحسين مهارات التواصل وعرض النفس', 'التعرف على نقاط الضعف والفجوات', 'التدرب على مقابلة وظيفية قادمة', 'الحصول على ترشيح (Referral)'].map((goal) => (<label key={goal} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 cursor-pointer"><input type="checkbox" checked={formData.goals.includes(goal)} onChange={() => toggleGoal(goal)} className="w-5 h-5 text-accent rounded focus:ring-accent" /><span className="text-gray-700 text-sm">{goal}</span></label>))}</div></div>
-               
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div><label className="block text-sm font-medium text-gray-700 mb-2">الوقت المفضل للمقابلة <span className="text-red-500">*</span></label><select value={formData.preferredTime} onChange={(e) => updateField('preferredTime', e.target.value)} className={`${inputClasses} py-3 px-4`}><option value="">اختر الوقت...</option><option value="morning">صباحاً (9ص - 12م)</option><option value="evening">مساءً (4م - 9م)</option><option value="flexible">مرن في أي وقت</option></select></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-2">هل لديك مقابلة قادمة؟ <span className="text-red-500">*</span></label><select value={formData.upcomingInterview} onChange={(e) => updateField('upcomingInterview', e.target.value)} className={`${inputClasses} py-3 px-4`}><option value="no">لا يوجد حالياً</option><option value="yes_soon">نعم، خلال هذا الأسبوع</option><option value="yes_later">نعم، في موعد لاحق</option></select></div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex justify-between items-center">
-                   <span>توقعاتك من الجلسة <span className="text-red-500">*</span></span>
-                   <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full font-bold">10 حروف على الأقل</span>
-                </label>
-                <textarea value={formData.expectations} onChange={(e) => updateField('expectations', e.target.value)} className={`${inputClasses} py-3 px-4 min-h-[100px]`} placeholder="ما الذي تود التركيز عليه خلال الجلسة؟" />
-              </div>
               <div className="pt-4 border-t border-gray-100">
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <input type="checkbox" checked={formData.termsAccepted} onChange={(e) => updateField('termsAccepted', e.target.checked)} className="mt-1 w-5 h-5 text-accent rounded focus:ring-accent border-gray-300" />

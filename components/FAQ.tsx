@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
 
@@ -40,6 +41,10 @@ const FAQ: React.FC = () => {
   }, []);
 
   const faqs = [
+    {
+      question: "هل المقابلة مناسبة للمبتدئين؟",
+      answer: "نعم، المقابلة يتم تخصيصها حسب مستواك وخبرتك."
+    },
     {
       question: "هل المقابلات حقيقية أم مسجلة؟",
       answer: "المقابلات تتم بشكل مباشر (Live) عبر مكالمة فيديو مع خبير في مجالك، وليست مسجلة مسبقاً. هذا يضمن لك تجربة تفاعلية وواقعية تحاكي المقابلات الفعلية."

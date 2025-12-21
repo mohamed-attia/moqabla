@@ -1,14 +1,55 @@
 
 import React, { useState, useEffect } from 'react';
-import { Check, ShieldCheck, Zap, Gift, Sparkles, Users, Video, MessageSquare, Star, Plus, CreditCard, AlertCircle, Wallet } from 'lucide-react';
+import { Check, ShieldCheck, Zap, Gift, Sparkles, Users, Star, CreditCard, Wallet } from 'lucide-react';
 import Button from './Button';
 import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
 import * as FirebaseAuth from 'firebase/auth';
 const { onAuthStateChanged } = FirebaseAuth as any;
 import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
+import { fetchUserLocation } from '../lib/geo';
 
 const { useNavigate } = ReactRouterDOM as any;
+
+// Configuration for localized prices
+const CURRENCY_CONFIG: Record<string, { symbol: string, suffix: string, rates: Record<string, { normal: string, premium: string }> }> = {
+  'EG': {
+    symbol: '',
+    suffix: 'ج.م',
+    rates: {
+      junior: { normal: '500', premium: '750' },
+      senior: { normal: '1000', premium: '1250' },
+      staff: { normal: '1500', premium: '1750' }
+    }
+  },
+  'SA': {
+    symbol: '',
+    suffix: 'ر.س',
+    rates: {
+      junior: { normal: '40', premium: '60' },
+      senior: { normal: '75', premium: '95' },
+      staff: { normal: '115', premium: '135' }
+    }
+  },
+  'AE': {
+    symbol: '',
+    suffix: 'د.إ',
+    rates: {
+      junior: { normal: '40', premium: '60' },
+      senior: { normal: '75', premium: '95' },
+      staff: { normal: '115', premium: '135' }
+    }
+  },
+  'DEFAULT': {
+    symbol: '$',
+    suffix: '',
+    rates: {
+      junior: { normal: '9.99', premium: '14.99' },
+      senior: { normal: '19.9', premium: '24.9' },
+      staff: { normal: '29.9', premium: '34.9' }
+    }
+  }
+};
 
 const Pricing: React.FC = () => {
   const navigate = useNavigate();
@@ -16,8 +57,29 @@ const Pricing: React.FC = () => {
   const [hasActiveRequest, setHasActiveRequest] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isPremium, setIsPremium] = useState(true);
+  const [countryCode, setCountryCode] = useState<string>('DEFAULT');
 
   useEffect(() => {
+    // Detect Location
+    const detectLocation = async () => {
+      try {
+        const geo = await fetchUserLocation();
+        if (geo && geo.country) {
+          const detectedCountry = geo.country.toUpperCase();
+          if (CURRENCY_CONFIG[detectedCountry]) {
+            setCountryCode(detectedCountry);
+          } else {
+            setCountryCode('DEFAULT');
+          }
+        }
+      } catch (err) {
+        console.error("Pricing Location Detection Error:", err);
+        setCountryCode('DEFAULT');
+      }
+    };
+
+    detectLocation();
+
     let unsubscribeSnapshot: any = null;
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser: any) => {
@@ -67,14 +129,16 @@ const Pricing: React.FC = () => {
     }
   };
 
+  const currentCurrency = CURRENCY_CONFIG[countryCode] || CURRENCY_CONFIG['DEFAULT'];
+
   const pricingPlans = [
     {
       id: 'referral',
       title: 'سفراء النجاح',
       level: 'Community & Referrals',
       price: 'مجاناً',
-      period: 'عند دعوة 15 صديق',
-      description: 'شارك المعرفة مع مجتمعك واحصل على تقييم احترافي لمستواك مجاناً.',
+      period: 'مقابل 15 دعوة للاصدقاء ناجحة',
+      description: 'حوّل شبكة علاقاتك إلى تذكرة عبور لمستقبلك! ادعُ 15 من أصدقائك الطموحين للانضمام إلينا، وسنكافئك بمقابلة احترافية كاملة "مجاناً" لتكون بوابتك نحو الوظيفة الحلم.',
       features: [
         'مقابلة مع خبير (40-45 دقيقة)',
         'تقرير شامل معتمد من الخبير ومدعوم بالذكاء الاصطناعي',
@@ -87,7 +151,7 @@ const Pricing: React.FC = () => {
       id: 'junior',
       title: 'البداية القوية',
       level: 'Fresh / Junior',
-      price: isPremium ? '$14.99' : '$9.99',
+      price: isPremium ? currentCurrency.rates.junior.premium : currentCurrency.rates.junior.normal,
       description: isPremium ? 'الباقة المتكاملة لمراجعة أخطائك بالفيديو ومناقشة الخبير.' : 'الخيار الأساسي لتجربة أجواء المقابلات ومعرفة تقييمك.',
       features: [
         'مقابلة مع خبير (40-45 دقيقة)',
@@ -102,7 +166,7 @@ const Pricing: React.FC = () => {
       id: 'senior',
       title: 'الاحتراف والتميز',
       level: 'Mid-Senior / Senior',
-      price: isPremium ? '$24.9' : '$19.9',
+      price: isPremium ? currentCurrency.rates.senior.premium : currentCurrency.rates.senior.normal,
       description: 'تحدى قدراتك مع خبراء متمرسين وارفع سقف طموحاتك المهنية.',
       features: [
         'مقابلة مع خبير (40-45 دقيقة)',
@@ -116,7 +180,7 @@ const Pricing: React.FC = () => {
       id: 'staff',
       title: 'القيادة التقنية',
       level: 'Staff / Tech Lead',
-      price: isPremium ? '$34.9' : '$29.9',
+      price: isPremium ? currentCurrency.rates.staff.premium : currentCurrency.rates.staff.normal,
       description: 'نقاشات عالية المستوى في التصميم المعماري والقيادة التقنية.',
       features: [
         'مقابلة مع خبير (40-45 دقيقة)',
@@ -140,7 +204,9 @@ const Pricing: React.FC = () => {
           <div className="max-w-2xl mx-auto mb-10 animate-in fade-in slide-in-from-bottom-4">
              <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 shadow-sm">
                 <p className="text-gray-800 text-lg leading-relaxed">
-                  <span className="font-black text-accent block mb-2">💡 اختر مستواك بدقة أثناء التسجيل</span>
+                  <span className="font-black text-accent block mb-2">
+                    💡 اختر مستواك بدقة أثناء التسجيل
+                  </span>
                   تحديد المستوى الصحيح يضمن لك مقابلة تحاكي واقعك وتكشف لك فرص التحسين الحقيقية.
                 </p>
              </div>
@@ -195,7 +261,10 @@ const Pricing: React.FC = () => {
               </div>
 
               <div className="flex items-baseline gap-1 mb-6">
+                {plan.id !== 'referral' && <span className={`text-xl font-black ${plan.popular ? 'text-white' : 'text-gray-900'}`}>{currentCurrency.symbol}</span>}
                 <span className={`text-4xl font-black transition-all duration-300 ${plan.popular ? 'text-white' : 'text-gray-900'}`}>{plan.price}</span>
+                {plan.id !== 'referral' && <span className={`text-sm font-bold opacity-70 ${plan.popular ? 'text-white' : 'text-gray-900'}`}>{currentCurrency.suffix}</span>}
+                {plan.id === 'referral' && <span className={`text-xs font-bold mr-2 opacity-60 ${plan.popular ? 'text-white' : 'text-gray-500'}`}>{plan.period}</span>}
               </div>
 
               <div className="space-y-4 mb-10">
@@ -216,14 +285,13 @@ const Pricing: React.FC = () => {
                     plan.popular ? 'bg-accent hover:bg-accentHover text-white' : 'bg-primary hover:bg-secondary text-white'
                   }`}
                 >
-                  {hasActiveRequest && !isAdmin && plan.id !== 'referral' ? 'لديك طلب نشط' : (plan.id === 'referral' ? 'ابدأ التحدي' : 'احجز موعدك')}
+                  {hasActiveRequest && !isAdmin && plan.id !== 'referral' ? 'لديك طلب نشط' : (plan.id === 'referral' ? 'ابدأ التحدي الآن' : 'احجز موعدك')}
                 </Button>
               </div>
             </div>
           ))}
         </div>
 
-        {/* قسم الضمان ووسائل الدفع */}
         <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-gray-100 pt-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
            <div className="flex flex-col items-center text-center group">
               <div className="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
