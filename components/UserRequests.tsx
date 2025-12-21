@@ -8,7 +8,8 @@ import * as ReactRouterDOM from 'react-router-dom';
 import { 
   Loader2, Calendar, FileText, Code, Clock, Briefcase, Star, X, 
   MessageSquareQuote, CheckCircle2, Video, FileCheck, ExternalLink, 
-  Link as LinkIcon, ClipboardCheck, Award, Eye, Download, Sparkles, ArrowLeft, Hash
+  Link as LinkIcon, ClipboardCheck, Award, Eye, Download, Sparkles, ArrowLeft, Hash,
+  MessageSquare, CalendarCheck, Zap
 } from 'lucide-react';
 import Button from './Button';
 
@@ -28,7 +29,7 @@ interface MyRequestData {
   techStack: string; 
   goals: string[];
   preferredTime: string;
-  planName?: string; // أضفناه هنا
+  planName?: string;
   meetingLink?: string;
   reportLink?: string;
   videoLink?: string;
@@ -251,11 +252,45 @@ const UserRequests: React.FC = () => {
                             تقييم التجربة
                         </button>
                       )}
-                      {getStatusBadge(req.status)}
+                      {getStatusBadge(req.status || 'pending')}
                    </div>
                 </div>
 
                 <div className="p-6">
+                  {/* قسم المراحل القادمة - يظهر فقط للطلبات الجديدة */}
+                  {(req.status === 'pending' || !req.status) && (
+                    <div className="mb-10 bg-slate-50 border border-slate-100 rounded-3xl p-6">
+                       <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                         <Zap className="w-4 h-4 text-accent" /> المراحل القادمة لطلبك
+                       </h4>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-start gap-4">
+                             <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center shrink-0">
+                                <MessageSquare className="w-5 h-5" />
+                             </div>
+                             <div>
+                                <div className="text-xs font-black text-primary mb-1">1- قيد المراجعة</div>
+                                <p className="text-[11px] text-gray-500 leading-relaxed font-medium">
+                                   مرحلة بيتم فيها التواصل مع مقدم الطلب ويتم تأكيد التحويل المالي.
+                                </p>
+                             </div>
+                          </div>
+
+                          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-start gap-4">
+                             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                                <CalendarCheck className="w-5 h-5" />
+                             </div>
+                             <div>
+                                <div className="text-xs font-black text-primary mb-1">2- مقبول</div>
+                                <p className="text-[11px] text-gray-500 leading-relaxed font-medium">
+                                   مرحلة بيتم فيها تحديد الموعد المناسب مع الخبير التقني ومقدم الطلب.
+                                </p>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                  )}
+
                   {req.status === 'completed' && req.evaluationReport && (
                     <div className="group relative mb-10 overflow-hidden rounded-[2.5rem] bg-slate-900 p-1 shadow-2xl transition-all hover:scale-[1.01]">
                        <div className="absolute inset-0 bg-gradient-to-r from-accent/40 via-emerald-500/40 to-teal-500/40 opacity-50 blur-xl group-hover:opacity-80 transition-opacity"></div>
