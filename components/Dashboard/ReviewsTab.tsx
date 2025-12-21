@@ -10,9 +10,8 @@ const ReviewsTab: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -34,7 +33,6 @@ const ReviewsTab: React.FC = () => {
     fetchReviews();
   }, []);
 
-  // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
@@ -66,7 +64,7 @@ const ReviewsTab: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 pb-20">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
           <MessageSquareQuote className="w-5 h-5 text-accent" />
@@ -166,9 +164,8 @@ const ReviewsTab: React.FC = () => {
         )}
       </div>
 
-      {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-8">
+        <div className="flex justify-center items-center gap-4 mt-8 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
           <button 
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
@@ -181,7 +178,7 @@ const ReviewsTab: React.FC = () => {
               <button
                 key={i + 1}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                className={`w-10 h-10 rounded-lg text-sm font-bold transition-all ${
                   currentPage === i + 1 
                   ? 'bg-accent text-white shadow-md' 
                   : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'

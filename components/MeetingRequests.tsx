@@ -167,7 +167,6 @@ const MeetingRequests: React.FC = () => {
       const regRef = doc(db, "registrations", editingRegistration.id);
       await updateDoc(regRef, { status: statusToUpdate });
       
-      // إرسال إيميل للمستخدم
       await sendUserStatusUpdateNotification({
         to_email: editingRegistration.email,
         user_name: editingRegistration.fullName,
@@ -253,7 +252,7 @@ const MeetingRequests: React.FC = () => {
   };
 
   return (
-    <div className="pt-24 pb-16 min-h-screen bg-gray-50 relative">
+    <div className="pt-24 pb-20 min-h-screen bg-gray-50 relative">
       <div className="container mx-auto px-4 md:px-6">
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -354,10 +353,10 @@ const MeetingRequests: React.FC = () => {
               </div>
             </div>
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-8">
+              <div className="flex justify-center items-center gap-4 mt-8 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                 <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="p-2 rounded-lg border border-gray-200 disabled:opacity-50 hover:bg-gray-100 transition-colors bg-white shadow-sm"><ChevronRight className="w-5 h-5 text-gray-600" /></button>
                 <div className="flex items-center gap-2">
-                  {[...Array(totalPages)].map((_, i) => <button key={i + 1} onClick={() => setCurrentPage(i + 1)} className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${currentPage === i + 1 ? 'bg-accent text-white shadow-md' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}>{i + 1}</button>)}
+                  {[...Array(totalPages)].map((_, i) => <button key={i + 1} onClick={() => setCurrentPage(i + 1)} className={`w-10 h-10 rounded-lg text-sm font-bold transition-all ${currentPage === i + 1 ? 'bg-accent text-white shadow-md' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}>{i + 1}</button>)}
                 </div>
                 <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="p-2 rounded-lg border border-gray-200 disabled:opacity-50 hover:bg-gray-100 transition-colors bg-white shadow-sm"><ChevronLeft className="w-5 h-5 text-gray-600" /></button>
               </div>

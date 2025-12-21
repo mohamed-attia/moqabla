@@ -23,7 +23,6 @@ const UsersTab: React.FC = () => {
 
   const fetchData = async () => {
     try {
-      // 1. Fetch Users
       const uQ = query(collection(db, "users"), orderBy("createdAt", "desc"));
       const userSnapshot = await getDocs(uQ);
       const results: UserProfile[] = [];
@@ -32,7 +31,6 @@ const UsersTab: React.FC = () => {
       });
       setUsers(results);
 
-      // 2. Fetch Interview Counts (Calculate counts based on completed registrations)
       const rQ = query(collection(db, "registrations"), where("status", "==", "completed"));
       const regSnapshot = await getDocs(rQ);
       const counts: Record<string, number> = {};
@@ -56,6 +54,7 @@ const UsersTab: React.FC = () => {
     fetchData();
   }, []);
 
+  // Reset to page 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, roleFilter, fieldFilter]);
@@ -87,16 +86,6 @@ const UsersTab: React.FC = () => {
     }
   };
 
-  const getLevelLabel = (level?: string) => {
-    switch (level) {
-      case 'fresh': return 'مبتدأ (fresh)';
-      case 'junior': return 'مبتدأ (junior)';
-      case 'mid-senior': return 'متوسط وخبير (mid/senior)';
-      case 'lead-staff': return 'قيادي (lead/staff)';
-      default: return level || '-';
-    }
-  };
-
   const filteredUsers = users.filter(user => {
     const termMatch = user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -119,7 +108,7 @@ const UsersTab: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 pb-20">
       <div className="flex flex-col gap-4">
         <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
           <User className="w-5 h-5 text-accent" />
@@ -252,7 +241,7 @@ const UsersTab: React.FC = () => {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-8">
+        <div className="flex justify-center items-center gap-4 mt-8 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
           <button 
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
@@ -265,7 +254,7 @@ const UsersTab: React.FC = () => {
               <button
                 key={i + 1}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                className={`w-10 h-10 rounded-lg text-sm font-bold transition-all ${
                   currentPage === i + 1 
                   ? 'bg-accent text-white shadow-md' 
                   : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
