@@ -95,9 +95,9 @@ export const teamMembers: TeamMember[] = [
     "id": 11,
     "name": "Abdelrahman Haridy",
     "role": "Software Developer, Angular, ReactJs, Wordpress, Instructor",
-    "photoUrl": "https://media.licdn.com/dms/image/v2/D4D35AQHUJET2VdlU3g/profile-framedphoto-shrink_400_400/B4DZiP.3f_GQAg-/0/1754762279219?e=1766502000&v=beta&t=8Rmt7B0wSMNJ2NkuaPcsx8SceTndKNksNu6rKud4Gog",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/D5635AQEt8NMpI973XA/profile-framedphoto-shrink_200_200/B56ZsoAy.fJ4AM-/0/1765902856399?e=1767020400&v=beta&t=EghkamD9I9yjhTNr3czfQarMspO0MfY9PUWIA3St8a0",
     "rating": 5.0,
-    "linkedinUrl": "https://www.linkedin.com/in/aly-hamalawey/",
+    "linkedinUrl": "https://www.linkedin.com/in/abhar/",
     "category": "FE"
   },
   {
@@ -137,7 +137,7 @@ export const teamMembers: TeamMember[] = [
     "category": "FE"
   },
   {
-    "id": 15,
+    "id": 16,
     "name": "Basma E.",
     "role": "Head of Design",
     "photoUrl": "https://media.licdn.com/dms/image/v2/C5603AQFYI8XQggzRXg/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1644312532500?e=1767830400&v=beta&t=YsrFKK6HHmYz1kVxCzQDVHTkjtdVCnL9VYUNueqIfAE",
@@ -145,7 +145,7 @@ export const teamMembers: TeamMember[] = [
     "linkedinUrl": "https://www.linkedin.com/in/basmaezzatezzat/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
     "category": "UX"
   },  {
-    "id": 16,
+    "id": 17,
     "name": "Ahmed Hegazy",
     "role": "Tech Lead | .Net | Senior Software | Full Stack",
     "photoUrl": "https://media.licdn.com/dms/image/v2/D4E03AQGoOcZ8FLNWnQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1697754271125?e=1767830400&v=beta&t=30Fz_bHgDKlUQq5ZAVlGITsJz101oB9a2myhbzcUFXE",
@@ -154,7 +154,7 @@ export const teamMembers: TeamMember[] = [
     "category": "BE"
   },
   {
-    "id": 17,
+    "id": 18,
     "name": "Ahmed Gamal",
     "role": "Senior Software Engineer | Angular | Fintech",
     "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQH9hjmvVH8gVA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1644312532500?e=1767830400&v=beta&t=YsrFKK6HHmYz1kVxCzQDVHTkjtdVCnL9VYUNueqIfAE",
@@ -163,12 +163,21 @@ export const teamMembers: TeamMember[] = [
     "category": "FE"
   },
   {
-    "id": 18,
+    "id": 19,
     "name": "Mohamed (Saad) Zamel",
     "role": "Solution Architect / Engineering Manager || STCPay +10M downloads || FinTech || STC Bank || Digital Bank || CSM® || Session Lead at Udacity || Mentor",
     "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQEM7WgziFExjg/profile-displayphoto-shrink_200_200/B4DZQPOqOqGUAY-/0/1735422290011?e=1767830400&v=beta&t=F7ar6sT-dU5_SOJEaEhpDuHt41q23AGeUK6vpHU0ZsM",
     "rating": 5.0,
     "linkedinUrl": "https://www.linkedin.com/in/mohamedzamel/",
     "category": "MOBILE"
+  },
+  {
+    "id": 20,
+    "name": "Mohamed Ghazal",
+    "role": "Technical Consultantr",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/C4E03AQGC7_ltfWOqhg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1517481670580?e=1767830400&v=beta&t=cfoYjVRuE8SzRvU-ggS3ftqRaNJsM4Q4zVuyzdK4OVA",
+    "rating": 5.0,
+    "linkedinUrl": "https://www.linkedin.com/in/ghazal2/",
+    "category": "BE"
   }
 ];

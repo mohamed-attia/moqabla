@@ -17,27 +17,27 @@ const CURRENCY_CONFIG: Record<string, { symbol: string, suffix: string, rates: R
     symbol: '',
     suffix: 'ج.م',
     rates: {
-      junior: { normal: '500', premium: '750' },
-      senior: { normal: '1000', premium: '1250' },
-      staff: { normal: '1500', premium: '1750' }
+      junior: { normal: '510', premium: '760' },
+      senior: { normal: '950', premium: '1900' },
+      staff: { normal: '1500', premium: '1710' }
     }
   },
   'SA': {
     symbol: '',
     suffix: 'ر.س',
     rates: {
-      junior: { normal: '40', premium: '60' },
-      senior: { normal: '75', premium: '95' },
-      staff: { normal: '115', premium: '135' }
+      junior: { normal: '80', premium: '110' },
+      senior: { normal: '125', premium: '150' },
+      staff: { normal: '175', premium: '200' }
     }
   },
   'AE': {
     symbol: '',
     suffix: 'د.إ',
     rates: {
-      junior: { normal: '40', premium: '60' },
-      senior: { normal: '75', premium: '95' },
-      staff: { normal: '115', premium: '135' }
+      junior: { normal: '80', premium: '110' },
+      senior: { normal: '125', premium: '150' },
+      staff: { normal: '175', premium: '200' }
     }
   },
   'DEFAULT': {
@@ -174,7 +174,7 @@ const Pricing: React.FC = () => {
         ...(isPremium ? ['مناقشة مفتوحة (20-25 دقيقة)'] : []),
         'تقرير شامل معتمد من الخبير ومدعوم بالذكاء الاصطناعي',
         ...(isPremium ? ['تسجيل كامل للمقابلة بالفيديو'] : []),
-        '🟢 مصممة خصيصًا للمطورين ذوي الخبرة لتعزيز الاحترافية والاستعداد لفرص متقدمة',
+        '🟢 موجهة للمطورين المحترفين للاستعداد لفرص متقدمة',
       ],
       icon: Zap,
     },

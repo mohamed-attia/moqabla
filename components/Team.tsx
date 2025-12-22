@@ -10,6 +10,7 @@ const Team: React.FC = () => {
   const [filteredMembers, setFilteredMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<string>('ALL');
+  const [failedImages, setFailedImages] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     setMembers(teamMembers);
@@ -25,6 +26,10 @@ const Team: React.FC = () => {
       setFilteredMembers(members.filter(member => member.category === activeFilter));
     }
   }, [activeFilter, members]);
+
+  const handleImageError = (id: number) => {
+    setFailedImages(prev => ({ ...prev, [id]: true }));
+  };
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -92,51 +97,59 @@ const Team: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {filteredMembers.length > 0 ? (
-              filteredMembers.map((member, index) => (
-                <div 
-                  key={member.id}
-                  className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group transform hover:-translate-y-2"
-                >
-                  <div className="relative h-64 overflow-hidden bg-gray-100">
-                    {member.photoUrl ? (
-                      <img 
-                        src={member.photoUrl} 
-                        alt={member.name} 
-                        className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
-                      />
-                    ) : null}
-                    <div className={`absolute inset-0 flex items-center justify-center text-gray-400 ${member.photoUrl ? 'hidden' : ''}`}>
-                      <User className="w-20 h-20" />
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    {member.linkedinUrl && (
-                      <div className="absolute bottom-4 right-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                        <a 
-                          href={member.linkedinUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="bg-white p-2 rounded-full text-[#0077b5] hover:bg-[#0077b5] hover:text-white transition-colors shadow-lg flex items-center justify-center"
-                        >
-                          <Linkedin className="w-5 h-5" />
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-6 text-center relative">
-                     <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded-full shadow-md border border-gray-100 flex items-center gap-1">
-                        <div className="flex text-yellow-400">
-                          <Star className="w-3 h-3 fill-current" />
+              filteredMembers.map((member) => {
+                const hasValidPhoto = member.photoUrl && !failedImages[member.id];
+                
+                return (
+                  <div 
+                    key={member.id}
+                    className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group transform hover:-translate-y-2"
+                  >
+                    <div className="relative h-64 overflow-hidden bg-gray-100">
+                      {hasValidPhoto ? (
+                        <img 
+                          src={member.photoUrl} 
+                          alt={member.name} 
+                          onError={() => handleImageError(member.id)}
+                          className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-gray-300 bg-gray-50">
+                          <User className="w-20 h-20" />
                         </div>
-                        <span className="text-xs font-bold text-gray-700">{member.rating}</span>
-                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
-                    <p className="text-accent font-medium text-sm mb-4">{member.role}</p>
-                    <div className="flex justify-center gap-1 opacity-80">
-                      {renderStars(member.rating)}
+                      )}
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      
+                      {member.linkedinUrl && (
+                        <div className="absolute bottom-4 right-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                          <a 
+                            href={member.linkedinUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="bg-white p-2 rounded-full text-[#0077b5] hover:bg-[#0077b5] hover:text-white transition-colors shadow-lg flex items-center justify-center"
+                          >
+                            <Linkedin className="w-5 h-5" />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-6 text-center relative">
+                       <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded-full shadow-md border border-gray-100 flex items-center gap-1">
+                          <div className="flex text-yellow-400">
+                            <Star className="w-3 h-3 fill-current" />
+                          </div>
+                          <span className="text-xs font-bold text-gray-700">{member.rating}</span>
+                       </div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
+                      <p className="text-accent font-medium text-sm mb-4">{member.role}</p>
+                      <div className="flex justify-center gap-1 opacity-80">
+                        {renderStars(member.rating)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="col-span-full text-center py-12 text-gray-500 bg-white rounded-2xl border border-dashed border-gray-200">
                 <User className="w-12 h-12 mx-auto mb-3 text-gray-300" />
