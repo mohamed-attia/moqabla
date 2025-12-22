@@ -151,7 +151,7 @@ const Profile: React.FC = () => {
     return `${name.substring(0, 2)}***@${domain}`;
   };
 
-  const referralGoal = 15;
+  const referralGoal = 10;
   const progress = Math.min(((formData.referralCount || 0) / referralGoal) * 100, 100);
 
   if (loading) return (

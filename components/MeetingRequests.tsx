@@ -421,7 +421,7 @@ const MeetingRequests: React.FC = () => {
                   <div className="text-right">
                     <div className="flex flex-row-reverse items-center gap-2">
                        <h3 className="text-xl font-black">{viewingRegistration.fullName}</h3>
-                       {viewingUserReferrals >= 15 && (
+                       {viewingUserReferrals >= 10 && (
                          <span className="bg-amber-400 text-primary text-[10px] font-black px-2 py-0.5 rounded-lg flex items-center gap-1 animate-pulse">
                            <Award className="w-3 h-3" /> مؤهل لمجانية
                          </span>
@@ -451,8 +451,8 @@ const MeetingRequests: React.FC = () => {
                  </div>
                  <div className="text-left">
                     <div className="text-[10px] font-bold text-white/50 uppercase">حالة الاستحقاق</div>
-                    <div className={`text-sm font-black ${viewingUserReferrals >= 15 ? 'text-emerald-400' : 'text-amber-400'}`}>
-                       {viewingUserReferrals >= 15 ? 'يستحق جلسة مجانية' : `باقي ${15 - viewingUserReferrals} إحالة`}
+                    <div className={`text-sm font-black ${viewingUserReferrals >= 10 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                       {viewingUserReferrals >= 10 ? 'يستحق جلسة مجانية' : `باقي ${10 - viewingUserReferrals} إحالة`}
                     </div>
                  </div>
               </div>

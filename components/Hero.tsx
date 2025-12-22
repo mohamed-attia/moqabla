@@ -76,7 +76,10 @@ const Hero: React.FC = () => {
               <span className="relative flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span></span>
               <span className="text-sm font-semibold text-white">ابدأ مسارك المهني الآن</span>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-5xl xl:text-7xl font-bold text-white leading-tight mb-6 animate-in fade-in slide-in-from-bottom-5 delay-100 duration-700"><span className="block mb-2">أتقن مهارات</span><span className="text-transparent bg-clip-text bg-gradient-to-l from-teal-400 to-emerald-400">المقابلة الوظيفية</span></h1>
+            <h1 className="text-4xl md:text-5xl lg:text-5xl xl:text-7xl font-bold text-white leading-tight mb-6 animate-in fade-in slide-in-from-bottom-5 delay-100 duration-700">
+              <span className="block mb-2">خليك جاهز لأي</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-l from-teal-400 to-emerald-400">مقابلة تقنية</span>
+            </h1>
             <p className="text-lg md:text-xl lg:text-lg xl:text-xl text-gray-300 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed animate-in fade-in slide-in-from-bottom-6 delay-200 duration-700">لا تترك وظيفة أحلامك للصدفة. احصل على تجربة محاكاة واقعية مع خبراء تقنيين، واكتشف نقاط قوتك ومجالات التحسين قبل المقابلة الحقيقية.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-in fade-in slide-in-from-bottom-7 delay-300 duration-700">
               {(!user || isAdmin || !hasActiveRequest) && (

@@ -189,7 +189,7 @@ const UsersTab: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black ${
-                        (user.referralCount || 0) >= 15 ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 
+                        (user.referralCount || 0) >= 10 ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 
                         (user.referralCount || 0) > 0 ? 'bg-amber-100 text-amber-700 border border-amber-200' : 
                         'bg-gray-100 text-gray-400'
                       }`}>

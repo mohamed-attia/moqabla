@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Video, FileText, TrendingUp, Award, MessageSquare, Users } from 'lucide-react';
 import { FeatureItem } from '../types';
@@ -9,7 +10,7 @@ const features: FeatureItem[] = [
     Icon: Video,
   },
   {
-    title: 'تغذية راجعة احترافية',
+    title: 'تحليل احترافي لأدائك',
     description: 'تحصل على تقرير مفصل يوضح نقاط قوتك والنقاط التي تحتاج إلى تطوير من خبراء تقنين في تخصصك.',
     Icon: FileText,
   },
@@ -29,8 +30,8 @@ const features: FeatureItem[] = [
     Icon: MessageSquare,
   },
   {
-    title: 'تدرب مع زملائك',
-    description: 'التدريب يصنع الإتقان. ابنِ ثقتك بنفسك واحصل على تقييمات شخصية خلال جلسات المحاكاة اليومية مع زملاء وخبراء في الصناعة.',
+    title: 'إطار مهني لتبادل الخبرات',
+    description: 'يعتمد على تفاعل مباشر بين الخبراء والمتقدمين، مع توثيق الملاحظات .',
     Icon: Users,
   },
 ];

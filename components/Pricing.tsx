@@ -66,7 +66,7 @@ const Pricing: React.FC = () => {
         const geo = await fetchUserLocation();
         if (geo && geo.country) {
           const detectedCountry = geo.country.toUpperCase();
-          if (CURRENCY_CONFIG[detectedCountry]) {
+          if (detectedCountry && CURRENCY_CONFIG[detectedCountry]) {
             setCountryCode(detectedCountry);
           } else {
             setCountryCode('DEFAULT');
@@ -137,8 +137,8 @@ const Pricing: React.FC = () => {
       title: 'سفراء النجاح',
       level: 'Community & Referrals',
       price: 'مجاناً',
-      period: 'مقابل 15 دعوة للاصدقاء ناجحة',
-      description: 'حوّل شبكة علاقاتك إلى تذكرة عبور لمستقبلك! ادعُ 15 من أصدقائك الطموحين للانضمام إلينا، وسنكافئك بمقابلة احترافية كاملة "مجاناً" لتكون بوابتك نحو الوظيفة الحلم.',
+      period: 'مقابل 10 دعوات للاصدقاء ناجحة',
+      description: 'حوّل شبكة علاقاتك إلى تذكرة عبور لمستقبلك! ادعُ 10 من أصدقائك الطموحين للانضمام إلينا، وسنكافئك بمقابلة احترافية كاملة "مجاناً" لتكون بوابتك نحو الوظيفة الحلم.',
       features: [
         'مقابلة مع خبير (40-45 دقيقة)',
         'تقرير شامل معتمد من الخبير ومدعوم بالذكاء الاصطناعي',
@@ -158,6 +158,7 @@ const Pricing: React.FC = () => {
         ...(isPremium ? ['مناقشة مفتوحة (20-25 دقيقة)'] : []),
         'تقرير شامل معتمد من الخبير ومدعوم بالذكاء الاصطناعي',
         ...(isPremium ? ['تسجيل كامل للمقابلة بالفيديو'] : []),
+        '🟢 مصممة خصيصًا للمبتدئين لبناء الثقة والاستعداد لسوق العمل',
       ],
       popular: isPremium,
       icon: Sparkles,
@@ -173,6 +174,7 @@ const Pricing: React.FC = () => {
         ...(isPremium ? ['مناقشة مفتوحة (20-25 دقيقة)'] : []),
         'تقرير شامل معتمد من الخبير ومدعوم بالذكاء الاصطناعي',
         ...(isPremium ? ['تسجيل كامل للمقابلة بالفيديو'] : []),
+        '🟢 مصممة خصيصًا للمطورين ذوي الخبرة لتعزيز الاحترافية والاستعداد لفرص متقدمة',
       ],
       icon: Zap,
     },
@@ -187,6 +189,7 @@ const Pricing: React.FC = () => {
         ...(isPremium ? ['مناقشة مفتوحة (20-25 دقيقة)'] : []),
         'تقرير شامل معتمد من الخبير ومدعوم بالذكاء الاصطناعي',
         ...(isPremium ? ['تسجيل كامل للمقابلة بالفيديو'] : []),
+        '🟢 مصممة خصيصًا للقادة التقنيين لبناء رؤية قيادية والاستعداد لمناصب أعلى',
       ],
       icon: Users,
     }
@@ -268,12 +271,23 @@ const Pricing: React.FC = () => {
               </div>
 
               <div className="space-y-4 mb-10">
-                {plan.features.map((feature, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <Check className="w-4 h-4 text-accent mt-1 shrink-0" />
-                    <span className="text-sm font-medium">{feature}</span>
-                  </div>
-                ))}
+                {plan.features.map((feature, idx) => {
+                  const isSpecial = feature.startsWith('🟢');
+                  const cleanText = isSpecial ? feature.substring(2) : feature;
+                  
+                  return (
+                    <div key={idx} className={`flex items-start gap-3 ${isSpecial ? 'bg-emerald-500/5 p-3 rounded-xl border border-emerald-500/10' : ''}`}>
+                      {isSpecial ? (
+                        <div className="w-4 h-4 rounded-full bg-emerald-500 mt-1 shrink-0 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                      ) : (
+                        <Check className="w-4 h-4 text-accent mt-1 shrink-0" />
+                      )}
+                      <span className={`text-sm font-medium ${isSpecial ? 'text-emerald-500 font-bold' : ''}`}>
+                        {cleanText}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="mt-auto pt-4">

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Target, MessageSquare, Users, BookOpen, Video, Award } from 'lucide-react';
 
@@ -24,8 +25,8 @@ const features = [
   },
   {
     icon: BookOpen,
-    title: "تدرب مع زملائك",
-    description: "التدريب يصنع الإتقان. ابنِ ثقتك بنفسك واحصل على تقييمات شخصية خلال جلسات المحاكاة اليومية مع زملاء وخبراء في الصناعة."
+    title: "إطار مهني لتبادل الخبرات",
+    description: "يعتمد على تفاعل مباشر بين الخبراء والمتقدمين، مع توثيق الملاحظات ."
   },
   {
     icon: Award,

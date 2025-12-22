@@ -144,5 +144,31 @@ export const teamMembers: TeamMember[] = [
     "rating": 5.0,
     "linkedinUrl": "https://www.linkedin.com/in/basmaezzatezzat/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
     "category": "UX"
+  },  {
+    "id": 16,
+    "name": "Ahmed Hegazy",
+    "role": "Tech Lead | .Net | Senior Software | Full Stack",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/D4E03AQGoOcZ8FLNWnQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1697754271125?e=1767830400&v=beta&t=30Fz_bHgDKlUQq5ZAVlGITsJz101oB9a2myhbzcUFXE",
+    "rating": 5.0,
+    "linkedinUrl": "https://www.linkedin.com/in/ahmedhegazy/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
+    "category": "BE"
+  },
+  {
+    "id": 17,
+    "name": "Ahmed Gamal",
+    "role": "Senior Software Engineer | Angular | Fintech",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQH9hjmvVH8gVA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1644312532500?e=1767830400&v=beta&t=YsrFKK6HHmYz1kVxCzQDVHTkjtdVCnL9VYUNueqIfAE",
+    "rating": 5.0,
+    "linkedinUrl": "https://www.linkedin.com/in/ahmed-gamal-405aa799/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
+    "category": "FE"
+  },
+  {
+    "id": 18,
+    "name": "Mohamed (Saad) Zamel",
+    "role": "Solution Architect / Engineering Manager || STCPay +10M downloads || FinTech || STC Bank || Digital Bank || CSM® || Session Lead at Udacity || Mentor",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQEM7WgziFExjg/profile-displayphoto-shrink_200_200/B4DZQPOqOqGUAY-/0/1735422290011?e=1767830400&v=beta&t=F7ar6sT-dU5_SOJEaEhpDuHt41q23AGeUK6vpHU0ZsM",
+    "rating": 5.0,
+    "linkedinUrl": "https://www.linkedin.com/in/mohamedzamel/",
+    "category": "MOBILE"
   }
 ];
