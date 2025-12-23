@@ -1,5 +1,5 @@
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 
 /**
  * AI Agent for Interview Evaluation
@@ -10,10 +10,15 @@ export const AIAgent = {
    * Suggests professional notes for a specific skill based on the score and context.
    */
   async suggestNote(skill: string, score: number, level: string, previousNotes?: string) {
-    // Fix: Create a new instance right before the API call per guidelines
-    const ai = new GoogleGenAI({ apiKey: "AIzaSyCI5DVfAvEORjgtT1c171ZRRYG40iMii"});
-    const labels = ['Not Demonstrated', 'Basic Awareness', 'Developing', 'Competent', 'Strong for Fresh Level'];
-    const label = labels[score - 1];
+    // API key must be obtained exclusively from process.env.API_KEY
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) return "API Key not found. Please select an API key via the activation panel.";
+
+    // Create a new GoogleGenAI instance right before the call to ensure fresh key usage
+    const ai = new GoogleGenAI({ apiKey });
+    
+    const labels = ['Not Demonstrated', 'Basic Awareness', 'Developing', 'Competent', 'Strong for Level'];
+    const label = labels[score - 1] || 'Unknown';
 
     const prompt = `You are a professional technical recruiter and coach.
     Context: Evaluating a ${level} candidate.
@@ -26,16 +31,21 @@ export const AIAgent = {
     Output only the note text in Arabic.`;
 
     try {
-      // Fix: Use gemini-3-pro-preview for complex reasoning tasks
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
+      const response: GenerateContentResponse = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
         contents: prompt,
-        config: { temperature: 0.7 }
+        config: { 
+          temperature: 0.7,
+          thinkingConfig: { thinkingBudget: 0 } // Disable thinking for latency
+        }
       });
       return response.text?.trim() || "لا توجد اقتراحات حالياً.";
-    } catch (e) {
-      console.error("AI Error:", e);
-      return "حدث خطأ في جلب الاقتراح.";
+    } catch (e: any) {
+      console.error("AI Note Suggestion Error:", e);
+      if (e.message?.includes("API key not valid")) {
+        return "مفتاح API غير صالح. يرجى اختيار مفتاح جديد من خلال لوحة التنشيط في الأعلى.";
+      }
+      return "حدث خطأ أثناء التواصل مع الذكاء الاصطناعي. يرجى المحاولة لاحقاً.";
     }
   },
 
@@ -43,8 +53,11 @@ export const AIAgent = {
    * Generates the final detailed report for the candidate.
    */
   async generateFinalReport(candidateName: string, interviewerName: string, level: string, evaluationData: any) {
-    // Fix: Create a new instance right before the API call per guidelines
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) return "API Key not found. Please select an API key via the activation panel.";
+
+    const ai = new GoogleGenAI({ apiKey });
+
     const prompt = `You are an expert technical career coach. 
     Generate a high-quality, professional, and encouraging "Software Engineering Interview Evaluation Report" in Arabic.
     
@@ -85,17 +98,20 @@ export const AIAgent = {
     - Use Markdown emojis to make it professional yet encouraging.`;
 
     try {
-      // Fix: Use gemini-3-pro-preview for complex reasoning tasks
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
+      const response: GenerateContentResponse = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
         contents: prompt,
         config: { 
-          temperature: 0.8
+          temperature: 0.8,
+          thinkingConfig: { thinkingBudget: 0 } // Fast generation
         }
       });
-      return response.text;
-    } catch (e) {
+      return response.text || null;
+    } catch (e: any) {
       console.error("AI Report Generation Error:", e);
+      if (e.message?.includes("API key not valid")) {
+        return "مفتاح API المستخدم غير صالح أو منتهي الصلاحية. يرجى إعادة اختيار مفتاح API صالح من مشروع GCP مفعل به الدفع.";
+      }
       return null;
     }
   }

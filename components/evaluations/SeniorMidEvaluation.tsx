@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   CheckCircle, ChevronLeft, Star, Sparkles, 
   Loader2, Brain, Target, Save, Edit3,
-  X, Award, Zap
+  X, Award, Zap, AlertTriangle
 } from 'lucide-react';
 import Button from '../Button';
 import { AIAgent } from '../../lib/ai-agent';
@@ -12,6 +12,7 @@ import { EvaluationSection, EvaluationScore } from '../../types';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
 import { sendUserStatusUpdateNotification } from '../../lib/notifications';
+import ApiKeySelector from '../ApiKeySelector';
 
 interface Props {
   registration: any;
@@ -26,6 +27,7 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
   const [aiGenerating, setAiGenerating] = useState<string | null>(null);
   const [finalReport, setFinalReport] = useState<string | null>(null);
   const [isReviewing, setIsReviewing] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   
   const [sections, setSections] = useState<EvaluationSection[]>(JSON.parse(JSON.stringify(SENIOR_EVALUATION_TEMPLATE)));
 
@@ -55,40 +57,55 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
   const handleAiSuggest = async (sectionIdx: number, itemIdx: number) => {
     const item = sections[sectionIdx].items[itemIdx];
     setAiGenerating(`${sectionIdx}-${itemIdx}`);
+    setApiError(null);
     
-    const suggestion = await AIAgent.suggestNote(
-        item.skill, 
-        item.score, 
-        'Senior Level'
-    );
-    updateNote(sectionIdx, itemIdx, suggestion);
-    setAiGenerating(null);
+    try {
+      const suggestion = await AIAgent.suggestNote(
+          item.skill, 
+          item.score, 
+          'Senior Level'
+      );
+      if (suggestion.includes("خطأ") || suggestion.includes("API key not valid")) throw new Error(suggestion);
+      updateNote(sectionIdx, itemIdx, suggestion);
+    } catch (e) {
+      setApiError("فشل في استدعاء الذكاء الاصطناعي. يرجى اختيار مفتاح صالح.");
+    } finally {
+      setAiGenerating(null);
+    }
   };
 
   const handleGenerateReport = async () => {
     setLoading(true);
+    setApiError(null);
     const totalScore = calculateTotalScore();
     const nameToDisplay = interviewerName || auth.currentUser?.displayName || "المقيم";
     
-    const report = await AIAgent.generateFinalReport(
-      registration.fullName,
-      nameToDisplay,
-      'Senior Software Engineer',
-      { 
-        sections: sections.map(s => ({
-          title: s.title,
-          score: `${Math.round(s.items.reduce((sum, i) => sum + i.score, 0) / (s.items.length * 5) * s.weight)}/${s.weight}`,
-          items: s.items.map(i => ({ skill: i.skill, score: i.score, notes: i.notes }))
-        })),
-        totalScore: `${totalScore}/100`
-      }
-    );
+    try {
+      const report = await AIAgent.generateFinalReport(
+        registration.fullName,
+        nameToDisplay,
+        'Senior Software Engineer',
+        { 
+          sections: sections.map(s => ({
+            title: s.title,
+            score: `${Math.round(s.items.reduce((sum, i) => sum + i.score, 0) / (s.items.length * 5) * s.weight)}/${s.weight}`,
+            items: s.items.map(i => ({ skill: i.skill, score: i.score, notes: i.notes }))
+          })),
+          totalScore: `${totalScore}/100`
+        }
+      );
 
-    if (report) {
-      setFinalReport(report);
-      setIsReviewing(true);
+      if (report) {
+        setFinalReport(report);
+        setIsReviewing(true);
+      } else {
+        setApiError("حدث خطأ في توليد التقرير.");
+      }
+    } catch (e) {
+      setApiError("فشل في الوصول للمحرك.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleFinalSubmit = async () => {
@@ -104,7 +121,6 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
         interviewerName: interviewerName || auth.currentUser?.displayName || 'المحاور'
       });
 
-      // إرسال تنبيه للمستخدم صاحب الطلب
       await sendUserStatusUpdateNotification({
         to_email: registration.email,
         user_name: registration.fullName,
@@ -125,7 +141,7 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
 
   return (
     <div className="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-xl flex items-center justify-center p-0 md:p-4 overflow-y-auto">
-      <div className="bg-white w-full max-w-5xl md:h-[90vh] md:rounded-[3rem] shadow-2xl flex flex-col animate-in zoom-in-95 duration-300">
+      <div className="bg-white w-full max-w-5xl md:h-[90vh] md:rounded-[3rem] shadow-2xl flex flex-col animate-in zoom-in-95 duration-300 overflow-hidden">
         
         <div className="bg-primary p-6 md:p-10 text-white relative shrink-0">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
@@ -167,6 +183,16 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
 
         {!isReviewing ? (
           <div className="flex-grow overflow-y-auto p-6 md:p-10 custom-scrollbar space-y-12">
+            
+            <ApiKeySelector onKeySelected={() => setApiError(null)} />
+
+            {apiError && (
+              <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-2xl flex items-center gap-3 animate-in shake">
+                <AlertTriangle className="w-5 h-5" />
+                <p className="text-sm font-bold">{apiError}</p>
+              </div>
+            )}
+
             <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
               <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400">
                 <Target className="w-6 h-6" />
@@ -196,7 +222,7 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
                             ${item.score === s 
                               ? s >= 4 ? 'bg-emerald-500 border-emerald-400 text-white shadow-lg shadow-emerald-100' :
                                 s === 3 ? 'bg-amber-500 border-amber-400 text-white shadow-xl shadow-amber-100' :
-                                'bg-rose-500 border-rose-400 text-white shadow-xl shadow-rose-100'
+                                'bg-rose-500 border-rose-400 text-white shadow-lg shadow-rose-100'
                               : 'bg-white border-gray-100 text-gray-400 hover:border-accent/30 hover:bg-accent/5'
                             }
                           `}
@@ -270,7 +296,7 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
           </div>
         )}
 
-        <div className="p-6 md:p-10 border-t border-gray-100 bg-gray-50/50 flex flex-col md:flex-row justify-between items-center gap-6 shrink-0">
+        <div className="p-6 md:p-10 border-t border-gray-100 bg-gray-50/80 flex flex-col md:flex-row justify-between items-center gap-6 shrink-0">
           <Button variant="outline" onClick={onCancel} className="w-full md:w-auto rounded-2xl">
             إغلاق التقييم
           </Button>
@@ -296,7 +322,7 @@ const SeniorMidEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
               </>
             ) : (
               <Button onClick={handleFinalSubmit} disabled={loading} className="w-full md:w-auto px-10 rounded-2xl gap-3 shadow-2xl shadow-emerald-200 bg-emerald-600 hover:bg-emerald-700 border-none">
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
                 اعتماد وإرسال للمرشح الآن
               </Button>
             )}

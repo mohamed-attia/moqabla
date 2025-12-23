@@ -6,7 +6,7 @@ import { RegistrationFormData, UserProfile } from '../types';
 import { 
   Loader2, FileText, Search, ChevronLeft, ChevronRight, Edit2, X, Filter, 
   Link as LinkIcon, Video, FileCheck, Save, Eye, User, Mail, Phone, 
-  Linkedin, Code, Briefcase, Target, Clock, AlertCircle, Calendar, Globe, ClipboardCheck, Award, Download, Hash, Users as UsersIcon, UserCheck, Sparkles
+  Linkedin, Code, Briefcase, Target, Clock, AlertCircle, Calendar, Globe, ClipboardCheck, Award, Download, Hash, Users as UsersIcon, UserCheck, Sparkles, HelpCircle, Zap, MessageSquare
 } from 'lucide-react';
 import * as FirebaseAuth from 'firebase/auth';
 const { onAuthStateChanged } = FirebaseAuth as any;
@@ -48,7 +48,8 @@ const MeetingRequests: React.FC = () => {
   const [links, setLinks] = useState({
     meeting: '',
     report: '',
-    video: ''
+    video: '',
+    date: ''
   });
 
   const fetchData = async () => {
@@ -144,7 +145,8 @@ const MeetingRequests: React.FC = () => {
     setLinks({
       meeting: reg.meetingLink || '',
       report: reg.reportLink || '',
-      video: reg.videoLink || ''
+      video: reg.videoLink || '',
+      date: reg.meetingDate || ''
     });
   };
 
@@ -188,8 +190,19 @@ const MeetingRequests: React.FC = () => {
     setIsUpdating(true);
     try {
       const regRef = doc(db, "registrations", linkingRegistration.id);
-      await updateDoc(regRef, { meetingLink: links.meeting, reportLink: links.report, videoLink: links.video });
-      setAllRegistrations(prev => prev.map(item => item.id === linkingRegistration.id ? { ...item, meetingLink: links.meeting, reportLink: links.report, videoLink: links.video } : item));
+      await updateDoc(regRef, { 
+        meetingLink: links.meeting, 
+        reportLink: links.report, 
+        videoLink: links.video,
+        meetingDate: links.date
+      });
+      setAllRegistrations(prev => prev.map(item => item.id === linkingRegistration.id ? { 
+        ...item, 
+        meetingLink: links.meeting, 
+        reportLink: links.report, 
+        videoLink: links.video,
+        meetingDate: links.date
+      } : item));
       handleCloseModals();
     } catch (err) {
       alert("حدث خطأ أثناء الحفظ.");
@@ -215,6 +228,27 @@ const MeetingRequests: React.FC = () => {
       case 'mid-senior': return 'متوسط وخبير (mid/senior)';
       case 'lead-staff': return 'قيادي (lead/staff)';
       default: return level;
+    }
+  };
+
+  const getPreferredTimeLabel = (val: string) => {
+    switch (val) {
+      case 'morning': return 'صباحاً (9ص - 12م)';
+      case 'evening': return 'مساءً (4م - 9م)';
+      case 'flexible': return 'مرن في أي وقت';
+      default: return val || 'غير محدد';
+    }
+  };
+
+  const getInterviewHistoryLabel = (val: string) => {
+    return val === 'yes' ? 'نعم، لديه خبرة سابقة' : 'لا، هذه أول مرة له';
+  };
+
+  const getUpcomingInterviewLabel = (val: string) => {
+    switch (val) {
+      case 'yes_soon': return 'نعم، خلال هذا الأسبوع';
+      case 'yes_later': return 'نعم، في موعد لاحق';
+      default: return 'لا يوجد مقابلة محددة';
     }
   };
 
@@ -341,7 +375,7 @@ const MeetingRequests: React.FC = () => {
                                    {reg.level === 'lead-staff' && <button onClick={() => setEvaluatingLeadRegistration(reg)} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors flex items-center gap-1 font-bold text-xs" title="بدء تقييم Lead/Staff"><Award className="w-5 h-5" /> تقييم Lead</button>}
                                  </>
                                )}
-                               {(reg.status === 'approved' || reg.status === 'completed') && <button onClick={() => handleLinkClick(reg)} className="p-2 text-gray-400 hover:text-accent rounded-full transition-colors" title="إدارة الروابط"><LinkIcon className="w-5 h-5" /></button>}
+                               {(reg.status === 'approved' || reg.status === 'completed') && <button onClick={() => handleLinkClick(reg)} className="p-2 text-gray-400 hover:text-accent rounded-full transition-colors" title="إدارة الروابط والبيانات"><LinkIcon className="w-5 h-5" /></button>}
                                <button onClick={() => handleViewDetails(reg)} className="p-2 text-gray-400 hover:text-blue-600 rounded-full transition-colors" title="عرض التفاصيل"><Eye className="w-5 h-5" /></button>
                               {(isAdmin || isMaintainer || isInterviewer) && <button onClick={() => handleEditClick(reg)} className="p-2 text-gray-400 hover:text-accent rounded-full transition-colors" title="تعديل الحالة"><Edit2 className="w-5 h-5" /></button>}
                             </div>
@@ -412,7 +446,7 @@ const MeetingRequests: React.FC = () => {
 
       {viewingRegistration && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in">
-          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95">
             <div className="bg-primary px-8 py-6 text-white flex items-center justify-between shrink-0">
                <div className="flex flex-row-reverse items-center gap-4">
                   <div className="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center shadow-lg">
@@ -478,41 +512,89 @@ const MeetingRequests: React.FC = () => {
                  </div>
                  <div className="space-y-3">
                     <div className="flex flex-row-reverse items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                      <Sparkles className="w-3.5 h-3.5" /> الباقة المختارة
+                      <Linkedin className="w-3.5 h-3.5" /> رابط LinkedIn
                     </div>
-                    <div className="text-sm font-bold text-accent">{viewingRegistration.planName || 'باقة عادية'}</div>
+                    <div className="text-sm font-bold text-accent truncate dir-ltr text-right">
+                      <a href={viewingRegistration.linkedin} target="_blank" rel="noopener noreferrer" className="hover:underline">{viewingRegistration.linkedin}</a>
+                    </div>
                  </div>
               </div>
 
-              {viewingRegistration.interviewerName && (
-                <div className="p-4 bg-primary/5 border border-primary/10 rounded-2xl flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">
-                       <UserCheck className="w-5 h-5" />
-                    </div>
-                    <div className="text-right">
-                       <div className="text-[10px] font-bold text-gray-400 uppercase">المحاور الذي أجرى الجلسة</div>
-                       <div className="text-sm font-black text-primary">{viewingRegistration.interviewerName}</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               <div className="space-y-4">
-                <h4 className="font-black text-gray-900 flex flex-row-reverse items-center gap-2 text-lg"><Briefcase className="w-5 h-5 text-accent" /> الخلفية التقنية والخبرة</h4>
+                <h4 className="font-black text-gray-900 flex flex-row-reverse items-center gap-2 text-lg border-r-4 border-accent pr-4">
+                  <Briefcase className="w-5 h-5 text-accent" /> الخلفية التقنية والمهنية
+                </h4>
                 <div className="grid grid-cols-2 gap-4">
                    <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl"><div className="text-[10px] text-blue-500 font-bold uppercase mb-1">المجال</div><div className="font-bold text-blue-900">{viewingRegistration.field}</div></div>
                    <div className="p-4 bg-teal-50 border border-teal-100 rounded-xl"><div className="text-[10px] text-teal-500 font-bold uppercase mb-1">المستوى</div><div className="font-bold text-teal-900">{getLevelLabel(viewingRegistration.level)}</div></div>
                    <div className="p-4 bg-purple-50 border border-purple-100 rounded-xl"><div className="text-[10px] text-purple-500 font-bold uppercase mb-1">سنوات الخبرة</div><div className="font-bold text-purple-900">{viewingRegistration.experience} سنة</div></div>
+                   <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl"><div className="text-[10px] text-orange-500 font-bold uppercase mb-1">الباقة</div><div className="font-bold text-orange-900">{viewingRegistration.planName || 'باقة عادية'}</div></div>
                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl col-span-2">
                      <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">التقنيات التي يتقنها</div>
                      <div className="text-sm font-medium text-gray-700 whitespace-pre-wrap">{viewingRegistration.techStack}</div>
                    </div>
                 </div>
               </div>
+
+              <div className="space-y-4">
+                <h4 className="font-black text-gray-900 flex flex-row-reverse items-center gap-2 text-lg border-r-4 border-blue-500 pr-4">
+                  <Calendar className="w-5 h-5 text-blue-500" /> التحضير للمقابلة
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                    <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">خبرة مقابلات سابقة</div>
+                    <div className="text-sm font-bold text-gray-700">{getInterviewHistoryLabel(viewingRegistration.hasInterviewExperience)}</div>
+                  </div>
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                    <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">مقابلة قادمة</div>
+                    <div className="text-sm font-bold text-gray-700">{getUpcomingInterviewLabel(viewingRegistration.upcomingInterview)}</div>
+                  </div>
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                    <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">الوقت المفضل</div>
+                    <div className="text-sm font-bold text-gray-700">{getPreferredTimeLabel(viewingRegistration.preferredTime)}</div>
+                  </div>
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                    <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">الأهداف المختارة</div>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {viewingRegistration.goals?.map((g, i) => (
+                        <span key={i} className="bg-white px-2 py-0.5 rounded border border-gray-200 text-[10px] font-bold text-gray-600">{g}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="font-black text-gray-900 flex flex-row-reverse items-center gap-2 text-lg border-r-4 border-amber-500 pr-4">
+                  <MessageSquare className="w-5 h-5 text-amber-500" /> توقعات المستخدم
+                </h4>
+                <div className="p-6 bg-amber-50/30 border-2 border-amber-100 rounded-2xl text-sm text-gray-800 leading-relaxed italic shadow-inner">
+                   "{viewingRegistration.expectations}"
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="font-black text-gray-900 flex flex-row-reverse items-center gap-2 text-lg border-r-4 border-indigo-500 pr-4">
+                  <LinkIcon className="w-5 h-5 text-indigo-500" /> موعد وروابط الجلسة
+                </h4>
+                <div className="grid grid-cols-1 gap-3">
+                   <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between">
+                     <span className="text-xs font-bold text-indigo-600">موعد الجلسة:</span>
+                     <span className="font-bold text-indigo-900">{viewingRegistration.meetingDate || 'غير محدد'}</span>
+                   </div>
+                   <div className="flex flex-wrap gap-3">
+                      {viewingRegistration.meetingLink && <div className="text-xs bg-white border px-3 py-1 rounded-lg">رابط الجلسة موجود</div>}
+                      {viewingRegistration.reportLink && <div className="text-xs bg-white border px-3 py-1 rounded-lg">رابط التقرير موجود</div>}
+                      {viewingRegistration.videoLink && <div className="text-xs bg-white border px-3 py-1 rounded-lg">رابط الفيديو موجود</div>}
+                   </div>
+                </div>
+              </div>
+
               {viewingRegistration.evaluationReport && (
                 <div className="space-y-4">
-                  <h4 className="font-black text-gray-900 flex flex-row-reverse items-center gap-2 text-lg"><ClipboardCheck className="w-5 h-5 text-emerald-500" /> تقرير التقييم الذكي</h4>
+                  <h4 className="font-black text-gray-900 flex flex-row-reverse items-center gap-2 text-lg border-r-4 border-emerald-500 pr-4">
+                    <ClipboardCheck className="w-5 h-5 text-emerald-500" /> تقرير التقييم الذكي
+                  </h4>
                   <div className="p-6 bg-emerald-50/30 border-2 border-emerald-100 rounded-[2rem] text-sm text-gray-700 leading-relaxed overflow-x-auto text-right dir-rtl"><pre className="whitespace-pre-wrap font-sans">{viewingRegistration.evaluationReport}</pre></div>
                 </div>
               )}
@@ -532,6 +614,10 @@ const MeetingRequests: React.FC = () => {
             <div className="p-8 space-y-6">
               <div className="space-y-4">
                 <div>
+                  <label className="block text-xs font-black text-gray-500 mb-2 mr-1">موعد الجلسة (مثال: الأحد 10 مساءً)</label>
+                  <input type="text" value={links.date} onChange={(e) => setLinks({...links, date: e.target.value})} className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-accent outline-none text-sm" placeholder="تاريخ ووقت الجلسة..." />
+                </div>
+                <div>
                   <label className="block text-xs font-black text-gray-500 mb-2 mr-1">رابط الجلسة (Zoom/Meet)</label>
                   <input type="url" value={links.meeting} onChange={(e) => setLinks({...links, meeting: e.target.value})} className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-accent outline-none text-sm dir-ltr" placeholder="https://..." />
                 </div>
@@ -545,7 +631,7 @@ const MeetingRequests: React.FC = () => {
                 </div>
               </div>
               <div className="pt-4 flex gap-3">
-                <Button onClick={handleSaveLinks} disabled={isUpdating} className="flex-1 justify-center rounded-2xl gap-2">{isUpdating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} حفظ الروابط</Button>
+                <Button onClick={handleSaveLinks} disabled={isUpdating} className="flex-1 justify-center rounded-2xl gap-2">{isUpdating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} حفظ البيانات</Button>
                 <Button variant="outline" onClick={handleCloseModals} className="flex-none rounded-2xl">إلغاء</Button>
               </div>
             </div>

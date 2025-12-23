@@ -11,7 +11,7 @@ export const teamMembers: TeamMember[] = [
     "category": "BE"
   },
   //   {
-  //   "id": 1,
+  //   "id": 2,
   //   "name": "Hasan Gad",
   //   "role": "Founder @ Figmawya",
   //   "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQFNmi-sU1_Xuw/profile-displayphoto-scale_200_200/B4DZjAmNHDH4Ak-/0/1755577897959?e=1767225600&v=beta&t=75HFZv53xFhzuuK-Dn6rFU7gAPifkbOhpbqz7mphJzQ",
@@ -20,7 +20,7 @@ export const teamMembers: TeamMember[] = [
   //   "category": "UX"
   // },
   {
-    "id": 2,
+    "id": 3,
     "name": "Sanaa Afifi",
     "role": "Lead Software Engineer",
     "photoUrl": "https://media.licdn.com/dms/image/v2/C5603AQHGA7VzeY5_6w/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1526630456366?e=1767225600&v=beta&t=UwUK7Un2YhovVC3fhZmfMPVHyYcNzJ1cfFqOtS790Zw",
@@ -29,7 +29,7 @@ export const teamMembers: TeamMember[] = [
     "category": "FE"
   },
   {
-    "id": 3,
+    "id": 4,
     "name": "Anas Rabei",
     "role": "Java Team Lead",
     "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQHoVBt4KID5sQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1683245101249?e=1767225600&v=beta&t=Ksr1M6ZRXHyLwDyRbIorb1K60g4auzBIPG3LvXGRn_w",
@@ -38,7 +38,7 @@ export const teamMembers: TeamMember[] = [
     "category": "BE"
   },
   {
-    "id": 4,
+    "id": 5,
     "name": "Moamen Abdulraouf",
     "role": "Expert frontend engineer | Angular | React | Next.js | NX ",
     "photoUrl": "https://media.licdn.com/dms/image/v2/D4E03AQEMWUfo3sOnJA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1665304055440?e=1767225600&v=beta&t=2-cKn0edf88fGTaEtpTfcPkHt2x--qhLf1GtR8jq_rI",
@@ -172,9 +172,9 @@ export const teamMembers: TeamMember[] = [
     "category": "MOBILE"
   },
   {
-    "id": 20,
+    "id": 10,
     "name": "Mohamed Ghazal",
-    "role": "Technical Consultantr",
+    "role": "Technical Consultant",
     "photoUrl": "https://media.licdn.com/dms/image/v2/C4E03AQGC7_ltfWOqhg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1517481670580?e=1767830400&v=beta&t=cfoYjVRuE8SzRvU-ggS3ftqRaNJsM4Q4zVuyzdK4OVA",
     "rating": 5.0,
     "linkedinUrl": "https://www.linkedin.com/in/ghazal2/",

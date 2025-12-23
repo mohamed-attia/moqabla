@@ -12,6 +12,7 @@ import { EvaluationSection, EvaluationScore } from '../../types';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
 import { sendUserStatusUpdateNotification } from '../../lib/notifications';
+import ApiKeySelector from '../ApiKeySelector';
 
 interface Props {
   registration: any;
@@ -26,6 +27,7 @@ const JuniorEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel,
   const [aiGenerating, setAiGenerating] = useState<string | null>(null);
   const [finalReport, setFinalReport] = useState<string | null>(null);
   const [isReviewing, setIsReviewing] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   
   const template = registration.level === 'junior' ? JUNIOR_EVALUATION_TEMPLATE : FRESH_EVALUATION_TEMPLATE;
   const [sections, setSections] = useState<EvaluationSection[]>(JSON.parse(JSON.stringify(template)));
@@ -56,40 +58,63 @@ const JuniorEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel,
   const handleAiSuggest = async (sectionIdx: number, itemIdx: number) => {
     const item = sections[sectionIdx].items[itemIdx];
     setAiGenerating(`${sectionIdx}-${itemIdx}`);
+    setApiError(null);
     
-    const suggestion = await AIAgent.suggestNote(
-        item.skill, 
-        item.score, 
-        registration.level === 'junior' ? 'Junior Level' : 'Fresh Level'
-    );
-    updateNote(sectionIdx, itemIdx, suggestion);
-    setAiGenerating(null);
+    try {
+      const suggestion = await AIAgent.suggestNote(
+          item.skill, 
+          item.score, 
+          registration.level === 'junior' ? 'Junior Level' : 'Fresh Level'
+      );
+      
+      if (suggestion.includes("خطأ") || suggestion.includes("API key not valid")) {
+        throw new Error(suggestion);
+      }
+      
+      updateNote(sectionIdx, itemIdx, suggestion);
+    } catch (e: any) {
+      setApiError("فشل الاتصال بالذكاء الاصطناعي. يرجى التأكد من اختيار مفتاح API صالح.");
+    } finally {
+      setAiGenerating(null);
+    }
   };
 
   const handleGenerateReport = async () => {
     setLoading(true);
+    setApiError(null);
     const totalScore = calculateTotalScore();
     const nameToDisplay = interviewerName || auth.currentUser?.displayName || "المقيم";
     
-    const report = await AIAgent.generateFinalReport(
-      registration.fullName,
-      nameToDisplay,
-      registration.level === 'junior' ? 'Junior Software Engineer' : 'Fresh Software Engineer',
-      { 
-        sections: sections.map(s => ({
-          title: s.title,
-          score: `${Math.round(s.items.reduce((sum, i) => sum + i.score, 0) / (s.items.length * 5) * s.weight)}/${s.weight}`,
-          items: s.items.map(i => ({ skill: i.skill, score: i.score, notes: i.notes }))
-        })),
-        totalScore: `${totalScore}/100`
-      }
-    );
+    try {
+      const report = await AIAgent.generateFinalReport(
+        registration.fullName,
+        nameToDisplay,
+        registration.level === 'junior' ? 'Junior Software Engineer' : 'Fresh Software Engineer',
+        { 
+          sections: sections.map(s => ({
+            title: s.title,
+            score: `${Math.round(s.items.reduce((sum, i) => sum + i.score, 0) / (s.items.length * 5) * s.weight)}/${s.weight}`,
+            items: s.items.map(i => ({ skill: i.skill, score: i.score, notes: i.notes }))
+          })),
+          totalScore: `${totalScore}/100`
+        }
+      );
 
-    if (report) {
-      setFinalReport(report);
-      setIsReviewing(true);
+      if (report) {
+        if (report.includes("API key not valid")) {
+           setApiError("مفتاح API غير صالح. يرجى اختيار مفتاح جديد.");
+        } else {
+          setFinalReport(report);
+          setIsReviewing(true);
+        }
+      } else {
+        setApiError("حدث خطأ أثناء توليد التقرير.");
+      }
+    } catch (e) {
+      setApiError("فشل في الوصول لمحرك التقييم.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleFinalSubmit = async () => {
@@ -105,7 +130,6 @@ const JuniorEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel,
         interviewerName: interviewerName || auth.currentUser?.displayName || 'المحاور'
       });
 
-      // إرسال تنبيه للمستخدم
       await sendUserStatusUpdateNotification({
         to_email: registration.email,
         user_name: registration.fullName,
@@ -168,6 +192,16 @@ const JuniorEvaluation: React.FC<Props> = ({ registration, onComplete, onCancel,
 
         {!isReviewing ? (
           <div className="flex-grow overflow-y-auto p-6 md:p-10 custom-scrollbar space-y-12">
+            
+            <ApiKeySelector onKeySelected={() => setApiError(null)} />
+
+            {apiError && (
+              <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-2xl flex items-center gap-3 animate-in shake">
+                <AlertTriangle className="w-5 h-5" />
+                <p className="text-sm font-bold">{apiError}</p>
+              </div>
+            )}
+
             <div className="flex items-center justify-between border-b border-gray-100 pb-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-accent shadow-inner">

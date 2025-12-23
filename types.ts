@@ -66,6 +66,7 @@ export interface RegistrationFormData {
   submittedAt?: any;
   status?: 'pending' | 'approved' | 'completed' | 'canceled' | 'reviewing';
   meetingLink?: string;
+  meetingDate?: string; // الحقل الجديد لموعد الجلسة
   reportLink?: string;
   videoLink?: string;
   evaluationReport?: string; 
