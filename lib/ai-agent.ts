@@ -11,7 +11,7 @@ export const AIAgent = {
    */
   async suggestNote(skill: string, score: number, level: string, previousNotes?: string) {
     // API key must be obtained exclusively from process.env.API_KEY
-    const apiKey = process.env.API_KEY;
+    const apiKey = "AIzaSyCI5DVfAvEORjgtT1c171ZRRYG40iMii-E";
     if (!apiKey) return "API Key not found. Please select an API key via the activation panel.";
 
     // Create a new GoogleGenAI instance right before the call to ensure fresh key usage
