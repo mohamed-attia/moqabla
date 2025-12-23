@@ -213,10 +213,10 @@ const UserRequests: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen pt-32 pb-20 bg-gray-50 px-4 md:px-6">
+    <div className="min-h-screen pt-32 pb-20 bg-gray-50 px-4 md:px-6" dir="rtl">
       <div className="container mx-auto max-w-4xl">
         <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
-          <div>
+          <div className="text-right">
             <h1 className="text-3xl font-bold text-primary mb-2">طلباتي</h1>
             <p className="text-gray-500">تتبع حالة طلبات المقابلة الخاصة بك</p>
           </div>
@@ -241,15 +241,15 @@ const UserRequests: React.FC = () => {
         ) : (
           <div className="grid gap-6">
             {requests.map((req) => (
-              <div key={req.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+              <div key={req.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow text-right">
                 <div className="px-6 py-4 border-b border-gray-50 flex flex-wrap justify-between items-center gap-4 bg-gray-50/50">
                    <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
                         <Hash className="w-5 h-5" />
                       </div>
-                      <div>
+                      <div className="text-right">
                         <h3 className="font-bold text-gray-900">{req.field}</h3>
-                        <div className="flex items-center gap-2 text-[10px] text-gray-500 mt-0.5">
+                        <div className="flex items-center gap-2 text-[10px] text-gray-500 mt-0.5 justify-end">
                           <span className="font-bold bg-gray-200 px-1.5 py-0.5 rounded text-gray-700">
                              {req.requestNumber || `MQ-${req.id.slice(0, 6).toUpperCase()}`}
                           </span>
@@ -278,24 +278,24 @@ const UserRequests: React.FC = () => {
                 </div>
 
                 <div className="p-6">
-                  {/* قسم موعد وروابط الجلسة - الآن في البداية */}
+                  {/* قسم موعد وروابط الجلسة */}
                   {(req.status === 'completed' || req.status === 'approved') && (req.reportLink || req.videoLink || req.meetingLink || req.meetingDate) && (
-                    <div className="mb-6 p-5 bg-blue-50/30 rounded-2xl border border-blue-100">
-                      <h4 className="text-xs font-black text-blue-900 mb-4 flex items-center gap-2 uppercase tracking-wider">
+                    <div className="mb-6 p-5 bg-blue-50/30 rounded-2xl border border-blue-100 text-right">
+                      <h4 className="text-xs font-black text-blue-900 mb-4 flex items-center gap-2 uppercase tracking-wider justify-start">
                         <CheckCircle2 className="w-4 h-4 text-blue-500" /> تفاصيل موعد وروابط الجلسة
                       </h4>
                       
                       {req.meetingDate && (
-                        <div className="mb-4 p-3 bg-white rounded-xl border border-blue-100 flex items-center gap-3">
+                        <div className="mb-4 p-3 bg-white rounded-xl border border-blue-100 flex items-center gap-3 justify-start">
                            <Calendar className="w-5 h-5 text-blue-500" />
-                           <div>
+                           <div className="text-right">
                               <div className="text-[10px] font-bold text-gray-400 uppercase">موعد المقابلة المعتمد</div>
                               <div className="text-sm font-black text-blue-900">{req.meetingDate}</div>
                            </div>
                         </div>
                       )}
 
-                      <div className="flex flex-wrap gap-3">
+                      <div className="flex flex-wrap gap-3 justify-start">
                         {req.meetingLink && (
                           <a href={req.meetingLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl text-xs font-bold border border-gray-100 hover:border-accent hover:text-accent shadow-sm transition-all">
                             <LinkIcon className="w-4 h-4" /> رابط الاجتماع المباشر
@@ -318,10 +318,9 @@ const UserRequests: React.FC = () => {
                     </div>
                   )}
 
-                  {/* قسم المراحل القادمة - يظهر فقط للطلبات الجديدة */}
                   {(req.status === 'pending' || !req.status) && (
-                    <div className="mb-10 bg-slate-50 border border-slate-100 rounded-3xl p-6">
-                       <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <div className="mb-10 bg-slate-50 border border-slate-100 rounded-3xl p-6 text-right">
+                       <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 justify-start">
                          <Zap className="w-4 h-4 text-accent" /> المراحل القادمة لطلبك
                        </h4>
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -329,7 +328,7 @@ const UserRequests: React.FC = () => {
                              <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center shrink-0">
                                 <MessageSquare className="w-5 h-5" />
                              </div>
-                             <div>
+                             <div className="text-right">
                                 <div className="text-xs font-black text-primary mb-1">1- قيد المراجعة</div>
                                 <p className="text-[11px] text-gray-500 leading-relaxed font-medium">
                                    مرحلة بيتم فيها التواصل مع مقدم الطلب ويتم تأكيد التحويل المالي.
@@ -341,7 +340,7 @@ const UserRequests: React.FC = () => {
                              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
                                 <CalendarCheck className="w-5 h-5" />
                              </div>
-                             <div>
+                             <div className="text-right">
                                 <div className="text-xs font-black text-primary mb-1">2- مقبول</div>
                                 <p className="text-[11px] text-gray-500 leading-relaxed font-medium">
                                    مرحلة بيتم فيها تحديد الموعد المناسب مع الخبير التقني ومقدم الطلب.
@@ -353,7 +352,7 @@ const UserRequests: React.FC = () => {
                   )}
 
                   {req.status === 'completed' && req.evaluationReport && (
-                    <div className="group relative mb-10 overflow-hidden rounded-[2.5rem] bg-slate-900 p-1 shadow-2xl transition-all hover:scale-[1.01]">
+                    <div className="group relative mb-10 overflow-hidden rounded-[2.5rem] bg-slate-900 p-1 shadow-2xl transition-all hover:scale-[1.01] text-right">
                        <div className="absolute inset-0 bg-gradient-to-r from-accent/40 via-emerald-500/40 to-teal-500/40 opacity-50 blur-xl group-hover:opacity-80 transition-opacity"></div>
                        <div className="relative flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-900 px-8 py-8 rounded-[2.4rem] border border-white/10">
                           <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-right">
@@ -363,7 +362,7 @@ const UserRequests: React.FC = () => {
                                   <Sparkles className="w-10 h-10 text-white animate-bounce" />
                                </div>
                              </div>
-                             <div className="space-y-1">
+                             <div className="space-y-1 text-right">
                                 <h4 className="text-2xl font-black text-white flex items-center justify-center md:justify-start gap-2">
                                   تقرير التقييم الذكي جاهز! 
                                 </h4>
@@ -387,10 +386,10 @@ const UserRequests: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-1 gap-6">
+                  <div className="grid grid-cols-1 gap-6 text-right">
                     <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
                       <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-sm font-black text-gray-900 flex items-center gap-2">
+                        <h4 className="text-sm font-black text-gray-900 flex items-center gap-2 justify-start">
                           <Info className="w-4 h-4 text-accent" /> تفاصيل الطلب المسجلة
                         </h4>
                         <button 
@@ -403,12 +402,12 @@ const UserRequests: React.FC = () => {
                       </div>
 
                       <div className="grid md:grid-cols-2 gap-4 text-sm">
-                        <div className="flex items-center gap-2 text-gray-600">
+                        <div className="flex items-center gap-2 text-gray-600 justify-start">
                            <Briefcase className="w-4 h-4 text-gray-400" />
                            <span className="font-bold">المستوى:</span>
                            <span>{req.level}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-gray-600">
+                        <div className="flex items-center gap-2 text-gray-600 justify-start">
                            <Clock className="w-4 h-4 text-gray-400" />
                            <span className="font-bold">الوقت المفضل:</span>
                            <span>{req.preferredTime === 'morning' ? 'صباحاً' : req.preferredTime === 'evening' ? 'مساءً' : 'مرن'}</span>
@@ -416,21 +415,21 @@ const UserRequests: React.FC = () => {
                       </div>
 
                       {expandedRequestId === req.id && (
-                        <div className="mt-6 pt-6 border-t border-gray-200 space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="mt-6 pt-6 border-t border-gray-200 space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 text-right">
                           <div className="grid md:grid-cols-2 gap-6">
                             <div className="space-y-4">
-                              <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest">المعلومات الشخصية والمهنية</h5>
+                              <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest text-right">المعلومات الشخصية والمهنية</h5>
                               <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-gray-700">
+                                <div className="flex items-center gap-2 text-gray-700 justify-start">
                                   <Globe className="w-4 h-4 text-gray-400" />
                                   <span className="font-bold">الدولة:</span> {req.country}
                                 </div>
-                                <div className="flex items-center gap-2 text-gray-700">
+                                <div className="flex items-center gap-2 text-gray-700 justify-start">
                                   <Linkedin className="w-4 h-4 text-[#0077b5]" />
                                   <span className="font-bold">LinkedIn:</span>
-                                  <a href={req.linkedin} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline truncate max-w-[150px] dir-ltr">{req.linkedin}</a>
+                                  <a href={req.linkedin} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline truncate max-w-[150px] dir-ltr text-right">{req.linkedin}</a>
                                 </div>
-                                <div className="flex items-center gap-2 text-gray-700">
+                                <div className="flex items-center gap-2 text-gray-700 justify-start">
                                   <Zap className="w-4 h-4 text-amber-500" />
                                   <span className="font-bold">سنوات الخبرة:</span> {req.experience} سنة
                                 </div>
@@ -438,13 +437,13 @@ const UserRequests: React.FC = () => {
                             </div>
 
                             <div className="space-y-4">
-                              <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest">تاريخ المقابلات</h5>
+                              <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest text-right">تاريخ المقابلات</h5>
                               <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-gray-700">
+                                <div className="flex items-center gap-2 text-gray-700 justify-start">
                                   <HelpCircle className="w-4 h-4 text-gray-400" />
                                   <span className="font-bold">مقابلات سابقة:</span> {getInterviewHistoryLabel(req.hasInterviewExperience)}
                                 </div>
-                                <div className="flex items-center gap-2 text-gray-700">
+                                <div className="flex items-center gap-2 text-gray-700 justify-start">
                                   <Calendar className="w-4 h-4 text-gray-400" />
                                   <span className="font-bold">مقابلة قادمة:</span> {getUpcomingInterviewLabel(req.upcomingInterview)}
                                 </div>
@@ -453,15 +452,15 @@ const UserRequests: React.FC = () => {
                           </div>
 
                           <div className="space-y-4">
-                            <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest">الخلفية التقنية (Stack)</h5>
-                            <div className="p-3 bg-white rounded-xl border border-gray-100 text-gray-700 font-mono text-xs">
+                            <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest text-right">الخلفية التقنية (Stack)</h5>
+                            <div className="p-3 bg-white rounded-xl border border-gray-100 text-gray-700 font-mono text-xs text-right">
                               {req.techStack}
                             </div>
                           </div>
 
                           <div className="space-y-4">
-                            <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest">الأهداف من الجلسة</h5>
-                            <div className="flex flex-wrap gap-2">
+                            <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest text-right">الأهداف من الجلسة</h5>
+                            <div className="flex flex-wrap gap-2 justify-start">
                               {req.goals?.map((goal, idx) => (
                                 <span key={idx} className="px-3 py-1 bg-accent/5 text-accent rounded-full text-[10px] font-bold border border-accent/10">
                                   {goal}
@@ -471,8 +470,8 @@ const UserRequests: React.FC = () => {
                           </div>
 
                           <div className="space-y-4">
-                            <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest">توقعاتك من الجلسة</h5>
-                            <div className="p-4 bg-amber-50/50 rounded-2xl border border-amber-100 text-gray-700 text-sm leading-relaxed italic">
+                            <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest text-right">توقعاتك من الجلسة</h5>
+                            <div className="p-4 bg-amber-50/50 rounded-2xl border border-amber-100 text-gray-700 text-sm leading-relaxed italic text-right">
                               "{req.expectations}"
                             </div>
                           </div>
@@ -484,13 +483,13 @@ const UserRequests: React.FC = () => {
 
                 {viewingReportId === req.id && (
                   <div className="fixed inset-0 z-[110] bg-slate-900/90 backdrop-blur-lg flex items-center justify-center p-4">
-                    <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[3rem] shadow-2xl relative animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col">
+                    <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[3rem] shadow-2xl relative animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col text-right">
                       <div className="bg-primary p-6 md:p-8 text-white flex justify-between items-center shrink-0 border-b border-white/10">
                          <div className="flex items-center gap-4">
                            <div className="w-12 h-12 md:w-14 md:h-14 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20">
                              <Award className="w-6 h-6 md:w-8 md:h-8" />
                            </div>
-                           <div>
+                           <div className="text-right">
                              <h3 className="text-lg md:text-xl font-black">تقرير التقييم النهائي</h3>
                              <p className="text-accent text-xs font-bold uppercase tracking-widest">{req.fullName}</p>
                            </div>
@@ -511,7 +510,7 @@ const UserRequests: React.FC = () => {
                          </div>
                       </div>
                       
-                      <div id="report-to-print" className="p-6 md:p-10 overflow-y-auto custom-scrollbar flex-grow bg-white">
+                      <div id="report-to-print" className="p-6 md:p-10 overflow-y-auto custom-scrollbar flex-grow bg-white text-right">
                          <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 flex items-center justify-between mb-8 shadow-inner">
                             <div className="text-emerald-800 font-black">الدرجة النهائية المستحقة:</div>
                             <div className="text-3xl md:text-4xl font-black text-emerald-600">{req.finalScore}%</div>
@@ -531,7 +530,7 @@ const UserRequests: React.FC = () => {
 
                 {reviewingRequestId === req.id && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
-                        <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95">
+                        <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 text-right">
                             <div className="bg-accent px-6 py-4 flex items-center justify-between text-white">
                                 <h3 className="font-bold text-lg flex items-center gap-2">
                                     <MessageSquareQuote className="w-5 h-5" />
@@ -549,21 +548,21 @@ const UserRequests: React.FC = () => {
                                     </div>
                                 ) : (
                                     <>
-                                        <div>
+                                        <div className="text-right">
                                             <label className="block text-sm font-bold text-gray-700 mb-2">تقييمك للمقابلة بشكل عام</label>
-                                            <textarea value={feedback.interview} onChange={(e) => setFeedback({...feedback, interview: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-accent focus:border-accent min-h-[80px]" placeholder="كيف كانت الأسئلة? هل استفدت؟" />
+                                            <textarea value={feedback.interview} onChange={(e) => setFeedback({...feedback, interview: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-accent focus:border-accent min-h-[80px] text-right" placeholder="كيف كانت الأسئلة? هل استفدت؟" />
                                         </div>
-                                        <div>
+                                        <div className="text-right">
                                             <label className="block text-sm font-bold text-gray-700 mb-2">تقييمك للمنصة وسهولة الاستخدام</label>
-                                            <textarea value={feedback.platform} onChange={(e) => setFeedback({...feedback, platform: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-accent focus:border-accent min-h-[80px]" placeholder="تجربة الموقع، الحجز، التواصل..." />
+                                            <textarea value={feedback.platform} onChange={(e) => setFeedback({...feedback, platform: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-accent focus:border-accent min-h-[80px] text-right" placeholder="تجربة الموقع، الحجز، التواصل..." />
                                         </div>
-                                        <div>
+                                        <div className="text-right">
                                             <label className="block text-sm font-bold text-gray-700 mb-2">تقييمك للمقيم (المحاور)</label>
-                                            <textarea value={feedback.interviewer} onChange={(e) => setFeedback({...feedback, interviewer: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-accent focus:border-accent min-h-[80px]" placeholder="أسلوب الشرح، التغذية الراجعة، الالتزام بالوقت..." />
+                                            <textarea value={feedback.interviewer} onChange={(e) => setFeedback({...feedback, interviewer: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-accent focus:border-accent min-h-[80px] text-right" placeholder="أسلوب الشرح، التغذية الراجعة، الالتزام بالوقت..." />
                                         </div>
-                                        <div>
+                                        <div className="text-right">
                                             <label className="block text-sm font-bold text-gray-700 mb-2">أفكار لتحسين المنصة (اختياري)</label>
-                                            <textarea value={feedback.improvements} onChange={(e) => setFeedback({...feedback, improvements: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-accent focus:border-accent min-h-[80px]" placeholder="ما الذي تود رؤيته مستقبلاً؟" />
+                                            <textarea value={feedback.improvements} onChange={(e) => setFeedback({...feedback, improvements: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-accent focus:border-accent min-h-[80px] text-right" placeholder="ما الذي تود رؤيته مستقبلاً؟" />
                                         </div>
                                         <div className="pt-4">
                                             <Button onClick={() => handleSubmitReview(req)} disabled={submittingReview} className="w-full justify-center text-lg">{submittingReview ? <Loader2 className="w-6 h-6 animate-spin" /> : 'إرسال التقييم'}</Button>
