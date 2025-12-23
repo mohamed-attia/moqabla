@@ -172,7 +172,7 @@ export const teamMembers: TeamMember[] = [
     "category": "MOBILE"
   },
   {
-    "id": 10,
+    "id": 20,
     "name": "Mohamed Ghazal",
     "role": "Technical Consultant",
     "photoUrl": "https://media.licdn.com/dms/image/v2/C4E03AQGC7_ltfWOqhg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1517481670580?e=1767830400&v=beta&t=cfoYjVRuE8SzRvU-ggS3ftqRaNJsM4Q4zVuyzdK4OVA",
