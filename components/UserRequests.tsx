@@ -278,6 +278,46 @@ const UserRequests: React.FC = () => {
                 </div>
 
                 <div className="p-6">
+                  {/* قسم موعد وروابط الجلسة - الآن في البداية */}
+                  {(req.status === 'completed' || req.status === 'approved') && (req.reportLink || req.videoLink || req.meetingLink || req.meetingDate) && (
+                    <div className="mb-6 p-5 bg-blue-50/30 rounded-2xl border border-blue-100">
+                      <h4 className="text-xs font-black text-blue-900 mb-4 flex items-center gap-2 uppercase tracking-wider">
+                        <CheckCircle2 className="w-4 h-4 text-blue-500" /> تفاصيل موعد وروابط الجلسة
+                      </h4>
+                      
+                      {req.meetingDate && (
+                        <div className="mb-4 p-3 bg-white rounded-xl border border-blue-100 flex items-center gap-3">
+                           <Calendar className="w-5 h-5 text-blue-500" />
+                           <div>
+                              <div className="text-[10px] font-bold text-gray-400 uppercase">موعد المقابلة المعتمد</div>
+                              <div className="text-sm font-black text-blue-900">{req.meetingDate}</div>
+                           </div>
+                        </div>
+                      )}
+
+                      <div className="flex flex-wrap gap-3">
+                        {req.meetingLink && (
+                          <a href={req.meetingLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl text-xs font-bold border border-gray-100 hover:border-accent hover:text-accent shadow-sm transition-all">
+                            <LinkIcon className="w-4 h-4" /> رابط الاجتماع المباشر
+                            <ExternalLink className="w-3 h-3 opacity-50" />
+                          </a>
+                        )}
+                        {req.videoLink && (
+                          <a href={req.videoLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl text-xs font-bold border border-gray-100 hover:border-accent hover:text-accent shadow-sm transition-all">
+                            <Video className="w-4 h-4" /> تسجيل المقابلة (فيديو)
+                            <ExternalLink className="w-3 h-3 opacity-50" />
+                          </a>
+                        )}
+                        {req.reportLink && (
+                          <a href={req.reportLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl text-xs font-bold border border-gray-100 hover:border-accent hover:text-accent shadow-sm transition-all">
+                            <FileCheck className="w-4 h-4" /> التقرير المرفق (PDF)
+                            <ExternalLink className="w-3 h-3 opacity-50" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {/* قسم المراحل القادمة - يظهر فقط للطلبات الجديدة */}
                   {(req.status === 'pending' || !req.status) && (
                     <div className="mb-10 bg-slate-50 border border-slate-100 rounded-3xl p-6">
@@ -439,45 +479,6 @@ const UserRequests: React.FC = () => {
                         </div>
                       )}
                     </div>
-
-                    {(req.status === 'completed' || req.status === 'approved') && (req.reportLink || req.videoLink || req.meetingLink || req.meetingDate) && (
-                      <div className="p-5 bg-blue-50/30 rounded-2xl border border-blue-100">
-                        <h4 className="text-xs font-black text-blue-900 mb-4 flex items-center gap-2 uppercase tracking-wider">
-                          <CheckCircle2 className="w-4 h-4 text-blue-500" /> تفاصيل موعد وروابط الجلسة
-                        </h4>
-                        
-                        {req.meetingDate && (
-                          <div className="mb-4 p-3 bg-white rounded-xl border border-blue-100 flex items-center gap-3">
-                             <Calendar className="w-5 h-5 text-blue-500" />
-                             <div>
-                                <div className="text-[10px] font-bold text-gray-400 uppercase">موعد المقابلة المعتمد</div>
-                                <div className="text-sm font-black text-blue-900">{req.meetingDate}</div>
-                             </div>
-                          </div>
-                        )}
-
-                        <div className="flex flex-wrap gap-3">
-                          {req.meetingLink && (
-                            <a href={req.meetingLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl text-xs font-bold border border-gray-100 hover:border-accent hover:text-accent shadow-sm transition-all">
-                              <LinkIcon className="w-4 h-4" /> رابط الاجتماع المباشر
-                              <ExternalLink className="w-3 h-3 opacity-50" />
-                            </a>
-                          )}
-                          {req.videoLink && (
-                            <a href={req.videoLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl text-xs font-bold border border-gray-100 hover:border-accent hover:text-accent shadow-sm transition-all">
-                              <Video className="w-4 h-4" /> تسجيل المقابلة (فيديو)
-                              <ExternalLink className="w-3 h-3 opacity-50" />
-                            </a>
-                          )}
-                          {req.reportLink && (
-                            <a href={req.reportLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl text-xs font-bold border border-gray-100 hover:border-accent hover:text-accent shadow-sm transition-all">
-                              <FileCheck className="w-4 h-4" /> التقرير المرفق (PDF)
-                              <ExternalLink className="w-3 h-3 opacity-50" />
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
 

@@ -491,6 +491,24 @@ const MeetingRequests: React.FC = () => {
                  </div>
               </div>
 
+              {/* موعد وروابط الجلسة - الآن في البداية */}
+              <div className="space-y-4">
+                <h4 className="font-black text-gray-900 flex flex-row-reverse items-center gap-2 text-lg border-r-4 border-indigo-500 pr-4">
+                  <LinkIcon className="w-5 h-5 text-indigo-500" /> موعد وروابط الجلسة
+                </h4>
+                <div className="grid grid-cols-1 gap-3">
+                   <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between">
+                     <span className="text-xs font-bold text-indigo-600">موعد الجلسة:</span>
+                     <span className="font-bold text-indigo-900">{viewingRegistration.meetingDate || 'غير محدد'}</span>
+                   </div>
+                   <div className="flex flex-wrap gap-3">
+                      {viewingRegistration.meetingLink && <div className="text-xs bg-white border px-3 py-1 rounded-lg">رابط الجلسة موجود</div>}
+                      {viewingRegistration.reportLink && <div className="text-xs bg-white border px-3 py-1 rounded-lg">رابط التقرير موجود</div>}
+                      {viewingRegistration.videoLink && <div className="text-xs bg-white border px-3 py-1 rounded-lg">رابط الفيديو موجود</div>}
+                   </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-2xl border border-gray-100">
                  <div className="space-y-3">
                     <div className="flex flex-row-reverse items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
@@ -570,23 +588,6 @@ const MeetingRequests: React.FC = () => {
                 </h4>
                 <div className="p-6 bg-amber-50/30 border-2 border-amber-100 rounded-2xl text-sm text-gray-800 leading-relaxed italic shadow-inner">
                    "{viewingRegistration.expectations}"
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h4 className="font-black text-gray-900 flex flex-row-reverse items-center gap-2 text-lg border-r-4 border-indigo-500 pr-4">
-                  <LinkIcon className="w-5 h-5 text-indigo-500" /> موعد وروابط الجلسة
-                </h4>
-                <div className="grid grid-cols-1 gap-3">
-                   <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between">
-                     <span className="text-xs font-bold text-indigo-600">موعد الجلسة:</span>
-                     <span className="font-bold text-indigo-900">{viewingRegistration.meetingDate || 'غير محدد'}</span>
-                   </div>
-                   <div className="flex flex-wrap gap-3">
-                      {viewingRegistration.meetingLink && <div className="text-xs bg-white border px-3 py-1 rounded-lg">رابط الجلسة موجود</div>}
-                      {viewingRegistration.reportLink && <div className="text-xs bg-white border px-3 py-1 rounded-lg">رابط التقرير موجود</div>}
-                      {viewingRegistration.videoLink && <div className="text-xs bg-white border px-3 py-1 rounded-lg">رابط الفيديو موجود</div>}
-                   </div>
                 </div>
               </div>
 
