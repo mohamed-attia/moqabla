@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
 import { RegistrationFormData, UserProfile } from '../types';
+import { FIELD_OPTIONS } from '../teamData';
 import { 
   Loader2, FileText, Search, ChevronLeft, ChevronRight, Edit2, X, Filter, 
   Link as LinkIcon, Video, FileCheck, Save, Eye, User, Mail, Phone, 
@@ -257,11 +258,14 @@ const MeetingRequests: React.FC = () => {
   const isInterviewer = userProfile?.role === 'interviewer';
   const interviewerField = userProfile?.field;
 
-  const fieldMapping: Record<string, string> = { 'FE': 'Frontend', 'BE': 'Backend', 'UX': 'UX Design', 'mobile': 'Mobile App' };
+  const interviewerFieldToLabel: Record<string, string> = FIELD_OPTIONS.reduce((acc, opt) => {
+    acc[opt.id] = opt.label;
+    return acc;
+  }, {} as Record<string, string>);
 
   const filteredRegistrations = allRegistrations.filter(reg => {
     if (isInterviewer && interviewerField && !isAdmin) {
-      const targetField = fieldMapping[interviewerField];
+      const targetField = interviewerFieldToLabel[interviewerField] || interviewerField;
       if (reg.field !== targetField) return false;
       if (reg.status !== 'approved' && reg.status !== 'completed') return false;
     }
@@ -305,7 +309,7 @@ const MeetingRequests: React.FC = () => {
             </div>
             <div className="relative w-full md:w-56">
                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><Filter className="h-5 w-5 text-gray-400" /></div>
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent bg-white shadow-sm appearance-none">
+              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent bg-white shadow-sm appearance-none text-right">
                 <option value="ALL">كل الحالات المتاحة</option>
                 <option value="pending">قيد الانتظار</option>
                 <option value="reviewing">قيد المراجعة</option>
@@ -422,7 +426,7 @@ const MeetingRequests: React.FC = () => {
                </div>
             </div>
             <div id="admin-report-to-print" className="p-6 md:p-10 overflow-y-auto custom-scrollbar flex-grow bg-white text-right">
-               <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 flex items-center justify-between mb-8 shadow-inner"><div className="text-emerald-800 font-black">الدرجة النهائية المستحقة:</div><div className="text-3xl md:text-4xl font-black text-emerald-600">%{viewingReport.finalScore || '-'}</div></div>
+               <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 flex items-center justify-between mb-8 shadow-inner"><div className="text-emerald-800 font-black text-right">الدرجة النهائية المستحقة:</div><div className="text-3xl md:text-4xl font-black text-emerald-600">%{viewingReport.finalScore || '-'}</div></div>
                <div className="prose prose-slate max-w-none dir-rtl text-right whitespace-pre-wrap leading-loose font-medium text-gray-700">{viewingReport.evaluationReport}</div>
             </div>
             <div className="p-6 md:p-8 border-t border-gray-100 bg-gray-50 flex flex-col md:flex-row justify-center items-center gap-4 shrink-0">
@@ -435,14 +439,14 @@ const MeetingRequests: React.FC = () => {
 
       {editingRegistration && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" dir="rtl">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden text-right">
             <div className="bg-gray-50 px-6 py-4 border-b flex items-center justify-between"><h3 className="font-bold text-gray-800">تحديث حالة الطلب</h3><button onClick={handleCloseModals} className="text-gray-400 hover:text-red-500"><X className="w-6 h-6" /></button></div>
             <div className="p-6">
               <div className="space-y-3 mb-8">
                 {getAllowedStatuses().map((val) => (
                   <label key={val} className={`flex items-center gap-3 p-4 border rounded-2xl cursor-pointer transition-all ${statusToUpdate === val ? 'border-accent bg-accent/5 ring-1 ring-accent' : 'border-gray-100 hover:bg-gray-50'}`}>
                     <input type="radio" name="status" value={val} checked={statusToUpdate === val} onChange={(e) => setStatusToUpdate(e.target.value)} className="text-accent focus:ring-accent w-5 h-5" />
-                    <span className="font-bold text-sm text-gray-700 capitalize">{val === 'pending' ? 'قيد الانتظار' : val === 'reviewing' ? 'قيد المراجعة' : val === 'approved' ? 'مقبول' : val === 'completed' ? 'مكتمل' : 'ملغي'}</span>
+                    <span className="font-bold text-sm text-gray-700 capitalize text-right w-full">{val === 'pending' ? 'قيد الانتظار' : val === 'reviewing' ? 'قيد المراجعة' : val === 'approved' ? 'مقبول' : val === 'completed' ? 'مكتمل' : 'ملغي'}</span>
                   </label>
                 ))}
               </div>
@@ -454,7 +458,7 @@ const MeetingRequests: React.FC = () => {
 
       {viewingRegistration && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in" dir="rtl">
-          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 text-right">
             <div className="bg-primary px-8 py-6 text-white flex items-center justify-between shrink-0">
                <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center shadow-lg">
@@ -501,11 +505,11 @@ const MeetingRequests: React.FC = () => {
 
               {/* موعد وروابط الجلسة */}
               <div className="space-y-4 text-right">
-                <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg border-r-4 border-indigo-500 pr-4">
+                <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg border-r-4 border-indigo-500 pr-4 text-right justify-start">
                   <LinkIcon className="w-5 h-5 text-indigo-500" /> موعد وروابط الجلسة
                 </h4>
                 <div className="grid grid-cols-1 gap-3">
-                   <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between">
+                   <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between text-right">
                      <span className="text-xs font-bold text-indigo-600">موعد الجلسة:</span>
                      <span className="font-bold text-indigo-900">{viewingRegistration.meetingDate || 'غير محدد'}</span>
                    </div>
@@ -519,25 +523,25 @@ const MeetingRequests: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-2xl border border-gray-100 text-right">
                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">
                       <Mail className="w-3.5 h-3.5" /> البريد الإلكتروني
                     </div>
                     <div className="text-sm font-bold text-gray-700 dir-ltr text-right">{viewingRegistration.email}</div>
                  </div>
                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">
                       <Phone className="w-3.5 h-3.5" /> رقم الواتساب
                     </div>
                     <div className="text-sm font-bold text-gray-700 dir-ltr text-right">{viewingRegistration.whatsapp}</div>
                  </div>
                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">
                       <Globe className="w-3.5 h-3.5" /> الدولة / المدينة
                     </div>
-                    <div className="text-sm font-bold text-gray-700">{viewingRegistration.country}</div>
+                    <div className="text-sm font-bold text-gray-700 text-right">{viewingRegistration.country}</div>
                  </div>
                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">
                       <Linkedin className="w-3.5 h-3.5" /> رابط LinkedIn
                     </div>
                     <div className="text-sm font-bold text-accent truncate dir-ltr text-right">
@@ -547,15 +551,15 @@ const MeetingRequests: React.FC = () => {
               </div>
 
               <div className="space-y-4 text-right">
-                <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg border-r-4 border-accent pr-4">
+                <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg border-r-4 border-accent pr-4 text-right justify-start">
                   <Briefcase className="w-5 h-5 text-accent" /> الخلفية التقنية والمهنية
                 </h4>
-                <div className="grid grid-cols-2 gap-4">
-                   <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl"><div className="text-[10px] text-blue-500 font-bold uppercase mb-1">المجال</div><div className="font-bold text-blue-900">{viewingRegistration.field}</div></div>
-                   <div className="p-4 bg-teal-50 border border-teal-100 rounded-xl"><div className="text-[10px] text-teal-500 font-bold uppercase mb-1">المستوى</div><div className="font-bold text-teal-900">{getLevelLabel(viewingRegistration.level)}</div></div>
-                   <div className="p-4 bg-purple-50 border border-purple-100 rounded-xl"><div className="text-[10px] text-purple-500 font-bold uppercase mb-1">سنوات الخبرة</div><div className="font-bold text-purple-900">{viewingRegistration.experience} سنة</div></div>
-                   <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl"><div className="text-[10px] text-orange-500 font-bold uppercase mb-1">الباقة</div><div className="font-bold text-orange-900">{viewingRegistration.planName || 'باقة عادية'}</div></div>
-                   <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl col-span-2">
+                <div className="grid grid-cols-2 gap-4 text-right">
+                   <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl text-right"><div className="text-[10px] text-blue-500 font-bold uppercase mb-1">المجال</div><div className="font-bold text-blue-900">{viewingRegistration.field}</div></div>
+                   <div className="p-4 bg-teal-50 border border-teal-100 rounded-xl text-right"><div className="text-[10px] text-teal-500 font-bold uppercase mb-1">المستوى</div><div className="font-bold text-teal-900">{getLevelLabel(viewingRegistration.level)}</div></div>
+                   <div className="p-4 bg-purple-50 border border-purple-100 rounded-xl text-right"><div className="text-[10px] text-purple-500 font-bold uppercase mb-1">سنوات الخبرة</div><div className="font-bold text-purple-900">{viewingRegistration.experience} سنة</div></div>
+                   <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl text-right"><div className="text-[10px] text-orange-500 font-bold uppercase mb-1">الباقة</div><div className="font-bold text-orange-900">{viewingRegistration.planName || 'باقة عادية'}</div></div>
+                   <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl col-span-2 text-right">
                      <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">التقنيات التي يتقنها</div>
                      <div className="text-sm font-medium text-gray-700 whitespace-pre-wrap">{viewingRegistration.techStack}</div>
                    </div>
@@ -563,23 +567,23 @@ const MeetingRequests: React.FC = () => {
               </div>
 
               <div className="space-y-4 text-right">
-                <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg border-r-4 border-blue-500 pr-4">
+                <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg border-r-4 border-blue-500 pr-4 text-right justify-start">
                   <Calendar className="w-5 h-5 text-blue-500" /> التحضير للمقابلة
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-right">
                     <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">خبرة مقابلات سابقة</div>
                     <div className="text-sm font-bold text-gray-700">{getInterviewHistoryLabel(viewingRegistration.hasInterviewExperience)}</div>
                   </div>
-                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-right">
                     <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">مقابلة قادمة</div>
                     <div className="text-sm font-bold text-gray-700">{getUpcomingInterviewLabel(viewingRegistration.upcomingInterview)}</div>
                   </div>
-                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-right">
                     <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">الوقت المفضل</div>
                     <div className="text-sm font-bold text-gray-700">{getPreferredTimeLabel(viewingRegistration.preferredTime)}</div>
                   </div>
-                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-right">
                     <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">الأهداف المختارة</div>
                     <div className="flex flex-wrap gap-1 mt-1 justify-end">
                       {viewingRegistration.goals?.map((g, i) => (
@@ -591,20 +595,20 @@ const MeetingRequests: React.FC = () => {
               </div>
 
               <div className="space-y-4 text-right">
-                <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg border-r-4 border-amber-500 pr-4">
+                <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg border-r-4 border-amber-500 pr-4 text-right justify-start">
                   <MessageSquare className="w-5 h-5 text-amber-500" /> توقعات المستخدم
                 </h4>
-                <div className="p-6 bg-amber-50/30 border-2 border-amber-100 rounded-2xl text-sm text-gray-800 leading-relaxed italic shadow-inner">
+                <div className="p-6 bg-amber-50/30 border-2 border-amber-100 rounded-2xl text-sm text-gray-800 leading-relaxed italic shadow-inner text-right">
                    "{viewingRegistration.expectations}"
                 </div>
               </div>
 
               {viewingRegistration.evaluationReport && (
                 <div className="space-y-4 text-right">
-                  <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg border-r-4 border-emerald-500 pr-4">
+                  <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg border-r-4 border-emerald-500 pr-4 text-right justify-start">
                     <ClipboardCheck className="w-5 h-5 text-emerald-500" /> تقرير التقييم الذكي
                   </h4>
-                  <div className="p-6 bg-emerald-50/30 border-2 border-emerald-100 rounded-[2rem] text-sm text-gray-700 leading-relaxed overflow-x-auto text-right dir-rtl"><pre className="whitespace-pre-wrap font-sans">{viewingRegistration.evaluationReport}</pre></div>
+                  <div className="p-6 bg-emerald-50/30 border-2 border-emerald-100 rounded-[2rem] text-sm text-gray-700 leading-relaxed overflow-x-auto text-right dir-rtl"><pre className="whitespace-pre-wrap font-sans text-right">{viewingRegistration.evaluationReport}</pre></div>
                 </div>
               )}
             </div>
@@ -615,7 +619,7 @@ const MeetingRequests: React.FC = () => {
 
       {linkingRegistration && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm" dir="rtl">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden text-right">
             <div className="bg-accent px-6 py-5 flex items-center justify-between text-white">
               <div className="flex items-center gap-3"><LinkIcon className="w-6 h-6" /><h3 className="font-black">روابط المقابلة</h3></div>
               <button onClick={handleCloseModals} className="hover:bg-white/10 p-2 rounded-full"><X className="w-6 h-6" /></button>
@@ -623,20 +627,20 @@ const MeetingRequests: React.FC = () => {
             <div className="p-8 space-y-6 text-right">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-black text-gray-500 mb-2 mr-1">موعد الجلسة (مثال: الأحد 10 مساءً)</label>
-                  <input type="text" value={links.date} onChange={(e) => setLinks({...links, date: e.target.value})} className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-accent outline-none text-sm" placeholder="تاريخ ووقت الجلسة..." />
+                  <label className="block text-xs font-black text-gray-500 mb-2 mr-1 text-right">موعد الجلسة (مثال: الأحد 10 مساءً)</label>
+                  <input type="text" value={links.date} onChange={(e) => setLinks({...links, date: e.target.value})} className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-accent outline-none text-sm text-right" placeholder="تاريخ ووقت الجلسة..." />
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-gray-500 mb-2 mr-1">رابط الجلسة (Zoom/Meet)</label>
-                  <input type="url" value={links.meeting} onChange={(e) => setLinks({...links, meeting: e.target.value})} className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-accent outline-none text-sm dir-ltr" placeholder="https://..." />
+                  <label className="block text-xs font-black text-gray-500 mb-2 mr-1 text-right">رابط الجلسة (Zoom/Meet)</label>
+                  <input type="url" value={links.meeting} onChange={(e) => setLinks({...links, meeting: e.target.value})} className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-accent outline-none text-sm dir-ltr text-right" placeholder="https://..." />
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-gray-500 mb-2 mr-1">رابط التقرير (Drive)</label>
-                  <input type="url" value={links.report} onChange={(e) => setLinks({...links, report: e.target.value})} className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-accent outline-none text-sm dir-ltr" placeholder="https://..." />
+                  <label className="block text-xs font-black text-gray-500 mb-2 mr-1 text-right">رابط التقرير (Drive)</label>
+                  <input type="url" value={links.report} onChange={(e) => setLinks({...links, report: e.target.value})} className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-accent outline-none text-sm dir-ltr text-right" placeholder="https://..." />
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-gray-500 mb-2 mr-1">رابط التسجيل (YouTube/Loom)</label>
-                  <input type="url" value={links.video} onChange={(e) => setLinks({...links, video: e.target.value})} className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-accent outline-none text-sm dir-ltr" placeholder="https://..." />
+                  <label className="block text-xs font-black text-gray-500 mb-2 mr-1 text-right">رابط التسجيل (YouTube/Loom)</label>
+                  <input type="url" value={links.video} onChange={(e) => setLinks({...links, video: e.target.value})} className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-accent outline-none text-sm dir-ltr text-right" placeholder="https://..." />
                 </div>
               </div>
               <div className="pt-4 flex gap-3">

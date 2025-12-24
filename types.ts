@@ -1,5 +1,6 @@
 
 import { LucideIcon } from 'lucide-react';
+import { FIELD_OPTIONS } from './teamData';
 
 export interface NavItem {
   id: string;
@@ -19,6 +20,9 @@ export interface VisionItem {
   Icon: LucideIcon;
 }
 
+// استخراج النوع من مصفوفة التخصصات المركزية
+export type FieldId = typeof FIELD_OPTIONS[number]['id'];
+
 export interface TeamMember {
   id: number;
   name: string;
@@ -26,7 +30,7 @@ export interface TeamMember {
   photoUrl: string;
   rating: number;
   linkedinUrl?: string;
-  category: 'FE' | 'BE' | 'UX' | 'MOBILE' | 'PM' | 'QA' | 'DATA' | 'DEVOPS';
+  category: FieldId | string;
 }
 
 export type EvaluationScore = 1 | 2 | 3 | 4 | 5;
@@ -61,12 +65,12 @@ export interface RegistrationFormData {
   preferredTime: string;
   expectations: string;
   termsAccepted: boolean;
-  planName: string; // الحقل الجديد
+  planName: string; 
   userId?: string;
   submittedAt?: any;
   status?: 'pending' | 'approved' | 'completed' | 'canceled' | 'reviewing';
   meetingLink?: string;
-  meetingDate?: string; // الحقل الجديد لموعد الجلسة
+  meetingDate?: string; 
   reportLink?: string;
   videoLink?: string;
   evaluationReport?: string; 
@@ -84,7 +88,7 @@ export interface UserProfile {
   jobTitle?: string;
   country?: string;
   role: 'user' | 'admin' | 'interviewer' | 'maintainer';
-  field?: 'UX' | 'FE' | 'BE' | 'mobile';
+  field?: FieldId | string;
   level?: 'fresh' | 'junior' | 'mid-senior' | 'lead-staff';
   isEmailVerified: boolean;
   referralCode: string;

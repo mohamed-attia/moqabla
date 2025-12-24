@@ -1,4 +1,15 @@
+
 import { TeamMember } from './types';
+
+// القائمة الموحدة للتخصصات - المصدر الوحيد للحقيقة
+export const FIELD_OPTIONS = [
+  { id: 'FE', label: 'Frontend', labelAr: 'واجهات (Frontend)' },
+  { id: 'BE', label: 'Backend', labelAr: 'أنظمة (Backend)' },
+  { id: 'Full Stack', label: 'Full Stack', labelAr: 'شامل (Full Stack)' },
+  { id: 'MOBILE', label: 'Mobile App', labelAr: 'تطبيقات (Mobile)' },
+  { id: 'UX', label: 'UX Design', labelAr: 'تصميم (UX/UI)' },
+  { id: 'QA', label: 'QA Testing', labelAr: 'جودة (QA/Testing)' },
+] as const;
 
 export const teamMembers: TeamMember[] = [
   {
@@ -10,15 +21,6 @@ export const teamMembers: TeamMember[] = [
     "linkedinUrl": "https://www.linkedin.com/in/amr-a-rashed/",
     "category": "BE"
   },
-  //   {
-  //   "id": 2,
-  //   "name": "Hasan Gad",
-  //   "role": "Founder @ Figmawya",
-  //   "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQFNmi-sU1_Xuw/profile-displayphoto-scale_200_200/B4DZjAmNHDH4Ak-/0/1755577897959?e=1767225600&v=beta&t=75HFZv53xFhzuuK-Dn6rFU7gAPifkbOhpbqz7mphJzQ",
-  //   "rating": 5.0,
-  //   "linkedinUrl": "https://www.linkedin.com/in/hasangadux/",
-  //   "category": "UX"
-  // },
   {
     "id": 3,
     "name": "Sanaa Afifi",
@@ -142,7 +144,7 @@ export const teamMembers: TeamMember[] = [
     "role": "Head of Design",
     "photoUrl": "https://media.licdn.com/dms/image/v2/C5603AQFYI8XQggzRXg/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1644312532500?e=1767830400&v=beta&t=YsrFKK6HHmYz1kVxCzQDVHTkjtdVCnL9VYUNueqIfAE",
     "rating": 5.0,
-    "linkedinUrl": "https://www.linkedin.com/in/basmaezzatezzat/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
+    "linkedinUrl": "https://www.linkedin.com/in/basmaezzatezzat/",
     "category": "UX"
   },  {
     "id": 17,
@@ -150,7 +152,7 @@ export const teamMembers: TeamMember[] = [
     "role": "Tech Lead | .Net | Senior Software | Full Stack",
     "photoUrl": "https://media.licdn.com/dms/image/v2/D4E03AQGoOcZ8FLNWnQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1697754271125?e=1767830400&v=beta&t=30Fz_bHgDKlUQq5ZAVlGITsJz101oB9a2myhbzcUFXE",
     "rating": 5.0,
-    "linkedinUrl": "https://www.linkedin.com/in/ahmedhegazy/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
+    "linkedinUrl": "https://www.linkedin.com/in/ahmedhegazy/",
     "category": "BE"
   },
   {
@@ -159,13 +161,13 @@ export const teamMembers: TeamMember[] = [
     "role": "Senior Software Engineer | Angular | Fintech",
     "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQH9hjmvVH8gVA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1644312532500?e=1767830400&v=beta&t=YsrFKK6HHmYz1kVxCzQDVHTkjtdVCnL9VYUNueqIfAE",
     "rating": 5.0,
-    "linkedinUrl": "https://www.linkedin.com/in/ahmed-gamal-405aa799/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app",
+    "linkedinUrl": "https://www.linkedin.com/in/ahmed-gamal-405aa799/",
     "category": "FE"
   },
   {
     "id": 19,
     "name": "Mohamed (Saad) Zamel",
-    "role": "Solution Architect / Engineering Manager || STCPay +10M downloads || FinTech || STC Bank || Digital Bank || CSM® || Session Lead at Udacity || Mentor",
+    "role": "Solution Architect / Engineering Manager",
     "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQEM7WgziFExjg/profile-displayphoto-shrink_200_200/B4DZQPOqOqGUAY-/0/1735422290011?e=1767830400&v=beta&t=F7ar6sT-dU5_SOJEaEhpDuHt41q23AGeUK6vpHU0ZsM",
     "rating": 5.0,
     "linkedinUrl": "https://www.linkedin.com/in/mohamedzamel/",
@@ -178,6 +180,15 @@ export const teamMembers: TeamMember[] = [
     "photoUrl": "https://media.licdn.com/dms/image/v2/C4E03AQGC7_ltfWOqhg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1517481670580?e=1767830400&v=beta&t=cfoYjVRuE8SzRvU-ggS3ftqRaNJsM4Q4zVuyzdK4OVA",
     "rating": 5.0,
     "linkedinUrl": "https://www.linkedin.com/in/ghazal2/",
+    "category": "BE"
+  },
+  {
+    "id": 21,
+    "name": "Fatma Tolba",
+    "role": "MBA | Senior .NET & Cloud Developer",
+    "photoUrl": "https://media.licdn.com/dms/image/v2/D4D03AQEjxyxJ5ZE8Eg/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1712005398015?e=1767830400&v=beta&t=B8qMQcHMzmh6ezDQkobs06HMQlCZAiP6N5nWQ-oD2cA",
+    "rating": 5.0,
+    "linkedinUrl": "https://www.linkedin.com/in/fatma-tolba-877a67116/",
     "category": "BE"
   }
 ];

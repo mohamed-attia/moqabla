@@ -214,14 +214,14 @@ const UserRequests: React.FC = () => {
 
   return (
     <div className="min-h-screen pt-32 pb-20 bg-gray-50 px-4 md:px-6" dir="rtl">
-      <div className="container mx-auto max-w-4xl">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
-          <div className="text-right">
+      <div className="container mx-auto max-w-4xl text-right">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 text-right">
+          <div className="text-right w-full">
             <h1 className="text-3xl font-bold text-primary mb-2">طلباتي</h1>
             <p className="text-gray-500">تتبع حالة طلبات المقابلة الخاصة بك</p>
           </div>
           {!hasActiveRequest && (
-            <Button onClick={() => navigate('/request-meeting')}>
+            <Button onClick={() => navigate('/request-meeting')} className="whitespace-nowrap">
               طلب جديد +
             </Button>
           )}
@@ -277,16 +277,16 @@ const UserRequests: React.FC = () => {
                    </div>
                 </div>
 
-                <div className="p-6">
+                <div className="p-6 text-right">
                   {/* قسم موعد وروابط الجلسة */}
                   {(req.status === 'completed' || req.status === 'approved') && (req.reportLink || req.videoLink || req.meetingLink || req.meetingDate) && (
                     <div className="mb-6 p-5 bg-blue-50/30 rounded-2xl border border-blue-100 text-right">
-                      <h4 className="text-xs font-black text-blue-900 mb-4 flex items-center gap-2 uppercase tracking-wider justify-start">
+                      <h4 className="text-xs font-black text-blue-900 mb-4 flex items-center gap-2 uppercase tracking-wider justify-start text-right">
                         <CheckCircle2 className="w-4 h-4 text-blue-500" /> تفاصيل موعد وروابط الجلسة
                       </h4>
                       
                       {req.meetingDate && (
-                        <div className="mb-4 p-3 bg-white rounded-xl border border-blue-100 flex items-center gap-3 justify-start">
+                        <div className="mb-4 p-3 bg-white rounded-xl border border-blue-100 flex items-center gap-3 justify-start text-right">
                            <Calendar className="w-5 h-5 text-blue-500" />
                            <div className="text-right">
                               <div className="text-[10px] font-bold text-gray-400 uppercase">موعد المقابلة المعتمد</div>
@@ -320,11 +320,11 @@ const UserRequests: React.FC = () => {
 
                   {(req.status === 'pending' || !req.status) && (
                     <div className="mb-10 bg-slate-50 border border-slate-100 rounded-3xl p-6 text-right">
-                       <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 justify-start">
+                       <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2 justify-start text-right">
                          <Zap className="w-4 h-4 text-accent" /> المراحل القادمة لطلبك
                        </h4>
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-start gap-4">
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
+                          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-start gap-4 text-right">
                              <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center shrink-0">
                                 <MessageSquare className="w-5 h-5" />
                              </div>
@@ -336,7 +336,7 @@ const UserRequests: React.FC = () => {
                              </div>
                           </div>
 
-                          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-start gap-4">
+                          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-start gap-4 text-right">
                              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
                                 <CalendarCheck className="w-5 h-5" />
                              </div>
@@ -354,19 +354,19 @@ const UserRequests: React.FC = () => {
                   {req.status === 'completed' && req.evaluationReport && (
                     <div className="group relative mb-10 overflow-hidden rounded-[2.5rem] bg-slate-900 p-1 shadow-2xl transition-all hover:scale-[1.01] text-right">
                        <div className="absolute inset-0 bg-gradient-to-r from-accent/40 via-emerald-500/40 to-teal-500/40 opacity-50 blur-xl group-hover:opacity-80 transition-opacity"></div>
-                       <div className="relative flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-900 px-8 py-8 rounded-[2.4rem] border border-white/10">
-                          <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-right">
+                       <div className="relative flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-900 px-8 py-8 rounded-[2.4rem] border border-white/10 text-right">
+                          <div className="flex flex-col md:flex-row items-center gap-6 text-right">
                              <div className="relative">
                                <div className="absolute inset-0 bg-accent rounded-3xl blur-md opacity-40 animate-pulse"></div>
                                <div className="relative w-20 h-20 bg-gradient-to-br from-accent to-emerald-600 rounded-3xl flex items-center justify-center shadow-xl">
                                   <Sparkles className="w-10 h-10 text-white animate-bounce" />
                                </div>
                              </div>
-                             <div className="space-y-1 text-right">
-                                <h4 className="text-2xl font-black text-white flex items-center justify-center md:justify-start gap-2">
+                             <div className="space-y-1 text-right w-full">
+                                <h4 className="text-2xl font-black text-white flex items-center justify-start gap-2 text-right">
                                   تقرير التقييم الذكي جاهز! 
                                 </h4>
-                                <p className="text-gray-400 text-sm font-medium">
+                                <p className="text-gray-400 text-sm font-medium text-right">
                                   لقد حققت نتيجة مذهلة: <span className="text-emerald-400 font-black text-lg">%{req.finalScore}</span> في تقييمك التقني.
                                 </p>
                              </div>
@@ -374,7 +374,7 @@ const UserRequests: React.FC = () => {
                           <div className="flex flex-col items-center gap-3">
                             <button 
                               onClick={() => setViewingReportId(req.id)}
-                              className="group/btn relative flex items-center gap-3 bg-white px-8 py-4 rounded-2xl font-black text-slate-900 shadow-xl transition-all hover:bg-accent hover:text-white active:scale-95"
+                              className="group/btn relative flex items-center gap-3 bg-white px-8 py-4 rounded-2xl font-black text-slate-900 shadow-xl transition-all hover:bg-accent hover:text-white active:scale-95 whitespace-nowrap"
                             >
                               <Eye className="w-5 h-5 transition-transform group-hover/btn:scale-110" />
                               عرض التقرير الكامل
@@ -387,9 +387,9 @@ const UserRequests: React.FC = () => {
                   )}
 
                   <div className="grid grid-cols-1 gap-6 text-right">
-                    <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
-                      <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-sm font-black text-gray-900 flex items-center gap-2 justify-start">
+                    <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 text-right">
+                      <div className="flex items-center justify-between mb-4 text-right">
+                        <h4 className="text-sm font-black text-gray-900 flex items-center gap-2 justify-start text-right">
                           <Info className="w-4 h-4 text-accent" /> تفاصيل الطلب المسجلة
                         </h4>
                         <button 
@@ -401,13 +401,13 @@ const UserRequests: React.FC = () => {
                         </button>
                       </div>
 
-                      <div className="grid md:grid-cols-2 gap-4 text-sm">
-                        <div className="flex items-center gap-2 text-gray-600 justify-start">
+                      <div className="grid md:grid-cols-2 gap-4 text-sm text-right">
+                        <div className="flex items-center gap-2 text-gray-600 justify-start text-right">
                            <Briefcase className="w-4 h-4 text-gray-400" />
                            <span className="font-bold">المستوى:</span>
                            <span>{req.level}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-gray-600 justify-start">
+                        <div className="flex items-center gap-2 text-gray-600 justify-start text-right">
                            <Clock className="w-4 h-4 text-gray-400" />
                            <span className="font-bold">الوقت المفضل:</span>
                            <span>{req.preferredTime === 'morning' ? 'صباحاً' : req.preferredTime === 'evening' ? 'مساءً' : 'مرن'}</span>
@@ -416,34 +416,34 @@ const UserRequests: React.FC = () => {
 
                       {expandedRequestId === req.id && (
                         <div className="mt-6 pt-6 border-t border-gray-200 space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 text-right">
-                          <div className="grid md:grid-cols-2 gap-6">
-                            <div className="space-y-4">
+                          <div className="grid md:grid-cols-2 gap-6 text-right">
+                            <div className="space-y-4 text-right">
                               <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest text-right">المعلومات الشخصية والمهنية</h5>
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-gray-700 justify-start">
+                              <div className="space-y-2 text-right">
+                                <div className="flex items-center gap-2 text-gray-700 justify-start text-right">
                                   <Globe className="w-4 h-4 text-gray-400" />
                                   <span className="font-bold">الدولة:</span> {req.country}
                                 </div>
-                                <div className="flex items-center gap-2 text-gray-700 justify-start">
+                                <div className="flex items-center gap-2 text-gray-700 justify-start text-right">
                                   <Linkedin className="w-4 h-4 text-[#0077b5]" />
                                   <span className="font-bold">LinkedIn:</span>
                                   <a href={req.linkedin} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline truncate max-w-[150px] dir-ltr text-right">{req.linkedin}</a>
                                 </div>
-                                <div className="flex items-center gap-2 text-gray-700 justify-start">
+                                <div className="flex items-center gap-2 text-gray-700 justify-start text-right">
                                   <Zap className="w-4 h-4 text-amber-500" />
                                   <span className="font-bold">سنوات الخبرة:</span> {req.experience} سنة
                                 </div>
                               </div>
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="space-y-4 text-right">
                               <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest text-right">تاريخ المقابلات</h5>
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-gray-700 justify-start">
+                              <div className="space-y-2 text-right">
+                                <div className="flex items-center gap-2 text-gray-700 justify-start text-right">
                                   <HelpCircle className="w-4 h-4 text-gray-400" />
                                   <span className="font-bold">مقابلات سابقة:</span> {getInterviewHistoryLabel(req.hasInterviewExperience)}
                                 </div>
-                                <div className="flex items-center gap-2 text-gray-700 justify-start">
+                                <div className="flex items-center gap-2 text-gray-700 justify-start text-right">
                                   <Calendar className="w-4 h-4 text-gray-400" />
                                   <span className="font-bold">مقابلة قادمة:</span> {getUpcomingInterviewLabel(req.upcomingInterview)}
                                 </div>
@@ -451,26 +451,26 @@ const UserRequests: React.FC = () => {
                             </div>
                           </div>
 
-                          <div className="space-y-4">
-                            <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest text-right">الخلفية التقنية (Stack)</h5>
+                          <div className="space-y-4 text-right">
+                            <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest text-right">الخلفية التقنية والمهنية (Stack)</h5>
                             <div className="p-3 bg-white rounded-xl border border-gray-100 text-gray-700 font-mono text-xs text-right">
                               {req.techStack}
                             </div>
                           </div>
 
-                          <div className="space-y-4">
+                          <div className="space-y-4 text-right">
                             <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest text-right">الأهداف من الجلسة</h5>
-                            <div className="flex flex-wrap gap-2 justify-start">
+                            <div className="flex flex-wrap gap-2 justify-start text-right">
                               {req.goals?.map((goal, idx) => (
-                                <span key={idx} className="px-3 py-1 bg-accent/5 text-accent rounded-full text-[10px] font-bold border border-accent/10">
+                                <span key={idx} className="px-3 py-1 bg-accent/5 text-accent rounded-full text-[10px] font-bold border border-accent/10 text-right">
                                   {goal}
                                 </span>
                               ))}
                             </div>
                           </div>
 
-                          <div className="space-y-4">
-                            <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest text-right">توقعاتك من الجلسة</h5>
+                          <div className="space-y-4 text-right">
+                            <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest text-right">توقعات المستخدم من الجلسة</h5>
                             <div className="p-4 bg-amber-50/50 rounded-2xl border border-amber-100 text-gray-700 text-sm leading-relaxed italic text-right">
                               "{req.expectations}"
                             </div>
@@ -484,8 +484,8 @@ const UserRequests: React.FC = () => {
                 {viewingReportId === req.id && (
                   <div className="fixed inset-0 z-[110] bg-slate-900/90 backdrop-blur-lg flex items-center justify-center p-4">
                     <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[3rem] shadow-2xl relative animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col text-right">
-                      <div className="bg-primary p-6 md:p-8 text-white flex justify-between items-center shrink-0 border-b border-white/10">
-                         <div className="flex items-center gap-4">
+                      <div className="bg-primary p-6 md:p-8 text-white flex justify-between items-center shrink-0 border-b border-white/10 text-right">
+                         <div className="flex items-center gap-4 text-right">
                            <div className="w-12 h-12 md:w-14 md:h-14 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20">
                              <Award className="w-6 h-6 md:w-8 md:h-8" />
                            </div>
@@ -511,16 +511,16 @@ const UserRequests: React.FC = () => {
                       </div>
                       
                       <div id="report-to-print" className="p-6 md:p-10 overflow-y-auto custom-scrollbar flex-grow bg-white text-right">
-                         <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 flex items-center justify-between mb-8 shadow-inner">
-                            <div className="text-emerald-800 font-black">الدرجة النهائية المستحقة:</div>
+                         <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 flex items-center justify-between mb-8 shadow-inner text-right">
+                            <div className="text-emerald-800 font-black text-right">الدرجة النهائية المستحقة:</div>
                             <div className="text-3xl md:text-4xl font-black text-emerald-600">{req.finalScore}%</div>
                          </div>
-                         <div className="prose prose-slate max-w-none dir-rtl text-right whitespace-pre-wrap leading-loose font-medium text-gray-700">
+                         <div className="prose prose-slate max-w-none dir-rtl text-right whitespace-pre-wrap leading-loose font-medium text-gray-700 text-right">
                            {req.evaluationReport}
                          </div>
                       </div>
 
-                      <div className="p-6 md:p-8 border-t border-gray-100 bg-gray-50 flex flex-col md:flex-row justify-center items-center gap-4 shrink-0">
+                      <div className="p-6 md:p-8 border-t border-gray-100 bg-gray-50 flex flex-col md:flex-row justify-center items-center gap-4 shrink-0 text-right">
                          <Button variant="primary" className="px-12 py-4 w-full md:w-auto text-lg rounded-2xl shadow-xl shadow-accent/20" onClick={() => setViewingReportId(null)}>فهمت ذلك، شكراً لكم!</Button>
                          <button onClick={() => handleDownloadPDF(req.fullName)} disabled={isDownloading} className="flex items-center justify-center gap-2 px-10 py-4 bg-white border-2 border-accent text-accent rounded-2xl font-bold hover:bg-accent hover:text-white transition-all w-full md:w-auto shadow-sm disabled:opacity-50">{isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} حفظ التقرير (PDF)</button>
                       </div>
@@ -531,8 +531,8 @@ const UserRequests: React.FC = () => {
                 {reviewingRequestId === req.id && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
                         <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 text-right">
-                            <div className="bg-accent px-6 py-4 flex items-center justify-between text-white">
-                                <h3 className="font-bold text-lg flex items-center gap-2">
+                            <div className="bg-accent px-6 py-4 flex items-center justify-between text-white text-right">
+                                <h3 className="font-bold text-lg flex items-center gap-2 text-right">
                                     <MessageSquareQuote className="w-5 h-5" />
                                     تقييم تجربتك للمقابلة
                                 </h3>
@@ -540,7 +540,7 @@ const UserRequests: React.FC = () => {
                                     <X className="w-6 h-6" />
                                 </button>
                             </div>
-                            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar text-right">
                                 {reviewSuccess ? (
                                     <div className="py-12 text-center space-y-4">
                                         <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto animate-bounce" />

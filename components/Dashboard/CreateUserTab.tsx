@@ -8,6 +8,7 @@ import * as FirebaseAuth from 'firebase/auth';
 const { getAuth, createUserWithEmailAndPassword, signOut } = FirebaseAuth as any;
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { FIELD_OPTIONS } from '../../teamData';
 import { Mail, Lock, Shield, Briefcase, Award, Loader2, CheckCircle, AlertCircle, UserPlus, User } from 'lucide-react';
 import Button from '../Button';
 
@@ -85,15 +86,15 @@ const CreateUserTab: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4">
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <div className="bg-accent p-6 text-white flex items-center gap-3">
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden text-right">
+        <div className="bg-accent p-6 text-white flex items-center gap-3 justify-start text-right">
           <UserPlus className="w-6 h-6" />
           <h2 className="text-xl font-bold">إنشاء حساب كادر جديد</h2>
         </div>
 
-        <form onSubmit={handleCreateUser} className="p-8 space-y-6">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">اسم المستخدم / الكادر <span className="text-red-500">*</span></label>
+        <form onSubmit={handleCreateUser} className="p-8 space-y-6 text-right">
+          <div className="text-right">
+            <label className="block text-sm font-bold text-gray-700 mb-2 text-right">اسم المستخدم / الكادر <span className="text-red-500">*</span></label>
             <div className="relative">
               <User className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
               <input 
@@ -101,15 +102,15 @@ const CreateUserTab: React.FC = () => {
                 required 
                 value={name} 
                 onChange={(e) => setName(e.target.value)}
-                className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none"
+                className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none text-right"
                 placeholder="مثال: أحمد محمد (Frontend Interviewer)"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">البريد الإلكتروني <span className="text-red-500">*</span></label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-right">
+            <div className="text-right">
+              <label className="block text-sm font-bold text-gray-700 mb-2 text-right">البريد الإلكتروني <span className="text-red-500">*</span></label>
               <div className="relative">
                 <Mail className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
                 <input 
@@ -117,14 +118,14 @@ const CreateUserTab: React.FC = () => {
                   required 
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none"
+                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none text-right dir-ltr"
                   placeholder="staff@moqabala.com"
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">كلمة المرور <span className="text-red-500">*</span></label>
+            <div className="text-right">
+              <label className="block text-sm font-bold text-gray-700 mb-2 text-right">كلمة المرور <span className="text-red-500">*</span></label>
               <div className="relative">
                 <Lock className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
                 <input 
@@ -133,22 +134,22 @@ const CreateUserTab: React.FC = () => {
                   minLength={6}
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none"
+                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none text-right dir-ltr"
                   placeholder="••••••••"
                 />
               </div>
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">الصلاحية <span className="text-red-500">*</span></label>
+          <div className="text-right">
+            <label className="block text-sm font-bold text-gray-700 mb-2 text-right">الصلاحية <span className="text-red-500">*</span></label>
             <div className="relative">
               <Shield className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
               <select 
                 required
                 value={role} 
                 onChange={(e) => setRole(e.target.value as any)}
-                className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none appearance-none bg-white"
+                className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none appearance-none bg-white text-right"
               >
                 <option value="interviewer">محاور (interviewer)</option>
                 <option value="admin">مسؤول (admin)</option>
@@ -157,33 +158,32 @@ const CreateUserTab: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">التخصص (اختياري)</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-right">
+            <div className="text-right">
+              <label className="block text-sm font-bold text-gray-700 mb-2 text-right">التخصص (اختياري)</label>
               <div className="relative">
                 <Briefcase className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
                 <select 
                   value={field} 
                   onChange={(e) => setField(e.target.value)}
-                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none appearance-none bg-white"
+                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none appearance-none bg-white text-right"
                 >
                   <option value="">اختر التخصص...</option>
-                  <option value="UX">UX</option>
-                  <option value="FE">FE</option>
-                  <option value="BE">BE</option>
-                  <option value="mobile">mobile</option>
+                  {FIELD_OPTIONS.map(opt => (
+                    <option key={opt.id} value={opt.id}>{opt.label}</option>
+                  ))}
                 </select>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">المستوى (اختياري)</label>
+            <div className="text-right">
+              <label className="block text-sm font-bold text-gray-700 mb-2 text-right">المستوى (اختياري)</label>
               <div className="relative">
                 <Award className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
                 <select 
                   value={level} 
                   onChange={(e) => setLevel(e.target.value)}
-                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none appearance-none bg-white"
+                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none appearance-none bg-white text-right"
                 >
                   <option value="">اختر المستوى...</option>
                   <option value="fresh">مبتدأ (fresh)</option>
@@ -196,14 +196,14 @@ const CreateUserTab: React.FC = () => {
           </div>
 
           {error && (
-            <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl flex items-center gap-2 text-sm">
+            <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl flex items-center gap-2 text-sm justify-start text-right">
               <AlertCircle className="w-5 h-5" />
               {error}
             </div>
           )}
 
           {success && (
-            <div className="p-4 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl flex items-center gap-2 text-sm animate-in zoom-in">
+            <div className="p-4 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl flex items-center gap-2 text-sm animate-in zoom-in justify-start text-right">
               <CheckCircle className="w-5 h-5" />
               تم إنشاء الكادر بنجاح!
             </div>

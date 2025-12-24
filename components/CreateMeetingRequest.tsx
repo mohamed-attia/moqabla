@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Button from './Button';
 import { RegistrationFormData } from '../types';
+import { FIELD_OPTIONS } from '../teamData';
 import { db, auth } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import * as FirebaseAuth from 'firebase/auth';
@@ -15,7 +16,6 @@ import { sendAdminNotification } from '../lib/notifications';
 
 const { useNavigate, Link } = ReactRouterDOM as any;
 
-// تم تحديث الإيميل بناءً على طلبك
 const ADMIN_CONTACT_EMAIL = "m.attia@outlook.sa";
 
 const CreateMeetingRequest: React.FC = () => {
@@ -45,7 +45,7 @@ const CreateMeetingRequest: React.FC = () => {
     upcomingInterview: 'no',
     preferredTime: '',
     expectations: '',
-    planName: 'باقة مميزة', // الافتراضي
+    planName: 'باقة مميزة', 
     termsAccepted: false
   });
 
@@ -244,7 +244,7 @@ const CreateMeetingRequest: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pt-32 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-      <div className="max-w-3xl w-full space-y-8">
+      <div className="max-w-3xl w-full space-y-8 text-right">
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-gray-900">سجل اهتمامك الآن</h2>
           <p className="mt-2 text-lg text-gray-600">خطوة واحدة تفصلك عن تطوير مسارك المهني.</p>
@@ -265,28 +265,28 @@ const CreateMeetingRequest: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white py-8 px-6 shadow-xl rounded-2xl sm:px-10 border border-gray-100">
+        <div className="bg-white py-8 px-6 shadow-xl rounded-2xl sm:px-10 border border-gray-100 text-right">
           {step === 1 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300 text-right">
               <div className="text-center mb-6"><h3 className="text-xl font-bold text-primary">لنبدأ بالتعارف 👋</h3><p className="text-sm text-gray-500">بياناتك تساعدنا في التواصل معك وتخصيص تجربتك.</p></div>
               <div className="grid grid-cols-1 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">الاسم الكامل <span className="text-red-500">*</span></label>
+                <div className="text-right">
+                  <label className="block text-sm font-medium text-gray-700 mb-1 text-right">الاسم الكامل <span className="text-red-500">*</span></label>
                   <div className="relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><User className="h-5 w-5 text-gray-400" /></div>
-                    <input type="text" value={formData.fullName} onChange={(e) => updateField('fullName', e.target.value)} className={`${inputClasses} pr-10 py-3`} placeholder="مثال: أحمد محمد" />
+                    <input type="text" value={formData.fullName} onChange={(e) => updateField('fullName', e.target.value)} className={`${inputClasses} pr-10 py-3 text-right`} placeholder="مثال: أحمد محمد" />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني <span className="text-red-500">*</span></label>
+                  <div className="text-right">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 text-right">البريد الإلكتروني <span className="text-red-500">*</span></label>
                     <div className="relative rounded-md shadow-sm">
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><Mail className="h-5 w-5 text-gray-400" /></div>
-                      <input type="email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} className={`${inputClasses} pr-10 py-3`} placeholder="email@example.com" />
+                      <input type="email" value={formData.email} onChange={(e) => updateField('email', e.target.value)} className={`${inputClasses} pr-10 py-3 dir-ltr text-right`} placeholder="email@example.com" />
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">رقم الواتساب <span className="text-red-500">*</span></label>
+                  <div className="text-right">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 text-right">رقم الواتساب <span className="text-red-500">*</span></label>
                     <div className="relative rounded-md shadow-sm">
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><Phone className="h-5 w-5 text-gray-400" /></div>
                       <input type="tel" value={formData.whatsapp} onChange={(e) => updateField('whatsapp', e.target.value)} className={`${inputClasses} pr-10 py-3 dir-ltr text-right`} placeholder="+1234567890" />
@@ -294,15 +294,15 @@ const CreateMeetingRequest: React.FC = () => {
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">الدولة / المدينة <span className="text-red-500">*</span></label>
+                  <div className="text-right">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 text-right">الدولة / المدينة <span className="text-red-500">*</span></label>
                     <div className="relative rounded-md shadow-sm">
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><Globe className="h-5 w-5 text-gray-400" /></div>
-                      <input type="text" value={formData.country} onChange={(e) => updateField('country', e.target.value)} className={`${inputClasses} pr-10 py-3`} placeholder="اسم الدولة" />
+                      <input type="text" value={formData.country} onChange={(e) => updateField('country', e.target.value)} className={`${inputClasses} pr-10 py-3 text-right`} placeholder="اسم الدولة" />
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">رابط LinkedIn <span className="text-red-500">*</span></label>
+                  <div className="text-right">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 text-right">رابط LinkedIn <span className="text-red-500">*</span></label>
                     <div className="relative rounded-md shadow-sm">
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><Linkedin className="h-5 w-5 text-gray-400" /></div>
                       <input 
@@ -320,56 +320,55 @@ const CreateMeetingRequest: React.FC = () => {
           )}
 
           {step === 2 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300 text-right">
                <div className="text-center mb-6"><h3 className="text-xl font-bold text-primary">ما هو ملعبك التقني؟ 💻</h3><p className="text-sm text-gray-500">نحتاج لمعرفة خبراتك لنختار لك المُحاور المناسب.</p></div>
-               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">المجال التقني <span className="text-red-500">*</span></label>
+               <div className="text-right">
+                <label className="block text-sm font-medium text-gray-700 mb-3 text-right">المجال التقني <span className="text-red-500">*</span></label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {['Frontend', 'Backend', 'Full Stack', 'Mobile App', 'UX Design', 'QA Testing'].map((field) => (
-                    <div key={field} onClick={() => updateField('field', field)} className={`cursor-pointer border rounded-lg p-3 text-center transition-all ${formData.field === field ? 'border-accent bg-accent/5 text-accent font-bold ring-1 ring-accent' : 'border-gray-200 hover:border-gray-300 text-gray-600 text-sm'}`}>{field}</div>
+                  {FIELD_OPTIONS.map((opt) => (
+                    <div key={opt.id} onClick={() => updateField('field', opt.label)} className={`cursor-pointer border rounded-lg p-3 text-center transition-all ${formData.field === opt.label ? 'border-accent bg-accent/5 text-accent font-bold ring-1 ring-accent' : 'border-gray-200 hover:border-gray-300 text-gray-600 text-sm'}`}>{opt.labelAr}</div>
                   ))}
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">التقنيات التي تتقنها <span className="text-red-500">*</span></label>
+              <div className="text-right">
+                <label className="block text-sm font-medium text-gray-700 mb-1 text-right">التقنيات التي تتقنها <span className="text-red-500">*</span></label>
                 <div className="relative rounded-md shadow-sm">
                    <div className="absolute inset-y-0 right-3 top-3 pointer-events-none"><Code className="h-5 w-5 text-gray-400" /></div>
                    <textarea 
                     value={formData.techStack} 
                     onChange={(e) => updateField('techStack', e.target.value)} 
-                    className={`${inputClasses} pr-10 py-3 min-h-[100px]`} 
+                    className={`${inputClasses} pr-10 py-3 min-h-[100px] text-right`} 
                     placeholder="مثال: React, Node.js, TypeScript, PostgreSQL..." 
                    />
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">سنوات الخبرة <span className="text-red-500">*</span></label><input type="number" min="0" value={formData.experience} onChange={(e) => updateField('experience', parseInt(e.target.value))} className={`${inputClasses} py-3 px-4`} /></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-1">المستوى الوظيفي <span className="text-red-500">*</span></label><select value={formData.level} onChange={(e) => updateField('level', e.target.value)} className={`${inputClasses} py-3 px-4`}><option value="fresh">مبتدأ (fresh)</option><option value="junior">مبتدأ (junior)</option><option value="mid-senior">متوسط وخبير (mid/senior)</option><option value="lead-staff">قيادي (lead/staff)</option></select></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-right">
+                <div className="text-right"><label className="block text-sm font-medium text-gray-700 mb-1 text-right">سنوات الخبرة <span className="text-red-500">*</span></label><input type="number" min="0" value={formData.experience} onChange={(e) => updateField('experience', parseInt(e.target.value))} className={`${inputClasses} py-3 px-4 text-right`} /></div>
+                <div className="text-right"><label className="block text-sm font-medium text-gray-700 mb-1 text-right">المستوى الوظيفي <span className="text-red-500">*</span></label><select value={formData.level} onChange={(e) => updateField('level', e.target.value)} className={`${inputClasses} py-3 px-4 text-right`}><option value="fresh">مبتدأ (fresh)</option><option value="junior">مبتدأ (junior)</option><option value="mid-senior">متوسط وخبير (mid/senior)</option><option value="lead-staff">قيادي (lead/staff)</option></select></div>
               </div>
             </div>
           )}
 
           {step === 3 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300 text-right">
                <div className="text-center mb-6"><h3 className="text-xl font-bold text-primary">ماذا تتوقع منا؟ 🎯</h3><p className="text-sm text-gray-500">هذه التفاصيل تساعد الخبير في التحضير الجيد لمقابلتك.</p></div>
                
-               <div><label className="block text-sm font-medium text-gray-700 mb-3">أهدافك من المقابلة <span className="text-red-500">*</span></label><div className="space-y-2">{['تطوير المهارات التقنية', 'تحسين مهارات التواصل وعرض النفس', 'التعرف على نقاط الضعف والفجوات', 'التدرب على مقابلة وظيفية قادمة', 'الحصول على ترشيح (Referral)'].map((goal) => (<label key={goal} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 cursor-pointer"><input type="checkbox" checked={formData.goals.includes(goal)} onChange={() => toggleGoal(goal)} className="w-5 h-5 text-accent rounded focus:ring-accent" /><span className="text-gray-700 text-sm">{goal}</span></label>))}</div></div>
+               <div className="text-right"><label className="block text-sm font-medium text-gray-700 mb-3 text-right">أهدافك من المقابلة <span className="text-red-500">*</span></label><div className="space-y-2">{['تطوير المهارات التقنية', 'تحسين مهارات التواصل وعرض النفس', 'التعرف على نقاط الضعف والفجوات', 'التدرب على مقابلة وظيفية قادمة', 'الحصول على ترشيح (Referral)'].map((goal) => (<label key={goal} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 cursor-pointer"><input type="checkbox" checked={formData.goals.includes(goal)} onChange={() => toggleGoal(goal)} className="w-5 h-5 text-accent rounded focus:ring-accent" /><span className="text-gray-700 text-sm">{goal}</span></label>))}</div></div>
                
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div><label className="block text-sm font-medium text-gray-700 mb-2">الوقت المفضل للمقابلة <span className="text-red-500">*</span></label><select value={formData.preferredTime} onChange={(e) => updateField('preferredTime', e.target.value)} className={`${inputClasses} py-3 px-4`}><option value="">اختر الوقت...</option><option value="morning">صباحاً (9ص - 12م)</option><option value="evening">مساءً (4م - 9م)</option><option value="flexible">مرن في أي وقت</option></select></div>
-                <div><label className="block text-sm font-medium text-gray-700 mb-2">هل لديك مقابلة قادمة؟ <span className="text-red-500">*</span></label><select value={formData.upcomingInterview} onChange={(e) => updateField('upcomingInterview', e.target.value)} className={`${inputClasses} py-3 px-4`}><option value="no">لا يوجد حالياً</option><option value="yes_soon">نعم، خلال هذا الأسبوع</option><option value="yes_later">نعم، في موعد لاحق</option></select></div>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-right">
+                <div className="text-right"><label className="block text-sm font-medium text-gray-700 mb-2 text-right">الوقت المفضل للمقابلة <span className="text-red-500">*</span></label><select value={formData.preferredTime} onChange={(e) => updateField('preferredTime', e.target.value)} className={`${inputClasses} py-3 px-4 text-right`}><option value="">اختر الوقت...</option><option value="morning">صباحاً (9ص - 12م)</option><option value="evening">مساءً (4م - 9م)</option><option value="flexible">مرن في أي وقت</option></select></div>
+                <div className="text-right"><label className="block text-sm font-medium text-gray-700 mb-2 text-right">هل لديك مقابلة قادمة؟ <span className="text-red-500">*</span></label><select value={formData.upcomingInterview} onChange={(e) => updateField('upcomingInterview', e.target.value)} className={`${inputClasses} py-3 px-4 text-right`}><option value="no">لا يوجد حالياً</option><option value="yes_soon">نعم، خلال هذا الأسبوع</option><option value="yes_later">نعم، في موعد لاحق</option></select></div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex justify-between items-center">
+              <div className="text-right">
+                <label className="block text-sm font-medium text-gray-700 mb-1 flex justify-between items-center text-right">
                    <span>توقعاتك من الجلسة <span className="text-red-500">*</span></span>
                    <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full font-bold">10 حروف على الأقل</span>
                 </label>
-                <textarea value={formData.expectations} onChange={(e) => updateField('expectations', e.target.value)} className={`${inputClasses} py-3 px-4 min-h-[100px]`} placeholder="ما الذي تود التركيز عليه خلال الجلسة؟" />
+                <textarea value={formData.expectations} onChange={(e) => updateField('expectations', e.target.value)} className={`${inputClasses} py-3 px-4 min-h-[100px] text-right`} placeholder="ما الذي تود التركيز عليه خلال الجلسة؟" />
               </div>
 
-               {/* اختيار الباقة - تم نقله ليكون آخر حقل قبل الشروط */}
-               <div className="p-4 bg-accent/5 rounded-2xl border border-accent/20">
-                  <label className="block text-sm font-black text-accent mb-3 flex items-center gap-2">
+               <div className="p-4 bg-accent/5 rounded-2xl border border-accent/20 text-right">
+                  <label className="block text-sm font-black text-accent mb-3 flex items-center gap-2 text-right">
                     <Sparkles className="w-4 h-4" /> اختيار الباقة المطلوبة <span className="text-red-500">*</span>
                   </label>
                   <div className="grid grid-cols-2 gap-3">
@@ -383,15 +382,15 @@ const CreateMeetingRequest: React.FC = () => {
                       </div>
                     ))}
                   </div>
-                  <p className="text-[10px] text-gray-400 mt-2 font-bold px-1">
+                  <p className="text-[10px] text-gray-400 mt-2 font-bold px-1 text-right">
                     {formData.planName === 'باقة مميزة' ? '✨ تشمل تسجيل الفيديو والمناقشة المفتوحة' : '💡 تشمل التقييم الأساسي والتقرير الفني'}
                   </p>
                </div>
 
-              <div className="pt-4 border-t border-gray-100">
-                <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="pt-4 border-t border-gray-100 text-right">
+                <label className="flex items-start gap-3 cursor-pointer group text-right">
                   <input type="checkbox" checked={formData.termsAccepted} onChange={(e) => updateField('termsAccepted', e.target.checked)} className="mt-1 w-5 h-5 text-accent rounded focus:ring-accent border-gray-300" />
-                  <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
+                  <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors text-right">
                     أوافق على <button type="button" onClick={() => setShowTermsModal(true)} className="text-accent hover:underline font-bold">شروط الاستخدام</button> و <button type="button" onClick={() => setShowTermsModal(true)} className="text-accent hover:underline font-bold">سياسة الخصوصية</button> المتعلقة بالخدمة.
                   </span>
                 </label>
@@ -427,7 +426,7 @@ const CreateMeetingRequest: React.FC = () => {
 
       {showTermsModal && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-[2rem] max-w-2xl w-full max-h-[85vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-gray-100 flex flex-col">
+          <div className="bg-white rounded-[2rem] max-w-2xl w-full max-h-[85vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-gray-100 flex flex-col text-right">
             <div className="bg-primary p-6 text-white flex items-center justify-between shrink-0">
                <div className="flex items-center gap-3">
                  <Shield className="w-6 h-6 text-accent" />
@@ -438,59 +437,59 @@ const CreateMeetingRequest: React.FC = () => {
                </button>
             </div>
             <div className="p-8 overflow-y-auto custom-scrollbar space-y-8 text-gray-700 leading-relaxed text-right">
-                <section>
-                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <section className="text-right">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2 justify-start text-right">
                     <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm">1</span>
                     وصف الخدمة
                     </h2>
-                    <p className="mr-10 text-gray-600">
+                    <p className="mr-10 text-gray-600 text-right">
                     منصة "مقابلة" تقدم خدمات محاكاة للمقابلات الوظيفية، مراجعة السير الذاتية، وتقديم تقارير تقييمية للأداء. 
                     هدفنا هو مساعدة الباحثين عن عمل في تحسين مهاراتهم، ولكننا لا نضمن الحصول على وظيفة بعد استخدام الخدمة.
                     </p>
                 </section>
 
-                <section>
-                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <section className="text-right">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2 justify-start text-right">
                     <span className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-sm">2</span>
                     سياسة الدفع والاسترجاع
                     </h2>
-                    <div className="mr-10 space-y-4">
-                    <p className="text-gray-600">يتم تحصيل رسوم الجلسات عبر القنوات الرسمية المعتمدة لضمان أمان معاملاتك المالية:</p>
-                    <ul className="list-disc list-inside space-y-2 text-gray-600">
-                        <li>يتم دفع رسوم الجلسة كاملة مسبقاً لتأكيد الحجز.</li>
-                        <li><span className="font-bold text-gray-900">PayPal:</span> متاح لجميع المستخدمين عالمياً.</li>
-                        <li><span className="font-bold text-gray-900">InstaPay:</span> متاح للمستخدمين داخل مصر للتحويل اللحظي.</li>
-                        <li>يمكن استرداد المبلغ بالكامل في حال إلغاء الطلب قبل 24 ساعة.</li>
+                    <div className="mr-10 space-y-4 text-right">
+                    <p className="text-gray-600 text-right">يتم تحصيل رسوم الجلسات عبر القنوات الرسمية المعتمدة لضمان أمان معاملاتك المالية:</p>
+                    <ul className="list-disc list-inside space-y-2 text-gray-600 text-right">
+                        <li className="text-right">يتم دفع رسوم الجلسة كاملة مسبقاً لتأكيد الحجز.</li>
+                        <li className="text-right"><span className="font-bold text-gray-900">PayPal:</span> متاح لجميع المستخدمين عالمياً.</li>
+                        <li className="text-right"><span className="font-bold text-gray-900">InstaPay:</span> متاح للمستخدمين داخل مصر للتحويل اللحظي.</li>
+                        <li className="text-right">يمكن استرداد المبلغ بالكامل في حال إلغاء الطلب قبل 24 ساعة.</li>
                     </ul>
                     </div>
                 </section>
 
-                <section>
-                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <section className="text-right">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2 justify-start text-right">
                     <span className="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-sm">3</span>
                     مسؤوليات المستخدم
                     </h2>
-                    <p className="mr-10 text-gray-600">
+                    <p className="mr-10 text-gray-600 text-right">
                     يتعهد المستخدم بتقديم معلومات صحيحة ودقيقة لضمان جودة التقييم. كما يلتزم بالسلوك المهني واللائق خلال جلسات المقابلة.
                     </p>
                 </section>
 
-                <section>
-                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <section className="text-right">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2 justify-start text-right">
                     <span className="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-sm">4</span>
                     الخصوصية واستخدام البيانات
                     </h2>
-                    <p className="mr-10 text-gray-600">
+                    <p className="mr-10 text-gray-600 text-right">
                     نحن نحترم خصوصيتك. جميع البيانات التي تشاركها معنا يتم التعامل معها بسرية تامة وتستخدم فقط لغرض تقديم الخدمة وتحسين الجودة.
                     </p>
                 </section>
 
-                <section>
-                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <section className="text-right">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2 justify-start text-right">
                     <span className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-sm">5</span>
                     الموافقة على مشاركة البيانات
                     </h2>
-                    <p className="mr-10 text-gray-600 font-bold">
+                    <p className="mr-10 text-gray-600 font-bold text-right">
                     باستخدامك للمنصة، فإنك توافق على إمكانية عرض سيرتك الذاتية وبياناتك المهنية مع شركائنا في التوظيف لتعزيز فرص حصولك على العمل.
                     </p>
                 </section>
