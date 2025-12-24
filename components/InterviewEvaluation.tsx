@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   CheckCircle, ChevronLeft, ChevronRight, Star, Sparkles, 
@@ -7,7 +6,8 @@ import {
 } from 'lucide-react';
 import Button from './Button';
 import { AIAgent } from '../lib/ai-agent';
-import { FRESH_EVALUATION_TEMPLATE, JUNIOR_EVALUATION_TEMPLATE } from '../lib/evaluation-templates';
+// Fix: Use correct exported members from evaluation-templates
+import { FRESH_FE_EVALUATION_TEMPLATE, JUNIOR_FE_EVALUATION_TEMPLATE } from '../lib/evaluation-templates';
 import { EvaluationSection, EvaluationScore } from '../types';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
@@ -26,7 +26,8 @@ const InterviewEvaluation: React.FC<Props> = ({ registration, onComplete, onCanc
   const [isReviewing, setIsReviewing] = useState(false);
   
   // Choose template based on candidate level
-  const template = registration.level === 'junior' ? JUNIOR_EVALUATION_TEMPLATE : FRESH_EVALUATION_TEMPLATE;
+  // Fix: Use correct exported templates from evaluation-templates
+  const template = registration.level === 'junior' ? JUNIOR_FE_EVALUATION_TEMPLATE : FRESH_FE_EVALUATION_TEMPLATE;
   const [sections, setSections] = useState<EvaluationSection[]>(JSON.parse(JSON.stringify(template)));
 
   const scoreLabels = ['Not Demonstrated', 'Basic Awareness', 'Developing', 'Competent', 'Strong for Level'];

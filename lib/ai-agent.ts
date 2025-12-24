@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 
 /**
@@ -10,12 +9,8 @@ export const AIAgent = {
    * Suggests professional notes for a specific skill based on the score and context.
    */
   async suggestNote(skill: string, score: number, level: string, previousNotes?: string) {
-    // API key must be obtained exclusively from process.env.API_KEY
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) return "API Key not found. Please select an API key via the activation panel.";
-
-    // Create a new GoogleGenAI instance right before the call to ensure fresh key usage
-    const ai = new GoogleGenAI({ apiKey });
+    // Fix: API key must be obtained exclusively from process.env.API_KEY
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     const labels = ['Not Demonstrated', 'Basic Awareness', 'Developing', 'Competent', 'Strong for Level'];
     const label = labels[score - 1] || 'Unknown';
@@ -32,6 +27,7 @@ export const AIAgent = {
 
     try {
       const response: GenerateContentResponse = await ai.models.generateContent({
+        // Basic Text Task
         model: 'gemini-3-flash-preview',
         contents: prompt,
         config: { 
@@ -39,12 +35,10 @@ export const AIAgent = {
           thinkingConfig: { thinkingBudget: 0 } // Disable thinking for latency
         }
       });
+      // Fix: Access response.text property directly
       return response.text?.trim() || "لا توجد اقتراحات حالياً.";
     } catch (e: any) {
       console.error("AI Note Suggestion Error:", e);
-      if (e.message?.includes("API key not valid")) {
-        return "مفتاح API غير صالح. يرجى اختيار مفتاح جديد من خلال لوحة التنشيط في الأعلى.";
-      }
       return "حدث خطأ أثناء التواصل مع الذكاء الاصطناعي. يرجى المحاولة لاحقاً.";
     }
   },
@@ -53,10 +47,8 @@ export const AIAgent = {
    * Generates the final detailed report for the candidate.
    */
   async generateFinalReport(candidateName: string, interviewerName: string, level: string, evaluationData: any) {
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) return "API Key not found. Please select an API key via the activation panel.";
-
-    const ai = new GoogleGenAI({ apiKey });
+    // Fix: API key must be obtained exclusively from process.env.API_KEY
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
     const prompt = `You are an expert technical career coach. 
     Generate a high-quality, professional, and encouraging "Software Engineering Interview Evaluation Report" in Arabic.
@@ -99,19 +91,18 @@ export const AIAgent = {
 
     try {
       const response: GenerateContentResponse = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        // Complex Text Task
+        model: 'gemini-3-pro-preview',
         contents: prompt,
         config: { 
           temperature: 0.8,
           thinkingConfig: { thinkingBudget: 0 } // Fast generation
         }
       });
+      // Fix: Access response.text property directly
       return response.text || null;
     } catch (e: any) {
       console.error("AI Report Generation Error:", e);
-      if (e.message?.includes("API key not valid")) {
-        return "مفتاح API المستخدم غير صالح أو منتهي الصلاحية. يرجى إعادة اختيار مفتاح API صالح من مشروع GCP مفعل به الدفع.";
-      }
       return null;
     }
   }

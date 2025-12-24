@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Check, ShieldCheck, Zap, Gift, Sparkles, Users, Star, CreditCard, Wallet } from 'lucide-react';
+import { Check, ShieldCheck, Zap, Gift, Sparkles, Users, Star, CreditCard, Wallet, Clock } from 'lucide-react';
 import Button from './Button';
 import * as ReactRouterDOM from 'react-router-dom';
 import { auth, db } from '../lib/firebase';
@@ -118,7 +118,9 @@ const Pricing: React.FC = () => {
     };
   }, []);
 
-  const handleBookingAction = (planId: string) => {
+  const handleBookingAction = (planId: string, isUnderConstruction?: boolean) => {
+    if (isUnderConstruction) return;
+    
     if (!user) {
       navigate('/login');
     } else if (planId === 'referral') {
@@ -183,6 +185,7 @@ const Pricing: React.FC = () => {
         '🟢 موجهة للمطورين المحترفين للاستعداد لفرص متقدمة',
       ],
       icon: Zap,
+      isUnderConstruction: true
     },
     {
       id: 'staff',
@@ -201,6 +204,7 @@ const Pricing: React.FC = () => {
         '🟢 مصممة خصيصًا للقادة التقنيين لبناء رؤية قيادية والاستعداد لمناصب أعلى',
       ],
       icon: Users,
+      isUnderConstruction: true
     }
   ];
 
@@ -251,8 +255,17 @@ const Pricing: React.FC = () => {
                 plan.popular 
                   ? 'bg-slate-900 border-primary shadow-2xl scale-105 z-10 text-white' 
                   : 'bg-white border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-2'
-              } ${hasActiveRequest && !isAdmin && plan.id !== 'referral' ? 'opacity-75' : ''}`}
+              } ${ (hasActiveRequest && !isAdmin && plan.id !== 'referral') || plan.isUnderConstruction ? 'opacity-75' : ''}`}
             >
+              {plan.isUnderConstruction && (
+                <div className="absolute top-4 right-4 z-20">
+                  <div className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] font-black flex items-center gap-1.5 border border-amber-200 shadow-sm animate-pulse">
+                    <Clock className="w-3 h-3" />
+                    قيد التجهيز...انتظرونا
+                  </div>
+                </div>
+              )}
+
               {(plan.highlight || (plan.id === 'junior' && isPremium)) && (
                 <div className={`absolute -top-5 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full text-xs font-black shadow-lg flex items-center gap-2 whitespace-nowrap ${
                   plan.id === 'referral' ? 'bg-purple-600 text-white' : 'bg-accent text-white'
@@ -269,7 +282,7 @@ const Pricing: React.FC = () => {
                   <plan.icon className="w-7 h-7" />
                 </div>
                 <h3 className={`text-xl font-black mb-1 ${plan.popular ? 'text-white' : 'text-gray-900'}`}>{plan.title}</h3>
-                <p className={`text-xs font-bold uppercase tracking-wider ${plan.popular ? 'text-gray-400' : 'text-gray-500'}`}>{plan.level}</p>
+                <p className={`text-xs font-bold uppercase tracking-wider ${plan.popular ? 'text-gray-400' : 'text-gray-50'}`}>{plan.level}</p>
               </div>
 
               <div className="flex items-baseline gap-1 mb-6">
@@ -301,14 +314,15 @@ const Pricing: React.FC = () => {
 
               <div className="mt-auto pt-4">
                 <Button 
-                  onClick={() => handleBookingAction(plan.id)}
-                  disabled={hasActiveRequest && !isAdmin && plan.id !== 'referral'}
+                  onClick={() => handleBookingAction(plan.id, plan.isUnderConstruction)}
+                  disabled={(hasActiveRequest && !isAdmin && plan.id !== 'referral') || plan.isUnderConstruction}
                   className={`w-full py-4 rounded-2xl shadow-xl transition-all font-black text-sm ${
+                    plan.isUnderConstruction ? 'bg-gray-200 text-gray-500 cursor-not-allowed border-none' :
                     plan.id === 'referral' ? 'bg-purple-600 hover:bg-purple-700' :
                     plan.popular ? 'bg-accent hover:bg-accentHover text-white' : 'bg-primary hover:bg-secondary text-white'
                   }`}
                 >
-                  {hasActiveRequest && !isAdmin && plan.id !== 'referral' ? 'لديك طلب نشط' : (plan.id === 'referral' ? 'ابدأ التحدي الآن' : 'احجز موعدك')}
+                  {plan.isUnderConstruction ? 'انتظرونا قريباً' : (hasActiveRequest && !isAdmin && plan.id !== 'referral' ? 'لديك طلب نشط' : (plan.id === 'referral' ? 'ابدأ التحدي الآن' : 'احجز موعدك'))}
                 </Button>
               </div>
             </div>

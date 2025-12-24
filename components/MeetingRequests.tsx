@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
@@ -7,14 +6,22 @@ import { FIELD_OPTIONS } from '../teamData';
 import { 
   Loader2, FileText, Search, ChevronLeft, ChevronRight, Edit2, X, Filter, 
   Link as LinkIcon, Video, FileCheck, Save, Eye, User, Mail, Phone, 
-  Linkedin, Code, Briefcase, Target, Clock, AlertCircle, Calendar, Globe, ClipboardCheck, Award, Download, Hash, Users as UsersIcon, UserCheck, Sparkles, HelpCircle, Zap, MessageSquare
+  Linkedin, Briefcase, Target, Calendar, Globe, ClipboardCheck, Award, Download, Hash, Users as UsersIcon, Sparkles, Zap, MessageSquare,
+  Brain, Smartphone, Palette
 } from 'lucide-react';
 import * as FirebaseAuth from 'firebase/auth';
 const { onAuthStateChanged } = FirebaseAuth as any;
 import Button from './Button';
-import JuniorEvaluation from './evaluations/JuniorEvaluation';
 import SeniorMidEvaluation from './evaluations/SeniorMidEvaluation';
-import LeadEvaluation from './evaluations/LeadEvaluation';
+import { default as LeadEvaluation } from './evaluations/LeadEvaluation';
+import FreshFEEvaluation from './evaluations/FreshFEEvaluation';
+import JuniorFEEvaluation from './evaluations/JuniorFEEvaluation';
+import FreshBEEvaluation from './evaluations/FreshBEEvaluation';
+import JuniorBEEvaluation from './evaluations/JuniorBEEvaluation';
+import FreshMobileEvaluation from './evaluations/FreshMobileEvaluation';
+import JuniorMobileEvaluation from './evaluations/JuniorMobileEvaluation';
+import FreshUXEvaluation from './evaluations/FreshUXEvaluation';
+import JuniorUXEvaluation from './evaluations/JuniorUXEvaluation';
 import { sendUserStatusUpdateNotification } from '../lib/notifications';
 
 declare var html2pdf: any;
@@ -22,6 +29,8 @@ declare var html2pdf: any;
 interface RegistrationWithId extends RegistrationFormData {
   id: string;
 }
+
+type EvalType = 'senior' | 'lead' | 'fe-fresh' | 'fe-junior' | 'be-fresh' | 'be-junior' | 'mob-fresh' | 'mob-junior' | 'ux-fresh' | 'ux-junior';
 
 const MeetingRequests: React.FC = () => {
   const [allRegistrations, setAllRegistrations] = useState<RegistrationWithId[]>([]);
@@ -39,9 +48,9 @@ const MeetingRequests: React.FC = () => {
   const [viewingUserReferrals, setViewingUserReferrals] = useState<number>(0);
   const [viewingReport, setViewingReport] = useState<RegistrationWithId | null>(null);
   const [linkingRegistration, setLinkingRegistration] = useState<RegistrationWithId | null>(null);
-  const [evaluatingRegistration, setEvaluatingRegistration] = useState<RegistrationWithId | null>(null);
-  const [evaluatingSeniorRegistration, setEvaluatingSeniorRegistration] = useState<RegistrationWithId | null>(null);
-  const [evaluatingLeadRegistration, setEvaluatingLeadRegistration] = useState<RegistrationWithId | null>(null);
+  
+  // Consolidated evaluation state
+  const [activeEval, setActiveEval] = useState<{ type: EvalType; reg: RegistrationWithId } | null>(null);
   
   const [statusToUpdate, setStatusToUpdate] = useState<string>('');
   const [isUpdating, setIsUpdating] = useState(false);
@@ -157,9 +166,7 @@ const MeetingRequests: React.FC = () => {
     setViewingUserReferrals(0);
     setViewingReport(null);
     setLinkingRegistration(null);
-    setEvaluatingRegistration(null);
-    setEvaluatingSeniorRegistration(null);
-    setEvaluatingLeadRegistration(null);
+    setActiveEval(null);
     setIsUpdating(false);
   };
 
@@ -232,27 +239,6 @@ const MeetingRequests: React.FC = () => {
     }
   };
 
-  const getPreferredTimeLabel = (val: string) => {
-    switch (val) {
-      case 'morning': return 'صباحاً (9ص - 12م)';
-      case 'evening': return 'مساءً (4م - 9م)';
-      case 'flexible': return 'مرن في أي وقت';
-      default: return val || 'غير محدد';
-    }
-  };
-
-  const getInterviewHistoryLabel = (val: string) => {
-    return val === 'yes' ? 'نعم، لديه خبرة سابقة' : 'لا، هذه أول مرة له';
-  };
-
-  const getUpcomingInterviewLabel = (val: string) => {
-    switch (val) {
-      case 'yes_soon': return 'نعم، خلال هذا الأسبوع';
-      case 'yes_later': return 'نعم، في موعد لاحق';
-      default: return 'لا يوجد مقابلة محددة';
-    }
-  };
-
   const isAdmin = userProfile?.role === 'admin';
   const isMaintainer = userProfile?.role === 'maintainer';
   const isInterviewer = userProfile?.role === 'interviewer';
@@ -264,19 +250,33 @@ const MeetingRequests: React.FC = () => {
   }, {} as Record<string, string>);
 
   const filteredRegistrations = allRegistrations.filter(reg => {
+    // منطق التصفية للمحاور
     if (isInterviewer && interviewerField && !isAdmin) {
-      const targetField = interviewerFieldToLabel[interviewerField] || interviewerField;
-      if (reg.field !== targetField) return false;
-      if (reg.status !== 'approved' && reg.status !== 'completed') return false;
+      const interviewerFieldLabel = (interviewerFieldToLabel[interviewerField] || interviewerField).toLowerCase();
+      const registrationField = (reg.field || "").toLowerCase();
+
+      // التحقق من تخصص الموبايل بشكل خاص لضمان المرونة القصوى
+      const isMobileMatch = interviewerFieldLabel.includes('mobile') && registrationField.includes('mobile');
+      const isDirectMatch = registrationField.trim() === interviewerFieldLabel.trim();
+      
+      const isQualifiedForField = isMobileMatch || isDirectMatch;
+
+      if (!isQualifiedForField) return false;
+      
+      // المحاور يرى كل الحالات في تخصصه ما عدا الملغاة
+      if (reg.status === 'canceled') return false;
     }
+
     const term = searchTerm.toLowerCase().trim();
     const statusMatch = statusFilter === 'ALL' || reg.status === statusFilter || (!reg.status && statusFilter === 'pending');
     if (!term && statusMatch) return true;
+
     const emailMatch = reg.email?.toLowerCase().includes(term) || false;
     const phoneMatch = reg.whatsapp?.includes(term) || false;
     const nameMatch = reg.fullName?.toLowerCase().includes(term) || false;
     const idMatch = reg.requestNumber?.toLowerCase().includes(term) || false;
     const interviewerMatch = reg.interviewerName?.toLowerCase().includes(term) || false;
+
     return (emailMatch || phoneMatch || nameMatch || idMatch || interviewerMatch) && statusMatch;
   });
 
@@ -372,12 +372,38 @@ const MeetingRequests: React.FC = () => {
                           <td className="px-6 py-4 text-center">
                             <div className="flex items-center justify-center gap-2">
                                {reg.status === 'completed' && reg.evaluationReport && <button onClick={() => handleViewReport(reg)} className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors flex items-center gap-1 font-bold text-xs" title="عرض تقرير التقييم"><FileText className="w-5 h-5" /></button>}
-                               {isInterviewer && (reg.status === 'approved' || reg.status === 'reviewing') && (
-                                 <>
-                                   {(reg.level === 'fresh' || reg.level === 'junior') && <button onClick={() => setEvaluatingRegistration(reg)} className="p-2 text-accent hover:bg-accent/10 rounded-full transition-colors flex items-center gap-1 font-bold text-xs" title="بدء تقييم Junior/Fresh"><ClipboardCheck className="w-5 h-5" /> تقييم Jr</button>}
-                                   {reg.level === 'mid-senior' && <button onClick={() => setEvaluatingSeniorRegistration(reg)} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors flex items-center gap-1 font-bold text-xs" title="بدء تقييم Senior/Mid"><Award className="w-5 h-5" /> تقييم Senior</button>}
-                                   {reg.level === 'lead-staff' && <button onClick={() => setEvaluatingLeadRegistration(reg)} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors flex items-center gap-1 font-bold text-xs" title="بدء تقييم Lead/Staff"><Award className="w-5 h-5" /> تقييم Lead</button>}
-                                 </>
+                               {isInterviewer && (reg.status === 'approved' || reg.status === 'reviewing' || reg.status === 'pending') && (
+                                 <div className="flex items-center gap-1">
+                                   {/* Field-specific evaluation triggers */}
+                                   {(reg.field?.toLowerCase().includes('frontend') || reg.field === 'FE') && reg.level === 'fresh' && (
+                                      <button onClick={() => setActiveEval({ type: 'fe-fresh', reg })} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors flex items-center gap-1 font-bold text-xs"><Zap className="w-5 h-5" /> تقييم FE</button>
+                                   )}
+                                   {(reg.field?.toLowerCase().includes('frontend') || reg.field === 'FE') && reg.level === 'junior' && (
+                                      <button onClick={() => setActiveEval({ type: 'fe-junior', reg })} className="p-2 text-cyan-600 hover:bg-cyan-50 rounded-full transition-colors flex items-center gap-1 font-bold text-xs"><Brain className="w-5 h-5" /> تقييم FE Jr</button>
+                                   )}
+                                   {(reg.field?.toLowerCase().includes('backend') || reg.field === 'BE') && reg.level === 'fresh' && (
+                                      <button onClick={() => setActiveEval({ type: 'be-fresh', reg })} className="p-2 text-orange-600 hover:bg-orange-50 rounded-full transition-colors flex items-center gap-1 font-bold text-xs"><Zap className="w-5 h-5" /> تقييم BE</button>
+                                   )}
+                                   {(reg.field?.toLowerCase().includes('backend') || reg.field === 'BE') && reg.level === 'junior' && (
+                                      <button onClick={() => setActiveEval({ type: 'be-junior', reg })} className="p-2 text-teal-600 hover:bg-teal-50 rounded-full transition-colors flex items-center gap-1 font-bold text-xs"><Zap className="w-5 h-5" /> تقييم BE Jr</button>
+                                   )}
+                                   {reg.field?.toLowerCase().includes('mobile') && reg.level === 'fresh' && (
+                                      <button onClick={() => setActiveEval({ type: 'mob-fresh', reg })} className="p-2 text-indigo-700 hover:bg-indigo-50 rounded-full transition-colors flex items-center gap-1 font-bold text-xs"><Smartphone className="w-5 h-5" /> تقييم Mob</button>
+                                   )}
+                                   {reg.field?.toLowerCase().includes('mobile') && reg.level === 'junior' && (
+                                      <button onClick={() => setActiveEval({ type: 'mob-junior', reg })} className="p-2 text-violet-600 hover:bg-violet-50 rounded-full transition-colors flex items-center gap-1 font-bold text-xs"><Brain className="w-5 h-5" /> تقييم Mob Jr</button>
+                                   )}
+                                   {reg.field?.toLowerCase().includes('ux') && reg.level === 'fresh' && (
+                                      <button onClick={() => setActiveEval({ type: 'ux-fresh', reg })} className="p-2 text-teal-700 hover:bg-teal-50 rounded-full transition-colors flex items-center gap-1 font-bold text-xs"><Palette className="w-5 h-5" /> تقييم UX</button>
+                                   )}
+                                   {reg.field?.toLowerCase().includes('ux') && reg.level === 'junior' && (
+                                      <button onClick={() => setActiveEval({ type: 'ux-junior', reg })} className="p-2 text-violet-700 hover:bg-violet-50 rounded-full transition-colors flex items-center gap-1 font-bold text-xs"><Palette className="w-5 h-5" /> تقييم UX Jr</button>
+                                   )}
+                                   
+                                   {/* Common Experience Levels */}
+                                   {reg.level === 'mid-senior' && <button onClick={() => setActiveEval({ type: 'senior', reg })} className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors flex items-center gap-1 font-bold text-xs"><Award className="w-5 h-5" /> تقييم Senior</button>}
+                                   {reg.level === 'lead-staff' && <button onClick={() => setActiveEval({ type: 'lead', reg })} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors flex items-center gap-1 font-bold text-xs"><Award className="w-5 h-5" /> تقييم Lead</button>}
+                                 </div>
                                )}
                                {(reg.status === 'approved' || reg.status === 'completed') && <button onClick={() => handleLinkClick(reg)} className="p-2 text-gray-400 hover:text-accent rounded-full transition-colors" title="إدارة الروابط والبيانات"><LinkIcon className="w-5 h-5" /></button>}
                                <button onClick={() => handleViewDetails(reg)} className="p-2 text-gray-400 hover:text-blue-600 rounded-full transition-colors" title="عرض التفاصيل"><Eye className="w-5 h-5" /></button>
@@ -403,9 +429,21 @@ const MeetingRequests: React.FC = () => {
         )}
       </div>
 
-      {evaluatingRegistration && <JuniorEvaluation registration={evaluatingRegistration} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
-      {evaluatingSeniorRegistration && <SeniorMidEvaluation registration={evaluatingSeniorRegistration} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
-      {evaluatingLeadRegistration && <LeadEvaluation registration={evaluatingLeadRegistration} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+      {/* Dynamic Evaluation Rendering */}
+      {activeEval && (
+        <>
+          {activeEval.type === 'senior' && <SeniorMidEvaluation registration={activeEval.reg} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+          {activeEval.type === 'lead' && <LeadEvaluation registration={activeEval.reg} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+          {activeEval.type === 'fe-fresh' && <FreshFEEvaluation registration={activeEval.reg} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+          {activeEval.type === 'fe-junior' && <JuniorFEEvaluation registration={activeEval.reg} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+          {activeEval.type === 'be-fresh' && <FreshBEEvaluation registration={activeEval.reg} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+          {activeEval.type === 'be-junior' && <JuniorBEEvaluation registration={activeEval.reg} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+          {activeEval.type === 'mob-fresh' && <FreshMobileEvaluation registration={activeEval.reg} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+          {activeEval.type === 'mob-junior' && <JuniorMobileEvaluation registration={activeEval.reg} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+          {activeEval.type === 'ux-fresh' && <FreshUXEvaluation registration={activeEval.reg} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+          {activeEval.type === 'ux-junior' && <JuniorUXEvaluation registration={activeEval.reg} interviewerName={userProfile?.name} onComplete={() => { handleCloseModals(); fetchData(); }} onCancel={handleCloseModals} />}
+        </>
+      )}
 
       {viewingReport && (
         <div className="fixed inset-0 z-[110] bg-slate-900/90 backdrop-blur-lg flex items-center justify-center p-4" dir="rtl">
@@ -484,7 +522,6 @@ const MeetingRequests: React.FC = () => {
                </button>
             </div>
             <div className="p-8 overflow-y-auto custom-scrollbar space-y-8 text-right">
-              
               <div className="bg-slate-800 rounded-2xl p-6 text-white flex items-center justify-between shadow-xl">
                  <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-accent">
@@ -503,7 +540,6 @@ const MeetingRequests: React.FC = () => {
                  </div>
               </div>
 
-              {/* موعد وروابط الجلسة */}
               <div className="space-y-4 text-right">
                 <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg border-r-4 border-indigo-500 pr-4 text-right justify-start">
                   <LinkIcon className="w-5 h-5 text-indigo-500" /> موعد وروابط الجلسة
@@ -512,11 +548,6 @@ const MeetingRequests: React.FC = () => {
                    <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-between text-right">
                      <span className="text-xs font-bold text-indigo-600">موعد الجلسة:</span>
                      <span className="font-bold text-indigo-900">{viewingRegistration.meetingDate || 'غير محدد'}</span>
-                   </div>
-                   <div className="flex flex-wrap gap-3 justify-start">
-                      {viewingRegistration.meetingLink && <div className="text-xs bg-white border px-3 py-1 rounded-lg">رابط الجلسة موجود</div>}
-                      {viewingRegistration.reportLink && <div className="text-xs bg-white border px-3 py-1 rounded-lg">رابط التقرير موجود</div>}
-                      {viewingRegistration.videoLink && <div className="text-xs bg-white border px-3 py-1 rounded-lg">رابط الفيديو موجود</div>}
                    </div>
                 </div>
               </div>
@@ -559,38 +590,6 @@ const MeetingRequests: React.FC = () => {
                    <div className="p-4 bg-teal-50 border border-teal-100 rounded-xl text-right"><div className="text-[10px] text-teal-500 font-bold uppercase mb-1">المستوى</div><div className="font-bold text-teal-900">{getLevelLabel(viewingRegistration.level)}</div></div>
                    <div className="p-4 bg-purple-50 border border-purple-100 rounded-xl text-right"><div className="text-[10px] text-purple-500 font-bold uppercase mb-1">سنوات الخبرة</div><div className="font-bold text-purple-900">{viewingRegistration.experience} سنة</div></div>
                    <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl text-right"><div className="text-[10px] text-orange-500 font-bold uppercase mb-1">الباقة</div><div className="font-bold text-orange-900">{viewingRegistration.planName || 'باقة عادية'}</div></div>
-                   <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl col-span-2 text-right">
-                     <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">التقنيات التي يتقنها</div>
-                     <div className="text-sm font-medium text-gray-700 whitespace-pre-wrap">{viewingRegistration.techStack}</div>
-                   </div>
-                </div>
-              </div>
-
-              <div className="space-y-4 text-right">
-                <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg border-r-4 border-blue-500 pr-4 text-right justify-start">
-                  <Calendar className="w-5 h-5 text-blue-500" /> التحضير للمقابلة
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
-                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-right">
-                    <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">خبرة مقابلات سابقة</div>
-                    <div className="text-sm font-bold text-gray-700">{getInterviewHistoryLabel(viewingRegistration.hasInterviewExperience)}</div>
-                  </div>
-                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-right">
-                    <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">مقابلة قادمة</div>
-                    <div className="text-sm font-bold text-gray-700">{getUpcomingInterviewLabel(viewingRegistration.upcomingInterview)}</div>
-                  </div>
-                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-right">
-                    <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">الوقت المفضل</div>
-                    <div className="text-sm font-bold text-gray-700">{getPreferredTimeLabel(viewingRegistration.preferredTime)}</div>
-                  </div>
-                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-right">
-                    <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">الأهداف المختارة</div>
-                    <div className="flex flex-wrap gap-1 mt-1 justify-end">
-                      {viewingRegistration.goals?.map((g, i) => (
-                        <span key={i} className="bg-white px-2 py-0.5 rounded border border-gray-200 text-[10px] font-bold text-gray-600">{g}</span>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               </div>
 

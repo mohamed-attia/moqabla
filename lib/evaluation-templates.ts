@@ -1,10 +1,227 @@
 
 import { EvaluationSection } from '../types';
 
-export const FRESH_EVALUATION_TEMPLATE: EvaluationSection[] = [
+export const JUNIOR_FE_EVALUATION_TEMPLATE: EvaluationSection[] = [
   {
-    id: 'fundamentals',
-    title: '1. أساسيات البرمجة (Programming Fundamentals)',
+    id: 'junior-fe-fundamentals',
+    title: '1. Frontend Fundamentals',
+    weight: 25,
+    items: [
+      { skill: 'HTML semantics & accessibility', score: 3, notes: '' },
+      { skill: 'CSS layout (Flex/Grid) & responsiveness', score: 3, notes: '' },
+      { skill: 'JavaScript (ES6+) fundamentals', score: 3, notes: '' },
+      { skill: 'Clean component structure', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'junior-fe-component-design',
+    title: '2. Component Design & State Management',
+    weight: 25,
+    items: [
+      { skill: 'State vs Props / Inputs flow', score: 3, notes: '' },
+      { skill: 'Lifting state up patterns', score: 3, notes: '' },
+      { skill: 'Component reusability & modularity', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'junior-fe-framework',
+    title: '3. Framework Knowledge (React / Angular)',
+    weight: 20,
+    items: [
+      { skill: 'Lifecycle (Hooks/Effects or Lifecycle Hooks)', score: 3, notes: '' },
+      { skill: 'Controlled forms / Two-way binding', score: 3, notes: '' },
+      { skill: 'Architecture (Smart vs Dumb / Services & DI)', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'junior-fe-data',
+    title: '4. Data Handling & API Integration',
+    weight: 15,
+    items: [
+      { skill: 'Fetching data & Async management', score: 3, notes: '' },
+      { skill: 'UX Awareness (Loading/Error/Empty states)', score: 3, notes: '' },
+      { skill: 'UI-Data synchronization & Updating', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'junior-fe-debugging',
+    title: '5. Debugging & Dev Practices',
+    weight: 10,
+    items: [
+      { skill: 'Browser DevTools mastery', score: 3, notes: '' },
+      { skill: 'Git basics (Branching/PR workflow)', score: 3, notes: '' },
+      { skill: 'Code review awareness & troubleshooting', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'junior-fe-communication',
+    title: '6. Communication & Ownership',
+    weight: 5,
+    items: [
+      { skill: 'Feature walkthrough (Verbal clarity)', score: 3, notes: '' },
+      { skill: 'Handling requirements ambiguity', score: 3, notes: '' },
+      { skill: 'Receptiveness to technical feedback', score: 3, notes: '' },
+    ],
+    summary: ''
+  }
+];
+
+export const FRESH_FE_EVALUATION_TEMPLATE: EvaluationSection[] = [
+  {
+    id: 'fe-fundamentals',
+    title: '1. Frontend Fundamentals',
+    weight: 30,
+    items: [
+      { skill: 'HTML / CSS basics', score: 3, notes: '' },
+      { skill: 'JavaScript fundamentals', score: 3, notes: '' },
+      { skill: 'Component structure', score: 3, notes: '' },
+      { skill: 'DOM & UI updates', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'problem-solving-ui',
+    title: '2. Problem‑Solving & UI Thinking',
+    weight: 25,
+    items: [
+      { skill: 'Understanding requirements (Clarifying questions)', score: 3, notes: '' },
+      { skill: 'Problem decomposition', score: 3, notes: '' },
+      { skill: 'UI Planning & User Perspective', score: 3, notes: '' },
+      { skill: 'Handling Edge Cases (Loading/Empty states)', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'js-data-handling',
+    title: '3. JavaScript & Data Handling',
+    weight: 15,
+    items: [
+      { skill: 'Arrays & Objects manipulation', score: 3, notes: '' },
+      { skill: 'Rendering dynamic data (map/filter)', score: 3, notes: '' },
+      { skill: 'Logic & UI synchronization', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'framework-basics',
+    title: '4. Framework Basics (React / Angular)',
+    weight: 15,
+    items: [
+      { skill: 'State Management (useState / Inputs)', score: 3, notes: '' },
+      { skill: 'Lifecycle & Effects (useEffect / Hooks)', score: 3, notes: '' },
+      { skill: 'Services & Data Fetching (Angular Service / API calls)', score: 3, notes: '' },
+      { skill: 'Observables vs Promises (Async handling)', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'learning-ability',
+    title: '5. Learning Ability & Attitude',
+    weight: 10,
+    items: [
+      { skill: 'Growth Mindset & Flexibility', score: 3, notes: '' },
+      { skill: 'Handling Feedback', score: 3, notes: '' },
+      { skill: 'Problem solving approach when stuck', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'communication-fe',
+    title: '6. Communication',
+    weight: 5,
+    items: [
+      { skill: 'Technical clarity (Explaining solutions)', score: 3, notes: '' },
+      { skill: 'Honesty & Professionalism', score: 3, notes: '' },
+    ],
+    summary: ''
+  }
+];
+
+export const FRESH_BE_EVALUATION_TEMPLATE: EvaluationSection[] = [
+  {
+    id: 'be-fundamentals',
+    title: '1. Programming Fundamentals (Java / .NET)',
+    weight: 30,
+    items: [
+      { skill: 'Variables & Data Types', score: 3, notes: '' },
+      { skill: 'Conditions & Loops', score: 3, notes: '' },
+      { skill: 'Methods / Functions', score: 3, notes: '' },
+      { skill: 'Basic OOP Concepts (Inheritance, Polymorphism)', score: 3, notes: '' },
+      { skill: 'Code Readability & Naming', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'be-problem-solving',
+    title: '2. Problem‑Solving & Logical Thinking',
+    weight: 25,
+    items: [
+      { skill: 'Understanding requirements', score: 3, notes: '' },
+      { skill: 'Breaking problems into steps', score: 3, notes: '' },
+      { skill: 'Writing logical solutions', score: 3, notes: '' },
+      { skill: 'Handling edge cases (nulls, empty input)', score: 3, notes: '' },
+      { skill: 'Explaining the solution clearly', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'be-data-structures',
+    title: '3. Data Structures – Basics',
+    weight: 15,
+    items: [
+      { skill: 'Arrays / Lists usage', score: 3, notes: '' },
+      { skill: 'Maps / Dictionaries handling', score: 3, notes: '' },
+      { skill: 'Basic collections usage', score: 3, notes: '' },
+      { skill: 'Choosing the right structure', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'be-api-fundamentals',
+    title: '4. Backend & API Fundamentals',
+    weight: 15,
+    items: [
+      { skill: 'REST API Concepts', score: 3, notes: '' },
+      { skill: 'HTTP methods & Status codes', score: 3, notes: '' },
+      { skill: 'Request / Response flow', score: 3, notes: '' },
+      { skill: 'Basic Error Handling', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'be-attitude',
+    title: '5. Learning Ability & Attitude',
+    weight: 10,
+    items: [
+      { skill: 'Willingness to learn', score: 3, notes: '' },
+      { skill: 'Accepting feedback', score: 3, notes: '' },
+      { skill: 'Persistence when stuck', score: 3, notes: '' },
+      { skill: 'Asking clarifying questions', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'be-communication',
+    title: '6. Communication Basics',
+    weight: 5,
+    items: [
+      { skill: 'Clear explanation', score: 3, notes: '' },
+      { skill: 'Understanding questions', score: 3, notes: '' },
+      { skill: 'Honest communication', score: 3, notes: '' },
+    ],
+    summary: ''
+  }
+];
+
+export const FRESH_MOBILE_EVALUATION_TEMPLATE: EvaluationSection[] = [
+  {
+    id: 'mobile-programming',
+    title: '1. Programming Fundamentals (Mobile)',
     weight: 30,
     items: [
       { skill: 'Variables & Data Types', score: 3, notes: '' },
@@ -16,140 +233,355 @@ export const FRESH_EVALUATION_TEMPLATE: EvaluationSection[] = [
     summary: ''
   },
   {
-    id: 'problem-solving',
-    title: '2. حل المشكلات والتفكير المنطقي (Problem-Solving)',
+    id: 'mobile-ui',
+    title: '2. Mobile UI & Screen Thinking',
     weight: 25,
     items: [
-      { skill: 'Understanding the problem', score: 3, notes: '' },
-      { skill: 'Breaking problems into steps', score: 3, notes: '' },
-      { skill: 'Writing a simple logical solution', score: 3, notes: '' },
-      { skill: 'Handling simple edge cases', score: 3, notes: '' },
-      { skill: 'Explaining the solution clearly', score: 3, notes: '' },
+      { skill: 'Understanding UI Requirements', score: 3, notes: '' },
+      { skill: 'Screen Layout Basics', score: 3, notes: '' },
+      { skill: 'Handling User Interaction', score: 3, notes: '' },
+      { skill: 'Simple Navigation Flow', score: 3, notes: '' },
+      { skill: 'Explaining UI Logic', score: 3, notes: '' },
     ],
     summary: ''
   },
   {
-    id: 'data-structures',
-    title: '3. هياكل البيانات - الأساسيات (Data Structures Basics)',
+    id: 'mobile-data',
+    title: '3. Data Handling & State (Basics)',
     weight: 15,
     items: [
-      { skill: 'Arrays / Lists usage', score: 3, notes: '' },
-      { skill: 'Strings handling', score: 3, notes: '' },
-      { skill: 'Basic Maps / Objects', score: 3, notes: '' },
-      { skill: 'Choosing the right data structure', score: 3, notes: '' },
+      { skill: 'Lists / Collections usage', score: 3, notes: '' },
+      { skill: 'Passing data between screens', score: 3, notes: '' },
+      { skill: 'Simple State Handling', score: 3, notes: '' },
+      { skill: 'Updating UI with Data', score: 3, notes: '' },
     ],
     summary: ''
   },
   {
-    id: 'sw-dev-fundamentals',
-    title: '4. أساسيات تطوير البرمجيات (SW Dev Fundamentals)',
+    id: 'mobile-fundamentals',
+    title: '4. Mobile Development Fundamentals',
     weight: 15,
     items: [
-      { skill: 'Understanding software projects', score: 3, notes: '' },
-      { skill: 'Awareness of SDLC basics', score: 3, notes: '' },
-      { skill: 'Git basics (add, commit)', score: 3, notes: '' },
-      { skill: 'Bug vs Feature understanding', score: 3, notes: '' },
+      { skill: 'App Lifecycle (Basic awareness)', score: 3, notes: '' },
+      { skill: 'Navigation Basics', score: 3, notes: '' },
+      { skill: 'API usage (High-level)', score: 3, notes: '' },
+      { skill: 'Basic Error Handling', score: 3, notes: '' },
     ],
     summary: ''
   },
   {
-    id: 'attitude',
-    title: '5. القدرة على التعلم والسلوك (Learning Ability & Attitude)',
+    id: 'mobile-attitude',
+    title: '5. Learning Ability & Attitude',
     weight: 10,
     items: [
       { skill: 'Willingness to learn', score: 3, notes: '' },
       { skill: 'Accepting feedback', score: 3, notes: '' },
-      { skill: 'Persistence when stuck', score: 3, notes: '' },
-      { skill: 'Asking questions', score: 3, notes: '' },
+      { skill: 'Persistence', score: 3, notes: '' },
+      { skill: 'Asking clarifying questions', score: 3, notes: '' },
     ],
     summary: ''
   },
   {
-    id: 'communication',
-    title: '6. أساسيات التواصل (Communication Basics)',
+    id: 'mobile-communication',
+    title: '6. Communication Basics',
     weight: 5,
     items: [
-      { skill: 'Clear explanation', score: 3, notes: '' },
-      { skill: 'Understanding questions', score: 3, notes: '' },
+      { skill: 'Clear Explanation', score: 3, notes: '' },
+      { skill: 'Understanding requirements', score: 3, notes: '' },
       { skill: 'Honest communication', score: 3, notes: '' },
     ],
     summary: ''
   }
 ];
 
-export const JUNIOR_EVALUATION_TEMPLATE: EvaluationSection[] = [
+export const FRESH_UX_EVALUATION_TEMPLATE: EvaluationSection[] = [
   {
-    id: 'coding-quality',
-    title: '1. جودة الكود والبرمجة (Programming & Coding Quality)',
-    weight: 25,
+    id: 'ux-fundamentals',
+    title: '1. UX Fundamentals & Design Thinking',
+    weight: 30,
     items: [
-      { skill: 'Clean & maintainable code', score: 3, notes: '' },
-      { skill: 'Functions & modular design', score: 3, notes: '' },
-      { skill: 'Error handling basics', score: 3, notes: '' },
-      { skill: 'OOP concepts (Inheritance, Classes)', score: 3, notes: '' },
-      { skill: 'Code structure & naming', score: 3, notes: '' },
+      { skill: 'Understanding UX vs UI', score: 3, notes: '' },
+      { skill: 'User-centered thinking', score: 3, notes: '' },
+      { skill: 'Problem definition', score: 3, notes: '' },
+      { skill: 'Basic design principles', score: 3, notes: '' },
+      { skill: 'Design reasoning', score: 3, notes: '' },
     ],
     summary: ''
   },
   {
-    id: 'algorithms',
-    title: '2. حل المشكلات والخوارزميات (Problem-Solving & Algorithms)',
+    id: 'user-research',
+    title: '2. User Research & Understanding',
+    weight: 20,
+    items: [
+      { skill: 'Understanding target users', score: 3, notes: '' },
+      { skill: 'Personas awareness', score: 3, notes: '' },
+      { skill: 'User pain points', score: 3, notes: '' },
+      { skill: 'Asking the right questions', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'wireframing-ia',
+    title: '3. Wireframing & Information Architecture',
+    weight: 20,
+    items: [
+      { skill: 'Screen layout structure', score: 3, notes: '' },
+      { skill: 'Wireframing basics', score: 3, notes: '' },
+      { skill: 'Navigation flow', score: 3, notes: '' },
+      { skill: 'Content hierarchy', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'ux-tools',
+    title: '4. UX Tools & Collaboration Basics',
+    weight: 15,
+    items: [
+      { skill: 'Design tools (Figma, etc.)', score: 3, notes: '' },
+      { skill: 'Basic prototyping', score: 3, notes: '' },
+      { skill: 'Handoff awareness', score: 3, notes: '' },
+      { skill: 'Working with developers', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'ux-learning',
+    title: '5. Learning Ability & Attitude',
+    weight: 10,
+    items: [
+      { skill: 'Willingness to learn', score: 3, notes: '' },
+      { skill: 'Accepting feedback', score: 3, notes: '' },
+      { skill: 'Curiosity', score: 3, notes: '' },
+      { skill: 'Self-improvement', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'ux-communication',
+    title: '6. Communication & Presentation',
+    weight: 5,
+    items: [
+      { skill: 'Explaining design decisions', score: 3, notes: '' },
+      { skill: 'Storytelling', score: 3, notes: '' },
+      { skill: 'Understanding feedback', score: 3, notes: '' },
+    ],
+    summary: ''
+  }
+];
+
+export const JUNIOR_UX_EVALUATION_TEMPLATE: EvaluationSection[] = [
+  {
+    id: 'jr-ux-thinking',
+    title: '1. UX Thinking & Problem Solving',
+    weight: 30,
+    items: [
+      { skill: 'UX vs UI understanding', score: 3, notes: '' },
+      { skill: 'Problem framing', score: 3, notes: '' },
+      { skill: 'User-centered decisions', score: 3, notes: '' },
+      { skill: 'Design trade-offs', score: 3, notes: '' },
+      { skill: 'Reasoning & justification', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'jr-ux-research',
+    title: '2. User Research & Insights',
+    weight: 20,
+    items: [
+      { skill: 'Personas creation', score: 3, notes: '' },
+      { skill: 'User journeys', score: 3, notes: '' },
+      { skill: 'Pain points identification', score: 3, notes: '' },
+      { skill: 'Turning insights into design', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'jr-ux-flows',
+    title: '3. Wireframing, IA & UX Flows',
+    weight: 20,
+    items: [
+      { skill: 'User flows', score: 3, notes: '' },
+      { skill: 'Information architecture', score: 3, notes: '' },
+      { skill: 'Edge cases & empty states', score: 3, notes: '' },
+      { skill: 'Multi-screen consistency', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'jr-ux-handoff',
+    title: '4. Tools, Prototyping & Handoff',
+    weight: 15,
+    items: [
+      { skill: 'Figma components', score: 3, notes: '' },
+      { skill: 'Interactive prototyping', score: 3, notes: '' },
+      { skill: 'Design systems awareness', score: 3, notes: '' },
+      { skill: 'Developer handoff', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'jr-ux-collab',
+    title: '5. Collaboration, Feedback & Ownership',
+    weight: 10,
+    items: [
+      { skill: 'Receiving feedback', score: 3, notes: '' },
+      { skill: 'Iteration mindset', score: 3, notes: '' },
+      { skill: 'Cross-team collaboration', score: 3, notes: '' },
+      { skill: 'Design ownership', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'jr-ux-soft',
+    title: '6. Communication & Storytelling',
+    weight: 5,
+    items: [
+      { skill: 'Design storytelling', score: 3, notes: '' },
+      { skill: 'Explaining decisions', score: 3, notes: '' },
+      { skill: 'Stakeholder clarity', score: 3, notes: '' },
+    ],
+    summary: ''
+  }
+];
+
+export const JUNIOR_MOBILE_EVALUATION_TEMPLATE: EvaluationSection[] = [
+  {
+    id: 'jr-mobile-coding',
+    title: '1. Programming & OOP Fundamentals',
     weight: 25,
     items: [
-      { skill: 'Breaking complex problems', score: 3, notes: '' },
-      { skill: 'Designing step-by-step solutions', score: 3, notes: '' },
+      { skill: 'Clean code & Readability', score: 3, notes: '' },
+      { skill: 'OOP principles', score: 3, notes: '' },
+      { skill: 'Reusable functions/classes', score: 3, notes: '' },
+      { skill: 'Error Handling', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'jr-mobile-ui',
+    title: '2. Mobile UI & Screen Architecture',
+    weight: 25,
+    items: [
+      { skill: 'Screen composition', score: 3, notes: '' },
+      { skill: 'Navigation flow', score: 3, notes: '' },
+      { skill: 'Handling user interactions', score: 3, notes: '' },
+      { skill: 'UI edge cases', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'jr-mobile-state',
+    title: '3. State Management & Data Flow',
+    weight: 15,
+    items: [
+      { skill: 'Managing state', score: 3, notes: '' },
+      { skill: 'Passing data between screens', score: 3, notes: '' },
+      { skill: 'Updating UI with data', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'jr-mobile-lifecycle',
+    title: '4. Mobile App Lifecycle & Platform Knowledge',
+    weight: 15,
+    items: [
+      { skill: 'App lifecycle understanding', score: 3, notes: '' },
+      { skill: 'Background / foreground handling', score: 3, notes: '' },
+      { skill: 'Navigation lifecycle', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'jr-mobile-api',
+    title: '5. API Integration & Async Handling',
+    weight: 15,
+    items: [
+      { skill: 'Calling APIs', score: 3, notes: '' },
+      { skill: 'Async handling', score: 3, notes: '' },
+      { skill: 'Error & loading states', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'jr-mobile-soft',
+    title: '6. Communication & Ownership',
+    weight: 5,
+    items: [
+      { skill: 'Explaining decisions', score: 3, notes: '' },
+      { skill: 'Handling unclear requirements', score: 3, notes: '' },
+      { skill: 'Ownership mindset', score: 3, notes: '' },
+    ],
+    summary: ''
+  }
+];
+
+export const JUNIOR_BE_EVALUATION_TEMPLATE: EvaluationSection[] = [
+  {
+    id: 'jr-be-coding',
+    title: '1. Programming & OOP Fundamentals',
+    weight: 25,
+    items: [
+      { skill: 'Clean code & Readability', score: 3, notes: '' },
+      { skill: 'OOP principles (SOLID Basics)', score: 3, notes: '' },
+      { skill: 'Exception Handling', score: 3, notes: '' },
+      { skill: 'Code Reusability', score: 3, notes: '' },
+    ],
+    summary: ''
+  },
+  {
+    id: 'jr-be-logic',
+    title: '2. Problem‑Solving & Logical Thinking',
+    weight: 25,
+    items: [
+      { skill: 'Analyzing requirements', score: 3, notes: '' },
+      { skill: 'Designing solution', score: 3, notes: '' },
       { skill: 'Handling edge cases', score: 3, notes: '' },
-      { skill: 'Searching & Sorting algorithms', score: 3, notes: '' },
-      { skill: 'Correctness vs Efficiency balance', score: 3, notes: '' },
+      { skill: 'Explaining Decisions', score: 3, notes: '' },
     ],
     summary: ''
   },
   {
-    id: 'ds-knowledge',
-    title: '3. المعرفة بهياكل البيانات (Data Structures Knowledge)',
+    id: 'jr-be-ds',
+    title: '3. Data Structures & Performance Basics',
     weight: 15,
     items: [
-      { skill: 'Arrays, Lists, Stacks, Queues', score: 3, notes: '' },
-      { skill: 'Hash maps / Dictionaries usage', score: 3, notes: '' },
-      { skill: 'Choosing right DS', score: 3, notes: '' },
-      { skill: 'Time/Space trade-offs awareness', score: 3, notes: '' },
+      { skill: 'Lists / Maps / Sets usage', score: 3, notes: '' },
+      { skill: 'Choosing proper structure', score: 3, notes: '' },
+      { skill: 'Basic Performance awareness', score: 3, notes: '' },
     ],
     summary: ''
   },
   {
-    id: 'se-practices',
-    title: '4. ممارسات هندسة البرمجيات (Software Engineering Practices)',
-    weight: 15,
+    id: 'jr-be-api',
+    title: '4. Backend & API Design',
+    weight: 20,
     items: [
-      { skill: 'Git branching & workflow', score: 3, notes: '' },
-      { skill: 'Simple Unit Testing', score: 3, notes: '' },
-      { skill: 'Debugging & Troubleshooting', score: 3, notes: '' },
-      { skill: 'Dev/Stage/Prod environments', score: 3, notes: '' },
-      { skill: 'Documentation skills', score: 3, notes: '' },
+      { skill: 'RESTful Design', score: 3, notes: '' },
+      { skill: 'HTTP Status codes', score: 3, notes: '' },
+      { skill: 'Validation & Error handling', score: 3, notes: '' },
+      { skill: 'Layered architecture', score: 3, notes: '' },
     ],
     summary: ''
   },
   {
-    id: 'system-basics',
-    title: '5. أساسيات الأنظمة والمعمارية (System & Architecture Basics)',
+    id: 'jr-be-framework',
+    title: '5. Framework & Runtime Knowledge',
     weight: 10,
     items: [
-      { skill: 'Understanding of APIs', score: 3, notes: '' },
-      { skill: 'Client-server concepts', score: 3, notes: '' },
-      { skill: 'Basic database concepts', score: 3, notes: '' },
-      { skill: 'Scalability & Performance awareness', score: 3, notes: '' },
+      { skill: 'Spring Boot / ASP.NET Pipeline', score: 3, notes: '' },
+      { skill: 'Dependency Injection', score: 3, notes: '' },
+      { skill: 'Annotations / Middleware basics', score: 3, notes: '' },
     ],
     summary: ''
   },
   {
-    id: 'teamwork',
-    title: '6. التواصل والتعاون (Communication & Collaboration)',
-    weight: 10,
+    id: 'jr-be-soft',
+    title: '6. Communication & Ownership',
+    weight: 5,
     items: [
-      { skill: 'Explaining technical ideas', score: 3, notes: '' },
-      { skill: 'Working with feedback', score: 3, notes: '' },
-      { skill: 'Pair programming & teamwork', score: 3, notes: '' },
-      { skill: 'Asking clarifying questions', score: 3, notes: '' },
+      { skill: 'Explaining backend flow', score: 3, notes: '' },
+      { skill: 'Handling unclear requirements', score: 3, notes: '' },
+      { skill: 'Taking responsibility', score: 3, notes: '' },
     ],
     summary: ''
   }

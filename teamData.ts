@@ -8,7 +8,7 @@ export const FIELD_OPTIONS = [
   { id: 'Full Stack', label: 'Full Stack', labelAr: 'شامل (Full Stack)' },
   { id: 'MOBILE', label: 'Mobile App', labelAr: 'تطبيقات (Mobile)' },
   { id: 'UX', label: 'UX Design', labelAr: 'تصميم (UX/UI)' },
-  { id: 'QA', label: 'QA Testing', labelAr: 'جودة (QA/Testing)' },
+  // { id: 'QA', label: 'QA Testing', labelAr: 'جودة (QA/Testing)' },
 ] as const;
 
 export const teamMembers: TeamMember[] = [
