@@ -1,13 +1,14 @@
+
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
-import { RegistrationFormData, UserProfile } from '../types';
+import { RegistrationFormData, UserProfile, STATUS_LABELS } from '../types';
 import { FIELD_OPTIONS } from '../teamData';
 import { 
   Loader2, FileText, Search, ChevronLeft, ChevronRight, Edit2, X, Filter, 
   Link as LinkIcon, Video, FileCheck, Save, Eye, User, Mail, Phone, 
   Linkedin, Briefcase, Target, Calendar, Globe, ClipboardCheck, Award, Download, Hash, Users as UsersIcon, Sparkles, Zap, MessageSquare,
-  Brain, Smartphone, Palette
+  Brain, Smartphone, Palette, Clock, HelpCircle, Code
 } from 'lucide-react';
 import * as FirebaseAuth from 'firebase/auth';
 const { onAuthStateChanged } = FirebaseAuth as any;
@@ -220,12 +221,14 @@ const MeetingRequests: React.FC = () => {
   };
 
   const getStatusBadge = (status?: string) => {
+    const label = status ? (STATUS_LABELS[status] || status) : STATUS_LABELS.pending;
+    
     switch (status) {
-      case 'completed': return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">مكتمل</span>;
-      case 'approved': return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">مقبول</span>;
-      case 'canceled': return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">ملغي</span>;
-      case 'reviewing': return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">قيد المراجعة</span>;
-      default: return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">قيد الانتظار</span>;
+      case 'completed': return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">{label}</span>;
+      case 'approved': return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">{label}</span>;
+      case 'canceled': return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">{label}</span>;
+      case 'reviewing': return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">{label}</span>;
+      default: return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">{label}</span>;
     }
   };
 
@@ -236,6 +239,23 @@ const MeetingRequests: React.FC = () => {
       case 'mid-senior': return 'متوسط وخبير (mid/senior)';
       case 'lead-staff': return 'قيادي (lead/staff)';
       default: return level;
+    }
+  };
+
+  const getUpcomingInterviewLabel = (val?: string) => {
+    switch (val) {
+      case 'yes_soon': return 'نعم، خلال هذا الأسبوع';
+      case 'yes_later': return 'نعم، في موعد لاحق';
+      default: return 'لا يوجد حالياً';
+    }
+  };
+
+  const getPreferredTimeLabel = (val?: string) => {
+    switch (val) {
+      case 'morning': return 'صباحاً (9ص - 12م)';
+      case 'evening': return 'مساءً (4م - 9م)';
+      case 'flexible': return 'مرن في أي وقت';
+      default: return 'غير محدد';
     }
   };
 
@@ -263,7 +283,7 @@ const MeetingRequests: React.FC = () => {
 
       if (!isQualifiedForField) return false;
       
-      // المحاور يرى كل الحالات في تخصصه ما عدا الملغاة
+      // المحاور يرى كل الطلبات في تخصصه ما عدا الملغاة
       if (reg.status === 'canceled') return false;
     }
 
@@ -311,11 +331,11 @@ const MeetingRequests: React.FC = () => {
                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"><Filter className="h-5 w-5 text-gray-400" /></div>
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg focus:ring-accent focus:border-accent bg-white shadow-sm appearance-none text-right">
                 <option value="ALL">كل الحالات المتاحة</option>
-                <option value="pending">قيد الانتظار</option>
-                <option value="reviewing">قيد المراجعة</option>
-                <option value="approved">مقبول</option>
-                <option value="completed">مكتمل</option>
-                <option value="canceled">ملغي</option>
+                <option value="pending">{STATUS_LABELS.pending}</option>
+                <option value="reviewing">{STATUS_LABELS.reviewing}</option>
+                <option value="approved">{STATUS_LABELS.approved}</option>
+                <option value="completed">{STATUS_LABELS.completed}</option>
+                <option value="canceled">{STATUS_LABELS.canceled}</option>
               </select>
             </div>
           </div>
@@ -411,7 +431,7 @@ const MeetingRequests: React.FC = () => {
                             </div>
                           </td>
                         </tr>
-                    )) : <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-500">لا توجد طلبات تطابق المعايير.</td></tr>}
+                    )) : <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-400">لا توجد طلبات تطابق المعايير.</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -484,7 +504,7 @@ const MeetingRequests: React.FC = () => {
                 {getAllowedStatuses().map((val) => (
                   <label key={val} className={`flex items-center gap-3 p-4 border rounded-2xl cursor-pointer transition-all ${statusToUpdate === val ? 'border-accent bg-accent/5 ring-1 ring-accent' : 'border-gray-100 hover:bg-gray-50'}`}>
                     <input type="radio" name="status" value={val} checked={statusToUpdate === val} onChange={(e) => setStatusToUpdate(e.target.value)} className="text-accent focus:ring-accent w-5 h-5" />
-                    <span className="font-bold text-sm text-gray-700 capitalize text-right w-full">{val === 'pending' ? 'قيد الانتظار' : val === 'reviewing' ? 'قيد المراجعة' : val === 'approved' ? 'مقبول' : val === 'completed' ? 'مكتمل' : 'ملغي'}</span>
+                    <span className="font-bold text-sm text-gray-700 capitalize text-right w-full">{STATUS_LABELS[val] || val}</span>
                   </label>
                 ))}
               </div>
@@ -590,6 +610,30 @@ const MeetingRequests: React.FC = () => {
                    <div className="p-4 bg-teal-50 border border-teal-100 rounded-xl text-right"><div className="text-[10px] text-teal-500 font-bold uppercase mb-1">المستوى</div><div className="font-bold text-teal-900">{getLevelLabel(viewingRegistration.level)}</div></div>
                    <div className="p-4 bg-purple-50 border border-purple-100 rounded-xl text-right"><div className="text-[10px] text-purple-500 font-bold uppercase mb-1">سنوات الخبرة</div><div className="font-bold text-purple-900">{viewingRegistration.experience} سنة</div></div>
                    <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl text-right"><div className="text-[10px] text-orange-500 font-bold uppercase mb-1">الباقة</div><div className="font-bold text-orange-900">{viewingRegistration.planName || 'باقة عادية'}</div></div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100 text-right">
+                 <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">
+                      <Clock className="w-3.5 h-3.5" /> الوقت المفضل
+                    </div>
+                    <div className="text-sm font-black text-slate-700">{getPreferredTimeLabel(viewingRegistration.preferredTime)}</div>
+                 </div>
+                 <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">
+                      <HelpCircle className="w-3.5 h-3.5" /> مقابلة قادمة؟
+                    </div>
+                    <div className="text-sm font-black text-slate-700">{getUpcomingInterviewLabel(viewingRegistration.upcomingInterview)}</div>
+                 </div>
+              </div>
+
+              <div className="space-y-4 text-right">
+                <h4 className="font-black text-gray-900 flex items-center gap-2 text-lg border-r-4 border-emerald-500 pr-4 text-right justify-start">
+                  <Code className="w-5 h-5 text-emerald-500" /> التقنيات والمهارات (Stack)
+                </h4>
+                <div className="p-6 bg-emerald-50/20 border-2 border-emerald-100 rounded-2xl text-sm text-emerald-900 font-mono leading-relaxed shadow-inner text-right">
+                   {viewingRegistration.techStack || 'لم يتم إدخال بيانات'}
                 </div>
               </div>
 

@@ -49,6 +49,14 @@ export interface EvaluationSection {
   summary: string;
 }
 
+export const STATUS_LABELS: Record<string, string> = {
+  pending: 'طلب جديد',
+  reviewing: 'قيد المراجعة',
+  approved: 'في انتظار المقابلة',
+  completed: 'مكتمل',
+  canceled: 'ملغي'
+};
+
 export interface RegistrationFormData {
   fullName: string;
   email: string;

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
@@ -10,9 +9,10 @@ import {
   MessageSquareQuote, CheckCircle2, Video, FileCheck, ExternalLink, 
   Link as LinkIcon, ClipboardCheck, Award, Eye, Download, Sparkles, ArrowLeft, Hash,
   MessageSquare, CalendarCheck, Zap, Linkedin, Globe, Info, User, HelpCircle,
-  ChevronLeft
+  ChevronLeft, Mail, Phone
 } from 'lucide-react';
 import Button from './Button';
+import { STATUS_LABELS } from '../types';
 
 const { useNavigate } = ReactRouterDOM as any;
 
@@ -171,17 +171,11 @@ const UserRequests: React.FC = () => {
       pending: "bg-yellow-100 text-yellow-800 border-yellow-200"
     };
 
-    const labels: Record<string, string> = {
-      completed: "مكتمل",
-      approved: "تم القبول",
-      canceled: "ملغي",
-      reviewing: "قيد المراجعة",
-      pending: "قيد الانتظار"
-    };
+    const label = STATUS_LABELS[status] || STATUS_LABELS.pending;
 
     return (
       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${styles[status] || styles.pending}`}>
-        {labels[status] || "قيد الانتظار"}
+        {label}
       </span>
     );
   };
@@ -341,7 +335,7 @@ const UserRequests: React.FC = () => {
                                 <CalendarCheck className="w-5 h-5" />
                              </div>
                              <div className="text-right">
-                                <div className="text-xs font-black text-primary mb-1">2- مقبول</div>
+                                <div className="text-xs font-black text-primary mb-1">2- {STATUS_LABELS.approved}</div>
                                 <p className="text-[11px] text-gray-500 leading-relaxed font-medium">
                                    مرحلة بيتم فيها تحديد الموعد المناسب مع الخبير التقني ومقدم الطلب.
                                 </p>
@@ -419,7 +413,19 @@ const UserRequests: React.FC = () => {
                           <div className="grid md:grid-cols-2 gap-6 text-right">
                             <div className="space-y-4 text-right">
                               <h5 className="text-xs font-black text-gray-400 uppercase tracking-widest text-right">المعلومات الشخصية والمهنية</h5>
-                              <div className="space-y-2 text-right">
+                              <div className="space-y-3 text-right">
+                                <div className="flex items-center gap-2 text-gray-700 justify-start text-right">
+                                  <User className="w-4 h-4 text-gray-400" />
+                                  <span className="font-bold">الاسم المسجل:</span> {req.fullName}
+                                </div>
+                                <div className="flex items-center gap-2 text-gray-700 justify-start text-right">
+                                  <Mail className="w-4 h-4 text-gray-400" />
+                                  <span className="font-bold">البريد:</span> <span className="dir-ltr">{req.email}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-gray-700 justify-start text-right">
+                                  <Phone className="w-4 h-4 text-emerald-500" />
+                                  <span className="font-bold">واتساب:</span> <span className="dir-ltr">{req.whatsapp}</span>
+                                </div>
                                 <div className="flex items-center gap-2 text-gray-700 justify-start text-right">
                                   <Globe className="w-4 h-4 text-gray-400" />
                                   <span className="font-bold">الدولة:</span> {req.country}
@@ -565,6 +571,7 @@ const UserRequests: React.FC = () => {
                                             <textarea value={feedback.improvements} onChange={(e) => setFeedback({...feedback, improvements: e.target.value})} className="w-full p-3 border border-gray-200 rounded-xl focus:ring-accent focus:border-accent min-h-[80px] text-right" placeholder="ما الذي تود رؤيته مستقبلاً؟" />
                                         </div>
                                         <div className="pt-4">
+                                            {/* Fix: Pass req to handleSubmitReview inside an arrow function to match Button's onClick type and provide required argument */}
                                             <Button onClick={() => handleSubmitReview(req)} disabled={submittingReview} className="w-full justify-center text-lg">{submittingReview ? <Loader2 className="w-6 h-6 animate-spin" /> : 'إرسال التقييم'}</Button>
                                         </div>
                                     </>

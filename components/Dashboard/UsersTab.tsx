@@ -1,9 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, orderBy, writeBatch, doc, where } from 'firebase/firestore';
 import { db, auth } from '../../lib/firebase';
 import { UserProfile, RegistrationFormData } from '../../types';
-import { Search, User, Mail, Loader2, Trash2, Filter, Briefcase, ShieldCheck, Phone, ChevronRight, ChevronLeft, Users as UsersIcon, Award, UserCheck } from 'lucide-react';
+import { FIELD_OPTIONS } from '../../teamData';
+import { Search, User, Mail, Loader2, Trash2, Filter, Briefcase, ShieldCheck, Phone, ChevronRight, ChevronLeft, Users as UsersIcon, Award, UserCheck, CheckCircle2, XCircle } from 'lucide-react';
 import Button from '../Button';
 
 const UsersTab: React.FC = () => {
@@ -92,7 +92,10 @@ const UsersTab: React.FC = () => {
                      user.phone?.includes(searchTerm);
     
     const roleMatch = roleFilter === 'ALL' || user.role === roleFilter;
-    const fieldMatch = fieldFilter === 'ALL' || user.field === fieldFilter;
+    
+    // تحسين منطق مطابقة التخصص ليكون غير حساس لحالة الأحرف (Case-insensitive)
+    const fieldMatch = fieldFilter === 'ALL' || 
+                      (user.field && user.field.toLowerCase() === fieldFilter.toLowerCase());
 
     return termMatch && roleMatch && fieldMatch;
   });
@@ -150,10 +153,9 @@ const UsersTab: React.FC = () => {
               className="w-full pr-10 pl-4 py-2 border border-gray-200 rounded-lg text-sm outline-none bg-white appearance-none"
             >
               <option value="ALL">كل التخصصات</option>
-              <option value="UX">UX</option>
-              <option value="FE">FE</option>
-              <option value="BE">BE</option>
-              <option value="mobile">mobile</option>
+              {FIELD_OPTIONS.map(opt => (
+                <option key={opt.id} value={opt.id}>{opt.label}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -165,6 +167,7 @@ const UsersTab: React.FC = () => {
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">المستخدم</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-600">تفعيل البريد</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">الإحالات</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">المقابلات المنجزة</th>
                 <th className="px-6 py-4 text-sm font-semibold text-gray-600">الصلاحية</th>
@@ -186,6 +189,17 @@ const UsersTab: React.FC = () => {
                           <span className="text-[10px] text-gray-400 dir-ltr text-right">{user.email}</span>
                         </div>
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {user.isEmailVerified ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full border border-emerald-100">
+                          <CheckCircle2 className="w-3 h-3" /> مفعل
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-black bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full border border-rose-100">
+                          <XCircle className="w-3 h-3" /> غير مفعل
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black ${
@@ -233,7 +247,7 @@ const UsersTab: React.FC = () => {
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan={6} className="px-6 py-12 text-center text-gray-400">لا توجد نتائج.</td></tr>
+                <tr><td colSpan={7} className="px-6 py-12 text-center text-gray-400">لا توجد نتائج.</td></tr>
               )}
             </tbody>
           </table>

@@ -3,6 +3,7 @@
  * Notification Service
  * Handles sending emails via EmailJS API when events occur.
  */
+import { STATUS_LABELS } from '../types';
 
 interface NotificationPayload {
   to_email: string;
@@ -63,13 +64,7 @@ export const sendAdminNotification = async (data: NotificationPayload) => {
 export const sendUserStatusUpdateNotification = async (data: StatusUpdatePayload) => {
   const TEMPLATE_ID = "template_ugepp1a"; 
 
-  const statusMap: Record<string, string> = {
-    'pending': 'قيد الانتظار',
-    'reviewing': 'قيد المراجعة',
-    'approved': 'مقبول (تم تأكيد الحجز)',
-    'completed': 'مكتمل (تقريرك جاهز الآن)',
-    'canceled': 'ملغي'
-  };
+  const label = STATUS_LABELS[data.new_status] || data.new_status;
 
   try {
     const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
@@ -83,8 +78,8 @@ export const sendUserStatusUpdateNotification = async (data: StatusUpdatePayload
           recipient_email: data.to_email, // يرسل لإيميل صاحب الطلب
           user_name: data.user_name,
           request_number: data.request_number,
-          status_label: statusMap[data.new_status] || data.new_status,
-          message: `عزيزي ${data.user_name}، نود إعلامك بأن حالة طلب المقابلة الخاص بك رقم (${data.request_number}) قد تغيرت إلى: ${statusMap[data.new_status] || data.new_status}`
+          status_label: label,
+          message: `عزيزي ${data.user_name}، نود إعلامك بأن حالة طلب المقابلة الخاص بك رقم (${data.request_number}) قد تغيرت إلى: ${label}`
         }
       })
     });

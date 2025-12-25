@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 import { Mail, Phone, MapPin, Linkedin, Twitter, Instagram, Facebook } from 'lucide-react';
@@ -145,16 +144,16 @@ const Footer: React.FC = () => {
                 <Phone className="w-5 h-5 text-accent" />
                 <span className="dir-ltr">01208103962</span>
               </li>
-              <li className="flex items-center gap-3">
-                <MapPin className="w-5 h-5 text-accent" />
-                <span>الوطن العربي</span>
-              </li>
             </ul>
           </div>
         </div>
 
-        <div className="text-center text-gray-500 text-sm">
-          &copy; {new Date().getFullYear()} منصة مقابلة. جميع الحقوق محفوظة. ( المنصة تحت التجهيز والإعداد )
+        <div className="text-center text-gray-500 text-sm space-y-1">
+          <p className="flex items-center justify-center gap-1">
+            <span className="dir-ltr">&copy; {new Date().getFullYear()}</span>
+            <span>جميع الحقوق محفوظة</span>
+          </p>
+          <p>( المنصة تحت التجهيز والتجربة )</p>
         </div>
       </div>
     </footer>
