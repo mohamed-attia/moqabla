@@ -187,6 +187,7 @@ const UsersTab: React.FC = () => {
                         <div className="flex flex-col">
                           <span className="font-medium text-gray-900">{user.name}</span>
                           <span className="text-[10px] text-gray-400 dir-ltr text-right">{user.email}</span>
+                          {user.phone && <span className="text-[10px] text-emerald-600 dir-ltr text-right">{user.phone}</span>}
                         </div>
                       </div>
                     </td>

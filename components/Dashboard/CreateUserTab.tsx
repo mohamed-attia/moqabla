@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 // Fix: Use namespace import for FirebaseApp to bypass named export resolution issues
 import * as FirebaseApp from 'firebase/app';
@@ -9,7 +8,7 @@ const { getAuth, createUserWithEmailAndPassword, signOut } = FirebaseAuth as any
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { FIELD_OPTIONS } from '../../teamData';
-import { Mail, Lock, Shield, Briefcase, Award, Loader2, CheckCircle, AlertCircle, UserPlus, User } from 'lucide-react';
+import { Mail, Lock, Shield, Briefcase, Award, Loader2, CheckCircle, AlertCircle, UserPlus, User, Phone, Eye, EyeOff } from 'lucide-react';
 import Button from '../Button';
 
 const firebaseConfig = {
@@ -24,7 +23,9 @@ const firebaseConfig = {
 const CreateUserTab: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<'admin' | 'interviewer' | 'maintainer'>('interviewer');
   const [field, setField] = useState<string>('');
   const [level, setLevel] = useState<string>('');
@@ -53,6 +54,7 @@ const CreateUserTab: React.FC = () => {
         uid: user.uid,
         name: name.trim(),
         email: email,
+        phone: phone.trim() || null,
         role: role,
         field: field || null,
         level: level || null,
@@ -68,6 +70,7 @@ const CreateUserTab: React.FC = () => {
       setSuccess(true);
       setName('');
       setEmail('');
+      setPhone('');
       setPassword('');
       setField('');
       setLevel('');
@@ -93,18 +96,34 @@ const CreateUserTab: React.FC = () => {
         </div>
 
         <form onSubmit={handleCreateUser} className="p-8 space-y-6 text-right">
-          <div className="text-right">
-            <label className="block text-sm font-bold text-gray-700 mb-2 text-right">اسم المستخدم / الكادر <span className="text-red-500">*</span></label>
-            <div className="relative">
-              <User className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
-              <input 
-                type="text" 
-                required 
-                value={name} 
-                onChange={(e) => setName(e.target.value)}
-                className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none text-right"
-                placeholder="مثال: أحمد محمد (Frontend Interviewer)"
-              />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-right">
+            <div className="text-right">
+              <label className="block text-sm font-bold text-gray-700 mb-2 text-right">اسم المستخدم / الكادر <span className="text-red-500">*</span></label>
+              <div className="relative">
+                <User className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+                <input 
+                  type="text" 
+                  required 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none text-right"
+                  placeholder="مثال: أحمد محمد"
+                />
+              </div>
+            </div>
+
+            <div className="text-right">
+              <label className="block text-sm font-bold text-gray-700 mb-2 text-right">رقم الهاتف (اختياري)</label>
+              <div className="relative">
+                <Phone className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+                <input 
+                  type="tel" 
+                  value={phone} 
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none text-right dir-ltr"
+                  placeholder="+201234567890"
+                />
+              </div>
             </div>
           </div>
 
@@ -129,14 +148,21 @@ const CreateUserTab: React.FC = () => {
               <div className="relative">
                 <Lock className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
                 <input 
-                  type="password" 
+                  type={showPassword ? "text" : "password"}
                   required 
                   minLength={6}
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pr-10 pl-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none text-right dir-ltr"
+                  className="w-full pr-10 pl-12 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent outline-none text-right dir-ltr"
                   placeholder="••••••••"
                 />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute left-3 top-3 text-gray-400 hover:text-accent transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
           </div>
